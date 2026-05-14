@@ -1,4 +1,4 @@
-# Indice comuni scuole superiori
+# Indice Territoriale Scuole Superiori
 
 Analisi riproducibile dei comuni italiani con dati di scuola secondaria di II grado, incrociando:
 
@@ -8,6 +8,8 @@ Analisi riproducibile dei comuni italiani con dati di scuola secondaria di II gr
 - esiti lavoro Eduscopio, pesati per la quota di diplomati coperti.
 
 Snapshot corrente: 14 maggio 2026.
+
+L'indice misura il territorio comunale come ecosistema di scuole superiori. Non e una classifica delle singole scuole.
 
 ## Risultato principale
 
@@ -73,17 +75,36 @@ Le cache locali vengono create in `output/cache_*` e sono escluse da Git.
 - `docs/METHODOLOGY.md`: fonti, formula e caveat.
 - `docs/DATA_DICTIONARY.md`: colonne principali.
 - `docs/REPRODUCIBILITY.md`: comandi e controlli.
+- `docs/GITHUB_REPO_SETUP.md`: impostazioni consigliate per pubblicare il repo.
+- `docs/WEB_APP_PLAN.md`: piano per mappa, classifica e pagina GitHub Pages.
+- `docs/PORTFOLIO_INTEGRATION.md`: card e integrazione con `simoneghezzicolombo.github.io`.
 - `DATA_NOTICE.md`: nota su licenze e fonti dei dati.
 
 ## GitHub
 
-Il repo e pensato per essere pubblicato cosi com'e. Prima di fare push, scegli nome e visibilita:
+Nome repo consigliato:
 
 ```powershell
-git init
-git add .
-git commit -m "Add reproducible school-index analysis"
-gh repo create <owner>/<repo> --private --source . --remote origin --push
+indice-territoriale-scuole-superiori
 ```
 
-Sostituisci `--private` con `--public` solo se vuoi pubblicare anche gli snapshot CSV.
+URL GitHub Pages consigliato:
+
+```text
+https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/
+```
+
+Description:
+
+```text
+Indice comunale degli esiti delle scuole superiori in Italia, pesato per indirizzo e diplomati.
+```
+
+Per pubblicare dopo aver creato un repo vuoto su GitHub:
+
+```powershell
+git remote add origin https://github.com/<owner>/indice-territoriale-scuole-superiori.git
+git push -u origin main
+```
+
+Vedi `docs/GITHUB_REPO_SETUP.md` per topics, GitHub Pages, licenza e checklist.

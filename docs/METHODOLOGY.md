@@ -2,7 +2,7 @@
 
 ## Scope
 
-L'unita di analisi e il comune. Il progetto confronta comuni italiani con dati completi sulle scuole superiori, non singole scuole. Quando Eduscopio lavora a livello scuola/indirizzo, i risultati vengono aggregati a comune usando i diplomati come peso.
+L'Indice Territoriale Scuole Superiori ha come unita di analisi il comune. Il progetto confronta comuni italiani con dati completi sulle scuole superiori, non singole scuole. Quando Eduscopio lavora a livello scuola/indirizzo, i risultati vengono aggregati a comune usando i diplomati come peso.
 
 ## Fonti
 

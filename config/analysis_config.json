@@ -1,4 +1,6 @@
 {
+  "project_name": "Indice Territoriale Scuole Superiori",
+  "recommended_repository_name": "indice-territoriale-scuole-superiori",
   "analysis_date": "2026-05-14",
   "python_version_used": "3.13.9",
   "eduscopio_range_km": 30,
