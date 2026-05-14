@@ -77,15 +77,20 @@ git push -u origin main
 
 ## GitHub Pages
 
-Quando aggiungeremo la pagina web:
+La web app e in `site/` e il workflow `.github/workflows/deploy-pages.yml` pubblica quella cartella.
 
 1. Settings -> Pages.
-2. Source: GitHub Actions.
-3. Aggiungere workflow dedicato, per esempio `.github/workflows/pages.yml`.
-4. Servire un sito statico da `web/` oppure da `docs/`.
-5. Aggiungere link di ritorno al portfolio: `https://simoneghezzicolombo.github.io/#projects`.
+2. Build and deployment -> Source: GitHub Actions.
+3. Rilanciare il workflow `Deploy GitHub Pages`.
+4. Verificare `https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/`.
 
-Consiglio: tenere la pipeline dati in Python e il sito statico separato in `web/`.
+Fallback senza Actions:
+
+1. Settings -> Pages.
+2. Build and deployment -> Source: Deploy from a branch.
+3. Branch: `gh-pages`, folder: `/root`.
+
+Il branch `gh-pages` viene aggiornato dal contenuto di `site/`.
 
 ## Branch E Release
 

@@ -88,6 +88,19 @@ Le cache locali vengono create in `output/cache_*` e sono escluse da Git.
 ## Sito
 
 La web app statica vive in `site/` e viene pubblicata con GitHub Pages via GitHub Actions.
+Il branch `gh-pages` contiene anche una copia statica pronta per il deploy classico.
+
+Setup una tantum su GitHub:
+
+```text
+Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+```
+
+In alternativa:
+
+```text
+Settings -> Pages -> Deploy from a branch -> gh-pages / root
+```
 
 URL pubblico:
 
