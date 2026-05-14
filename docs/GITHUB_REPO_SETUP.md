@@ -77,20 +77,15 @@ git push -u origin main
 
 ## GitHub Pages
 
-La web app e in `site/` e il workflow `.github/workflows/deploy-pages.yml` pubblica quella cartella.
-
-1. Settings -> Pages.
-2. Build and deployment -> Source: GitHub Actions.
-3. Rilanciare il workflow `Deploy GitHub Pages`.
-4. Verificare `https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/`.
-
-Fallback senza Actions:
+La web app e in `site/` e il workflow `.github/workflows/publish-gh-pages.yml` pubblica quella
+cartella sul branch `gh-pages`.
 
 1. Settings -> Pages.
 2. Build and deployment -> Source: Deploy from a branch.
 3. Branch: `gh-pages`, folder: `/root`.
+4. Verificare `https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/`.
 
-Il branch `gh-pages` viene aggiornato dal contenuto di `site/`.
+Il branch `gh-pages` viene aggiornato dal contenuto di `site/` a ogni push su `main`.
 
 ## Branch E Release
 
