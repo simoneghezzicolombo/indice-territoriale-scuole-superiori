@@ -1,0 +1,30 @@
+﻿comune,cod_scuola,nome_scuola,id_diploma,indirizzo_eduscopio,peso_diplomati,immatricolazione_scuola_pct,immatricolazione_regione_pct,abbandono_scuola_pct,abbandono_regione_pct,non_abbandono_scuola_pct,non_abbandono_regione_pct,uni_score,macro_indice,eduscopio_score_assoluto,eduscopio_rel_punti_indirizzo,eduscopio_rel_z_indirizzo,immatricolazione_delta_reg_punti,abbandono_delta_reg_punti,continuita_uni_delta_reg_punti,lav_score
+ADRO,BSPC045009,MADONNA DELLA NEVE,1,Classico,16.0,87.76,90.61,8.16,14.14,79.6,76.47,66.97,licei_universita,66.97,-3.7805,-0.5322,-2.85,5.98,3.13,
+ADRO,BSPS06500N,MADONNA DELLA NEVE,2,Scientifico,22.0,89.39,92.01,21.21,13.6,68.18,78.41,74.47,licei_universita,74.47,1.3234,0.1508,-2.62,-7.61,-10.23,
+ADRO,BSPLLZ5006,MADONNA DELLA NEVE,7,Linguistico,21.0,81.25,79.19,14.06,11.5,67.19,67.69,52.29,licei_universita,52.29,-10.2111,-1.3311,2.06,-2.56,-0.5,
+BUSNAGO,MIPS28500P,COLLEGIO SANT'ANTONIO,2,Scientifico,0.0,,,,,,,,,,,,,,,
+BUSNAGO,MIPSIE500B,COLLEGIO SANT'ANTONIO,3,Scientifico - Scienze applicate,18.0,87.27,87.92,10.91,13.94,76.36,73.98,63.04,licei_universita,63.04,-3.6147,-0.3525,-0.65,3.03,2.38,
+DESIO,MBPS10000P,ETTORE MAJORANA,1,Classico,62.0,94.09,90.61,11.29,14.14,82.8,76.47,78.96,licei_universita,78.96,8.2095,1.1557,3.48,2.85,6.33,
+DESIO,MBPS10000P,ETTORE MAJORANA,2,Scientifico,127.0,95.29,92.01,11.52,13.6,83.77,78.41,80.74,licei_universita,80.74,7.5934,0.8654,3.28,2.08,5.36,
+DESIO,MBPS10000P,ETTORE MAJORANA,3,Scientifico - Scienze applicate,61.0,93.48,87.92,9.78,13.94,83.7,73.98,77.07,licei_universita,77.07,10.4153,1.0158,5.56,4.16,9.72,
+DESIO,MBTF050001,ENRICO FERMI,3,Scientifico - Scienze applicate,41.0,88.0,87.92,12.8,13.94,75.2,73.98,62.45,licei_universita,62.45,-4.2047,-0.4101,0.08,1.14,1.22,
+DESIO,MBTF050001,ENRICO FERMI,10,Tecnico - Tecnologico,96.0,33.1,46.85,10.69,11.45,22.41,35.4,45.84,tecnici_misto,56.7015,6.9576,0.3118,-13.75,0.76,-12.99,67.563
+FOSSANO,CNPS010003,GIOVENALE ANCINA,2,Scientifico,24.0,97.26,92.2,13.7,11.04,83.56,81.16,93.18,licei_universita,93.18,20.0334,2.283,5.06,-2.66,2.4,
+FOSSANO,CNTF017022,GIANCARLO VALLAURI,3,Scientifico - Scienze applicate,56.0,91.18,88.59,8.24,12.65,82.94,75.94,88.86,licei_universita,88.86,22.2053,2.1656,2.59,4.41,7.0,
+FOSSANO,CNPS010003,GIOVENALE ANCINA,5,Scienze Umane,50.0,88.08,78.04,7.28,13.12,80.8,64.92,73.88,licei_universita,73.88,17.0884,2.2235,10.04,5.84,15.88,
+FOSSANO,CNPS010003,GIOVENALE ANCINA,7,Linguistico,34.0,87.5,79.09,6.73,11.23,80.77,67.86,84.61,licei_universita,84.61,22.1089,2.8821,8.41,4.5,12.91,
+FOSSANO,CNTD01701P,GIANCARLO VALLAURI,9,Tecnico - Economico,47.0,47.52,54.06,7.09,11.38,40.43,42.68,65.47,tecnici_misto,67.0515,21.0587,1.9613,-6.54,4.29,-2.25,68.633
+FOSSANO,CNTF017022,GIANCARLO VALLAURI,10,Tecnico - Tecnologico,215.0,42.79,46.76,6.51,11.46,36.28,35.3,70.29,tecnici_misto,73.897,24.1531,2.0342,-3.97,4.95,0.98,77.504
+FOSSANO,CNRA012019,UMBERTO I,11,Professionale - Servizi,52.0,,,,,,,,professionali_lavoro,51.817,6.4066,0.5518,,,,51.817
+MERATE,LCPS020004,MARIA GAETANA AGNESI,2,Scientifico,89.0,94.03,92.01,8.21,13.6,85.82,78.41,88.5,licei_universita,88.5,15.3534,1.7497,2.02,5.39,7.41,
+MERATE,LCPS020004,MARIA GAETANA AGNESI,3,Scientifico - Scienze applicate,46.0,95.65,87.92,10.87,13.94,84.78,73.98,81.82,licei_universita,81.82,15.1653,1.479,7.73,3.07,10.8,
+MERATE,LCPS020004,MARIA GAETANA AGNESI,7,Linguistico,66.0,81.0,79.19,9.0,11.5,72.0,67.69,73.86,licei_universita,73.86,11.3589,1.4807,1.81,2.5,4.31,
+MERATE,LCTD00101G,FRANCESCO VIGANO',9,Tecnico - Economico,108.0,56.48,53.16,7.1,9.42,49.38,43.74,63.05,tecnici_misto,56.137,10.1442,1.033,3.32,2.32,5.64,49.224
+MERATE,LCTF00101T,FRANCESCO VIGANO',10,Tecnico - Tecnologico,87.0,36.5,46.85,5.32,11.45,31.18,35.4,58.94,tecnici_misto,52.9325,3.1885,0.3052,-10.35,6.13,-4.22,46.925
+NICOTERA,VVPC04000D,BRUNO - VINCI,1,Classico,38.0,89.57,90.67,18.26,18.13,71.31,72.54,55.83,licei_universita,55.83,-14.9205,-2.1005,-1.1,-0.13,-1.23,
+NICOTERA,VVTF04000P,BRUNO - VINCI,10,Tecnico - Tecnologico,36.0,,,,,,,,tecnici_misto,25.496,-18.8776,-1.3515,,,,25.496
+POSSAGNO,TVPC035005,ISTITUTO CAVANIS,1,Classico,0.0,,,,,,,,,,,,,,,
+POSSAGNO,TVPS05500D,ISTITUTO CAVANIS,2,Scientifico,0.0,,,,,,,,,,,,,,,
+POSSAGNO,TVPS05500D,ISTITUTO CAVANIS,3,Scientifico - Scienze applicate,0.0,,,,,,,,,,,,,,,
+POSSAGNO,TVPM4Q500B,ISTITUTO CAVANIS,6,Scienze Umane - Economico sociale,0.0,,,,,,,,,,,,,,,
+POSSAGNO,TVPL07500D,ISTITUTO CAVANIS,7,Linguistico,0.0,,,,,,,,,,,,,,,

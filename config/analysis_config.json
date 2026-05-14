@@ -1,0 +1,26 @@
+{
+  "analysis_date": "2026-05-14",
+  "python_version_used": "3.13.9",
+  "eduscopio_range_km": 30,
+  "final_index": {
+    "name": "indice_7i_lavoro_pesato_copertura_base100",
+    "formula": "100 + 0.35*docente_delta_italia_punti + 0.35*eduscopio_rel_punti_uni_only + 0.10*esiti_lavoro_delta_pesato_copertura_punti + 0.10*immatricolazione_delta_naz_punti + 0.10*continuita_uni_delta_naz_punti",
+    "weights": {
+      "docente_delta_italia_punti": 0.35,
+      "eduscopio_rel_punti_uni_only": 0.35,
+      "esiti_lavoro_delta_pesato_copertura_punti": 0.10,
+      "immatricolazione_delta_naz_punti": 0.10,
+      "continuita_uni_delta_naz_punti": 0.10
+    }
+  },
+  "sources": {
+    "docente": "https://www.docente.it/migliori-scuole/",
+    "eduscopio": "https://eduscopio.it/",
+    "eduscopio_methodology": "https://eduscopio.it/dati-e-metodologia"
+  },
+  "expected_snapshot": {
+    "rows_total": 490,
+    "rows_with_final_index": 474,
+    "top_5_final_index": ["FOSSANO", "MERATE", "THIENE", "SONDRIO", "DESIO"]
+  }
+}

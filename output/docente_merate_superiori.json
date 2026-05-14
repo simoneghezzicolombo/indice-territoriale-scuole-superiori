@@ -1,0 +1,275 @@
+{
+  "source": {
+    "search_url": "https://www.docente.it/cerca?comune=MERATE",
+    "aggregate_url": "https://www.docente.it/migliori-scuole/merate"
+  },
+  "aggregate_summary": {
+    "comune": "MERATE",
+    "provincia": "LECCO",
+    "regione": "Lombardia",
+    "scuole_totali_docente": "18",
+    "anno_dati_invalsi": "2024-25"
+  },
+  "all_schools": [
+    {
+      "codice": "LCMM81801G",
+      "nome_da_ricerca": "A.MANZONI - MERATE",
+      "grado_da_ricerca": "Scuola Secondaria di Primo Grado",
+      "url": "https://www.docente.it/scuola/a-manzoni-merate-lcmm81801g"
+    },
+    {
+      "codice": "LC1A053008",
+      "nome_da_ricerca": "ENTE EDUCATIVO PER L'INFANZIA DI PAGNANO ETS",
+      "grado_da_ricerca": "Scuola dell'Infanzia",
+      "url": "https://www.docente.it/scuola/ente-educativo-per-linfanzia-di-pagnano-ets-merate-lc1a053008"
+    },
+    {
+      "codice": "LCTD00101G",
+      "nome_da_ricerca": "FRANCESCO VIGANO'",
+      "grado_da_ricerca": "Scuola Secondaria di Secondo Grado",
+      "url": "https://www.docente.it/scuola/francesco-vigano-merate-lctd00101g"
+    },
+    {
+      "codice": "LCIS001009",
+      "nome_da_ricerca": "FRANCESCO VIGANO MERATE",
+      "grado_da_ricerca": "Scuola Secondaria di Secondo Grado",
+      "url": "https://www.docente.it/scuola/francesco-vigano-merate-lcis001009"
+    },
+    {
+      "codice": "LCIC81800E",
+      "nome_da_ricerca": "ISTITUTO COMPRENSIVO DI MERATE",
+      "grado_da_ricerca": "",
+      "url": "https://www.docente.it/scuola/di-merate-lcic81800e"
+    },
+    {
+      "codice": "LCTF00101T",
+      "nome_da_ricerca": "I.T.I.S. DI MERATE",
+      "grado_da_ricerca": "Scuola Secondaria di Secondo Grado",
+      "url": "https://www.docente.it/scuola/i-s-di-merate-lctf00101t"
+    },
+    {
+      "codice": "LCEE81805R",
+      "nome_da_ricerca": "MERATE OSPEDALE DI ISTITUTO",
+      "grado_da_ricerca": "Scuola Primaria",
+      "url": "https://www.docente.it/scuola/merate-ospedale-di-istituto-lcee81805r"
+    },
+    {
+      "codice": "LCPS020004",
+      "nome_da_ricerca": "M.G. AGNESI",
+      "grado_da_ricerca": "Scuola Secondaria di Secondo Grado",
+      "url": "https://www.docente.it/scuola/m-g-agnesi-merate-lcps020004"
+    },
+    {
+      "codice": "LC1A05600Q",
+      "nome_da_ricerca": "SCUOLA DELL'INFANZIA B. VERGINE MARIA - COLLEGIO VILLORESI S.GIUSEPPE SRL",
+      "grado_da_ricerca": "Scuola dell'Infanzia",
+      "url": "https://www.docente.it/scuola/scuola-dellinfanzia-b-vergine-maria-collegio-villoresi-s-giuseppe-srl-merate-lc1a05600q"
+    },
+    {
+      "codice": "LC1A08400X",
+      "nome_da_ricerca": "SCUOLA DELL'INFANZIA DON ANGELO PEREGO",
+      "grado_da_ricerca": "Scuola dell'Infanzia",
+      "url": "https://www.docente.it/scuola/scuola-dellinfanzia-don-angelo-perego-merate-lc1a08400x"
+    },
+    {
+      "codice": "LC1A05800B",
+      "nome_da_ricerca": "SCUOLA DELL'INFANZIA DON ERNESTO BORGHI",
+      "grado_da_ricerca": "Scuola dell'Infanzia",
+      "url": "https://www.docente.it/scuola/scuola-dellinfanzia-don-ernesto-borghi-merate-lc1a05800b"
+    },
+    {
+      "codice": "LCAA81801B",
+      "nome_da_ricerca": "SCUOLA INFANZIA DI MERATE",
+      "grado_da_ricerca": "Scuola dell'Infanzia",
+      "url": "https://www.docente.it/scuola/scuola-infanzia-di-merate-lcaa81801b"
+    },
+    {
+      "codice": "LCAA81802C",
+      "nome_da_ricerca": "SCUOLA INFANZIA DI SARTIRANA",
+      "grado_da_ricerca": "Scuola dell'Infanzia",
+      "url": "https://www.docente.it/scuola/scuola-infanzia-di-sartirana-merate-lcaa81802c"
+    },
+    {
+      "codice": "LC1E010008",
+      "nome_da_ricerca": "SCUOLA PRIMARIA \"B. VERGINE MARIA\" - COLLEGIO VILLORESI S.GIUSEPPE SRL",
+      "grado_da_ricerca": "Scuola Primaria",
+      "url": "https://www.docente.it/scuola/scuola-primaria-b-vergine-maria-collegio-villoresi-s-giuseppe-srl-merate-lc1e010008"
+    },
+    {
+      "codice": "LCEE81803P",
+      "nome_da_ricerca": "SCUOLA PRIMARIA DI PAGNANO",
+      "grado_da_ricerca": "Scuola Primaria",
+      "url": "https://www.docente.it/scuola/scuola-primaria-di-pagnano-merate-lcee81803p"
+    },
+    {
+      "codice": "LCEE81804Q",
+      "nome_da_ricerca": "SCUOLA PRIMARIA DI SARTIRANA",
+      "grado_da_ricerca": "Scuola Primaria",
+      "url": "https://www.docente.it/scuola/scuola-primaria-di-sartirana-merate-lcee81804q"
+    },
+    {
+      "codice": "LCEE81801L",
+      "nome_da_ricerca": "SCUOLA PRIMARIA DI VIA MONTELLO",
+      "grado_da_ricerca": "Scuola Primaria",
+      "url": "https://www.docente.it/scuola/scuola-primaria-di-via-montello-merate-lcee81801l"
+    },
+    {
+      "codice": "LC1M08000Q",
+      "nome_da_ricerca": "SCUOLA SECONDARIA I GR. \"B. VERGINE MARIA\" - COLLEGIO VILLORESI S.GIUSEPPE SRL",
+      "grado_da_ricerca": "Scuola Secondaria di Primo Grado",
+      "url": "https://www.docente.it/scuola/scuola-secondaria-i-gr-b-vergine-maria-collegio-villoresi-s-giuseppe-srl-merate-lc1m08000q"
+    }
+  ],
+  "superiori": [
+    {
+      "codice": "LCTD00101G",
+      "nome": "FRANCESCO VIGANO'",
+      "grado": "Scuola Secondaria di Secondo Grado",
+      "indirizzo": "VIA DEI LODOVICHI 2, 23807 MERATE ( LECCO )",
+      "url": "https://www.docente.it/scuola/francesco-vigano-merate-lctd00101g",
+      "libri_in_media": "14",
+      "libri_da_acquistare": "8",
+      "anni": "5",
+      "spesa_media_eur": "265,73",
+      "anno_costruzione": "1983",
+      "superficie_mq": "38.489",
+      "piani": "5",
+      "studenti_2023_2024": "568",
+      "variazione_annua_pct": "-8.1",
+      "trend_2015_2024_pct": "-2.4",
+      "supplenti_provincia": "904",
+      "titolari_provincia": "3435",
+      "pct_supplenti_provincia": "20.8",
+      "invalsi_italiano_ii_superiore_pct": "77",
+      "invalsi_matematica_ii_superiore_pct": "87",
+      "invalsi_italiano_v_superiore_pct": "81",
+      "invalsi_matematica_v_superiore_pct": "85",
+      "invalsi_fonte": "Dati 2024-25 - Media delle scuole nel comune di MERATE - Fonte: INVALSI",
+      "invalsi_nota_aggregazione": "media comunale",
+      "nome_da_ricerca": "FRANCESCO VIGANO'",
+      "grado_da_ricerca": "Scuola Secondaria di Secondo Grado"
+    },
+    {
+      "codice": "LCIS001009",
+      "nome": "FRANCESCO VIGANO MERATE",
+      "grado": "Scuola Secondaria di Secondo Grado",
+      "indirizzo": "VIA DEI LODOVICHI 2, 23807 MERATE ( LECCO )",
+      "url": "https://www.docente.it/scuola/francesco-vigano-merate-lcis001009",
+      "libri_in_media": null,
+      "libri_da_acquistare": null,
+      "anni": null,
+      "spesa_media_eur": null,
+      "anno_costruzione": "1983",
+      "superficie_mq": "38.489",
+      "piani": "5",
+      "studenti_2023_2024": null,
+      "variazione_annua_pct": null,
+      "trend_2015_2024_pct": null,
+      "supplenti_provincia": "904",
+      "titolari_provincia": "3435",
+      "pct_supplenti_provincia": "20.8",
+      "invalsi_italiano_ii_superiore_pct": "77",
+      "invalsi_matematica_ii_superiore_pct": "87",
+      "invalsi_italiano_v_superiore_pct": "81",
+      "invalsi_matematica_v_superiore_pct": "85",
+      "invalsi_fonte": "Dati 2024-25 - Media delle scuole nel comune di MERATE - Fonte: INVALSI",
+      "invalsi_nota_aggregazione": "media comunale",
+      "nome_da_ricerca": "FRANCESCO VIGANO MERATE",
+      "grado_da_ricerca": "Scuola Secondaria di Secondo Grado"
+    },
+    {
+      "codice": "LCTF00101T",
+      "nome": "I.T.I.S. DI MERATE",
+      "grado": "Scuola Secondaria di Secondo Grado",
+      "indirizzo": "VIA DEI LODOVICHI 2, 23807 MERATE ( LECCO )",
+      "url": "https://www.docente.it/scuola/i-s-di-merate-lctf00101t",
+      "libri_in_media": "13",
+      "libri_da_acquistare": "8",
+      "anni": "5",
+      "spesa_media_eur": "250,06",
+      "anno_costruzione": "1983",
+      "superficie_mq": "37.025",
+      "piani": "1",
+      "studenti_2023_2024": "569",
+      "variazione_annua_pct": "+3.1",
+      "trend_2015_2024_pct": "+63.5",
+      "supplenti_provincia": "904",
+      "titolari_provincia": "3435",
+      "pct_supplenti_provincia": "20.8",
+      "invalsi_italiano_ii_superiore_pct": "77",
+      "invalsi_matematica_ii_superiore_pct": "87",
+      "invalsi_italiano_v_superiore_pct": "81",
+      "invalsi_matematica_v_superiore_pct": "85",
+      "invalsi_fonte": "Dati 2024-25 - Media delle scuole nel comune di MERATE - Fonte: INVALSI",
+      "invalsi_nota_aggregazione": "media comunale",
+      "nome_da_ricerca": "I.T.I.S. DI MERATE",
+      "grado_da_ricerca": "Scuola Secondaria di Secondo Grado"
+    },
+    {
+      "codice": "LCPS020004",
+      "nome": "M.G. AGNESI",
+      "grado": "Scuola Secondaria di Secondo Grado",
+      "indirizzo": "VIA DEI LODOVICHI 10, 23807 MERATE ( LECCO )",
+      "url": "https://www.docente.it/scuola/m-g-agnesi-merate-lcps020004",
+      "libri_in_media": "16",
+      "libri_da_acquistare": "10",
+      "anni": "5",
+      "spesa_media_eur": "291,83",
+      "anno_costruzione": null,
+      "superficie_mq": "37.025",
+      "piani": "1",
+      "studenti_2023_2024": "1102",
+      "variazione_annua_pct": "+3.9",
+      "trend_2015_2024_pct": "-5.5",
+      "supplenti_provincia": "904",
+      "titolari_provincia": "3435",
+      "pct_supplenti_provincia": "20.8",
+      "invalsi_italiano_ii_superiore_pct": "77",
+      "invalsi_matematica_ii_superiore_pct": "87",
+      "invalsi_italiano_v_superiore_pct": "81",
+      "invalsi_matematica_v_superiore_pct": "85",
+      "invalsi_fonte": "Dati 2024-25 - Media delle scuole nel comune di MERATE - Fonte: INVALSI",
+      "invalsi_nota_aggregazione": "media comunale",
+      "nome_da_ricerca": "M.G. AGNESI",
+      "grado_da_ricerca": "Scuola Secondaria di Secondo Grado"
+    }
+  ],
+  "aggregate_invalsi_superiori": [
+    {
+      "materia": "Italiano",
+      "livello": "II Superiore",
+      "merate_pct": "77",
+      "lecco_pct": "71",
+      "lombardia_pct": "66",
+      "italia_pct": "58",
+      "delta_italia_punti": "19.0"
+    },
+    {
+      "materia": "Matematica",
+      "livello": "II Superiore",
+      "merate_pct": "87",
+      "lecco_pct": "73",
+      "lombardia_pct": "64",
+      "italia_pct": "53",
+      "delta_italia_punti": "33.9"
+    },
+    {
+      "materia": "Italiano",
+      "livello": "V Superiore",
+      "merate_pct": "81",
+      "lecco_pct": "71",
+      "lombardia_pct": "62",
+      "italia_pct": "52",
+      "delta_italia_punti": "29.7"
+    },
+    {
+      "materia": "Matematica",
+      "livello": "V Superiore",
+      "merate_pct": "85",
+      "lecco_pct": "72",
+      "lombardia_pct": "62",
+      "italia_pct": "49",
+      "delta_italia_punti": "35.3"
+    }
+  ]
+}

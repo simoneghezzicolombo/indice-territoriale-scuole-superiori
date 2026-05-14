@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+.venv/
+venv/
+env/
+
+# Local scrape caches. They are large and regenerated on demand.
+output/cache_*/
+output/*.log
+output/*.html
+
+# Exploratory downloads not used by the final pipeline.
+1/
+2/
+
+# Local OS/editor noise.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

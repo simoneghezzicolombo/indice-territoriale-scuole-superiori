@@ -1,0 +1,11 @@
+﻿id_diploma,indirizzo_eduscopio,immatricolazione_nazione_pct,abbandono_nazione_pct,non_abbandono_nazione_pct,benchmark_peso_diplomati,benchmark_righe
+1,Classico,91.0577,13.6934,77.3644,28141.0,580
+2,Scientifico,91.2116,12.9636,78.248,67895.0,1031
+3,Scientifico - Scienze applicate,86.8236,14.3474,72.4762,32961.0,740
+4,Scientifico - Sportivo,75.1928,17.0055,58.1873,5790.0,217
+5,Scienze Umane,77.203,14.3,62.9031,24743.0,517
+6,Scienze Umane - Economico sociale,71.8399,15.3871,56.4528,12430.0,407
+7,Linguistico,77.6655,12.3993,65.2662,41645.0,735
+8,Artistico,41.3956,10.2171,31.1785,13411.0,173
+9,Tecnico - Economico,52.5826,11.2562,41.3264,47514.0,726
+10,Tecnico - Tecnologico,48.6451,12.3281,36.317,58638.0,672

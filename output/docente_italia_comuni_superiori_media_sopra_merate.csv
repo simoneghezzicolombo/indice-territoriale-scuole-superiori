@@ -1,0 +1,7 @@
+﻿slug,comune,provincia,regione,scuole_totali_docente,anno_dati_invalsi,italiano_ii_pct,matematica_ii_pct,italiano_v_pct,matematica_v_pct,media_superiori_pct,metriche_sopra_merate,sopra_merate_tutte4,pari_o_sopra_merate_tutte4,distanza_media_da_merate,margine_minimo_vs_merate,metriche_superiori_presenti,dati_superiori_completi,url,errore
+desio,DESIO,MONZA E DELLA BRIANZA,Lombardia,27,2024-25,88.0,89.0,81.0,93.0,87.75,3,False,True,5.25,0.0,4,True,https://www.docente.it/migliori-scuole/desio,
+busnago,BUSNAGO,MONZA E DELLA BRIANZA,Lombardia,10,2024-25,80.0,95.0,75.0,92.0,85.5,3,False,False,3.0,-6.0,4,True,https://www.docente.it/migliori-scuole/busnago,
+fossano,FOSSANO,CUNEO,Piemonte,27,2024-25,84.0,91.0,77.0,89.0,85.25,3,False,False,2.75,-4.0,4,True,https://www.docente.it/migliori-scuole/fossano,
+nicotera,NICOTERA,VIBO VALENTIA,Calabria,13,2024-25,93.0,93.0,72.0,82.0,85.0,2,False,False,2.5,-9.0,4,True,https://www.docente.it/migliori-scuole/nicotera,
+adro,ADRO,BRESCIA,Lombardia,11,2024-25,87.0,85.0,79.0,84.0,83.75,1,False,False,1.25,-2.0,4,True,https://www.docente.it/migliori-scuole/adro,
+possagno,POSSAGNO,TREVISO,Veneto,8,2024-25,90.0,86.0,91.0,66.0,83.25,2,False,False,0.75,-19.0,4,True,https://www.docente.it/migliori-scuole/possagno,

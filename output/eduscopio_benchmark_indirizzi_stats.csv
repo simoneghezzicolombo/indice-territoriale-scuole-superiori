@@ -1,0 +1,15 @@
+﻿family,id_diploma,indirizzo_eduscopio,benchmark_score_medio,benchmark_score_std,benchmark_peso_diplomati,benchmark_righe
+lav,9,Tecnico - Economico,40.6602,12.3351,52941.0,937
+lav,10,Tecnico - Tecnologico,44.3736,13.9677,76470.0,1093
+lav,11,Professionale - Servizi,45.4104,11.6096,55346.0,828
+lav,12,Professionale - Industria e Artigianato,54.0985,16.1078,14706.0,397
+uni,1,Classico,70.7505,7.1032,28141.0,580
+uni,2,Scientifico,73.1466,8.7749,67895.0,1031
+uni,3,Scientifico - Scienze applicate,66.6547,10.2536,32961.0,740
+uni,4,Scientifico - Sportivo,52.2698,12.8504,5790.0,217
+uni,5,Scienze Umane,56.7916,7.6853,24743.0,517
+uni,6,Scienze Umane - Economico sociale,50.5976,10.3617,12430.0,407
+uni,7,Linguistico,62.5011,7.6712,41645.0,735
+uni,8,Artistico,56.3333,7.8575,13411.0,173
+uni,9,Tecnico - Economico,51.3254,8.5468,47514.0,726
+uni,10,Tecnico - Tecnologico,55.1143,8.9459,58638.0,672

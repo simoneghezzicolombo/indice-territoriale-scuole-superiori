@@ -1,0 +1,8 @@
+﻿comune,provincia,regione,docente_media_superiori_pct,eduscopio_score_pesato,eduscopio_uni_fga_pesato,eduscopio_lavoro_score_pesato,eduscopio_diplomati_regola_pesato,eduscopio_indirizzi,eduscopio_diplomati_peso_totale,indice_integrato,formula,eduscopio_id_comune
+FOSSANO,CUNEO,Piemonte,85.25,74.3,75.05,71.92,62.83,7,478.0,78.68,0.40*docente_media + 0.60*eduscopio_score_pesato,4089
+DESIO,MONZA E DELLA BRIANZA,Lombardia,87.75,71.98,69.28,67.56,65.93,5,387.0,78.29,0.40*docente_media + 0.60*eduscopio_score_pesato,108023
+MERATE,LECCO,Lombardia,82.5,68.64,71.85,48.19,63.32,5,396.0,74.18,0.40*docente_media + 0.60*eduscopio_score_pesato,97048
+ADRO,BRESCIA,Lombardia,83.75,64.54,64.54,,82.16,3,59.0,72.22,0.40*docente_media + 0.60*eduscopio_score_pesato,17002
+BUSNAGO,MONZA E DELLA BRIANZA,Lombardia,85.5,63.04,63.04,,80.0,2,18.0,72.02,0.40*docente_media + 0.60*eduscopio_score_pesato,108051
+NICOTERA,VIBO VALENTIA,Calabria,85.0,41.07,55.83,25.5,57.13,2,74.0,58.64,0.40*docente_media + 0.60*eduscopio_score_pesato,102025
+POSSAGNO,TREVISO,Veneto,83.25,,,,,5,0,,0.40*docente_media + 0.60*eduscopio_score_pesato,26061
