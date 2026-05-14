@@ -48,6 +48,18 @@ pip install -r requirements.txt
 python scripts/validate_outputs.py --strict
 ```
 
+Per rigenerare i dati statici del sito:
+
+```powershell
+python scripts/build_site_data.py --strict
+```
+
+Per provare il sito in locale:
+
+```powershell
+python -m http.server 8000 -d site
+```
+
 Per rigenerare tutto da web:
 
 ```powershell
@@ -69,6 +81,19 @@ Le cache locali vengono create in `output/cache_*` e sono escluse da Git.
 - `output/subranking_indicatori_comuni.csv`: ranking separati per indicatore.
 - `output/subranking_indicatori_focus.csv`: ranking dei comuni focus.
 - `output/docente_eduscopio_indirizzi_6i.csv`: dati per scuola/indirizzo.
+- `site/data/indice-comuni.json`: dataset ottimizzato per la web app.
+- `site/data/comuni-index.geojson`: confini comunali filtrati ai comuni con indice.
+- `site/data/indirizzi-comuni.json`: scuole e indirizzi per la scheda comune.
+
+## Sito
+
+La web app statica vive in `site/` e viene pubblicata con GitHub Pages via GitHub Actions.
+
+URL pubblico:
+
+```text
+https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/
+```
 
 ## Documentazione
 

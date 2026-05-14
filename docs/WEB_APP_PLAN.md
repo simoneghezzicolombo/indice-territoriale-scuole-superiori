@@ -86,29 +86,23 @@ Da aggiungere:
 ## Struttura Web Consigliata
 
 ```text
-web/
+site/
   index.html
-  package.json
-  src/
-    main.ts
+  assets/
+    app.js
     styles.css
-    data.ts
-    map.ts
-    ranking.ts
-  public/
-    data/
-      comuni.topojson
-      indice-comuni.json
-      indirizzi-comuni.json
+  data/
+    comuni-index.geojson
+    indice-comuni.json
+    indirizzi-comuni.json
 ```
 
-Stack consigliato:
+Stack usato:
 
-- Vite;
-- TypeScript;
-- MapLibre GL oppure Leaflet;
-- TopoJSON per tenere leggeri i confini comunali;
-- PapaParse o conversione preventiva CSV -> JSON.
+- pagina statica senza backend;
+- Leaflet per mappa e confini comunali;
+- conversione preventiva CSV -> JSON con `scripts/build_site_data.py`;
+- GitHub Pages via workflow Actions.
 
 Per GitHub Pages, niente backend.
 

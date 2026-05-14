@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Indice Territoriale Scuole Superiori</title>
+    <meta
+      name="description"
+      content="Mappa e classifica comunale degli esiti delle scuole superiori in Italia, pesata per indirizzo e diplomati."
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Salta al contenuto</a>
+
+    <header class="topbar">
+      <a class="brand" href="https://simoneghezzicolombo.github.io/">Simone Ghezzi Colombo</a>
+      <nav aria-label="Navigazione principale">
+        <a href="https://simoneghezzicolombo.github.io/#projects">Portfolio</a>
+        <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori">GitHub</a>
+        <a href="#metodo">Metodo</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Public-interest data</p>
+          <h1 id="page-title">Indice Territoriale Scuole Superiori</h1>
+          <p class="lede">
+            Mappa e classifica comunale degli esiti delle scuole superiori in Italia,
+            con confronti pesati per indirizzo e diplomati.
+          </p>
+        </div>
+        <dl class="summary-grid" aria-label="Sintesi indice">
+          <div>
+            <dt>Comuni</dt>
+            <dd id="stat-comuni">...</dd>
+          </div>
+          <div>
+            <dt>Top score</dt>
+            <dd id="stat-top">...</dd>
+          </div>
+          <div>
+            <dt>Merate</dt>
+            <dd id="stat-merate">...</dd>
+          </div>
+          <div>
+            <dt>Snapshot</dt>
+            <dd>14/05/2026</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="workspace" aria-label="Esplorazione indice">
+        <aside class="filters-panel" aria-label="Filtri">
+          <div class="panel-heading">
+            <p class="eyebrow">Esplora</p>
+            <h2>Comuni</h2>
+          </div>
+
+          <label class="field">
+            <span>Cerca</span>
+            <input
+              id="search-input"
+              type="search"
+              list="comuni-options"
+              placeholder="Merate, Fossano, Desio..."
+              autocomplete="off"
+            />
+          </label>
+          <datalist id="comuni-options"></datalist>
+
+          <label class="field">
+            <span>Regione</span>
+            <select id="region-filter">
+              <option value="">Tutte</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Provincia</span>
+            <select id="province-filter">
+              <option value="">Tutte</option>
+            </select>
+          </label>
+
+          <label class="range-field">
+            <span>Diplomati Eduscopio</span>
+            <strong id="diplomati-value">0+</strong>
+            <input id="diplomati-filter" type="range" min="0" max="500" step="25" value="0" />
+          </label>
+
+          <label class="range-field">
+            <span>Affidabilita</span>
+            <strong id="affidabilita-value">0+</strong>
+            <input id="affidabilita-filter" type="range" min="0" max="100" step="5" value="0" />
+          </label>
+
+          <button class="reset-button" id="reset-filters" type="button">Azzera filtri</button>
+
+          <div class="mini-stats" aria-label="Comuni filtrati">
+            <div>
+              <span>Risultati</span>
+              <strong id="filtered-count">...</strong>
+            </div>
+            <div>
+              <span>Indice medio</span>
+              <strong id="filtered-average">...</strong>
+            </div>
+          </div>
+        </aside>
+
+        <section class="map-panel" aria-labelledby="map-title">
+          <div class="panel-heading inline">
+            <div>
+              <p class="eyebrow">Mappa</p>
+              <h2 id="map-title">Indice per comune</h2>
+            </div>
+            <p id="selected-chip" class="selected-chip">...</p>
+          </div>
+          <div id="map" class="map" role="img" aria-label="Mappa dei comuni con indice"></div>
+          <div class="legend" aria-label="Legenda">
+            <span>Basso</span>
+            <i></i>
+            <span>Alto</span>
+          </div>
+        </section>
+
+        <section class="ranking-panel" aria-labelledby="ranking-title">
+          <div class="panel-heading inline">
+            <div>
+              <p class="eyebrow">Classifica</p>
+              <h2 id="ranking-title">Ranking nazionale</h2>
+            </div>
+            <a class="download-link" href="data/indice-comuni.json" download>JSON</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Comune</th>
+                  <th>Indice</th>
+                  <th class="optional">Docente</th>
+                  <th class="optional">Uni</th>
+                  <th class="optional">Lavoro</th>
+                  <th>Dipl.</th>
+                </tr>
+              </thead>
+              <tbody id="ranking-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="detail-layout" aria-label="Scheda comune">
+        <article class="detail-panel" id="comune-detail">
+          <div class="empty-state">Caricamento dati...</div>
+        </article>
+
+        <section class="schools-panel" aria-labelledby="schools-title">
+          <div class="panel-heading inline">
+            <div>
+              <p class="eyebrow">Eduscopio</p>
+              <h2 id="schools-title">Scuole e indirizzi</h2>
+            </div>
+            <a class="download-link" href="data/indirizzi-comuni.json" download>JSON</a>
+          </div>
+          <div class="table-wrap compact">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scuola</th>
+                  <th>Indirizzo</th>
+                  <th>Dipl.</th>
+                  <th>Uni</th>
+                  <th>Lav.</th>
+                </tr>
+              </thead>
+              <tbody id="schools-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="method-panel" id="metodo" aria-labelledby="method-title">
+        <div>
+          <p class="eyebrow">Metodo</p>
+          <h2 id="method-title">Formula finale</h2>
+        </div>
+        <div class="formula">
+          <span>100</span>
+          <span>+ 35% Docente vs Italia</span>
+          <span>+ 35% Eduscopio universita vs benchmark nazionale dello stesso indirizzo</span>
+          <span>+ 10% esiti lavoro pesati per copertura</span>
+          <span>+ 10% immatricolazione universitaria vs Stato</span>
+          <span>+ 10% continuita universitaria vs Stato</span>
+        </div>
+        <p>
+          L'indice misura il territorio comunale, non la singola scuola. Gli esiti Eduscopio
+          sono confrontati per indirizzo e pesati per diplomati; gli esiti lavoro contano in
+          proporzione ai diplomati coperti.
+        </p>
+        <div class="source-links">
+          <a href="https://www.docente.it/migliori-scuole/">Docente.it</a>
+          <a href="https://eduscopio.it/">Eduscopio</a>
+          <a href="https://github.com/openpolis/geojson-italy">Confini comunali Openpolis</a>
+          <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori/blob/main/docs/METHODOLOGY.md">Metodologia completa</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Indice Territoriale Scuole Superiori</span>
+      <a href="https://simoneghezzicolombo.github.io/">Back to portfolio</a>
+    </footer>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      crossorigin=""
+    ></script>
+    <script src="assets/app.js" defer></script>
+  </body>
+</html>
