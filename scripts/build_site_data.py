@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import json
 import math
 import re
@@ -66,12 +65,29 @@ def clean_text(value: Any) -> str | None:
     return str(value)
 
 
-def round_coordinates(value: Any, digits: int = 5) -> Any:
+def coordinate_pairs(value: Any) -> list[list[float]]:
+    if (
+        isinstance(value, list)
+        and len(value) >= 2
+        and isinstance(value[0], (int, float))
+        and isinstance(value[1], (int, float))
+    ):
+        return [[float(value[0]), float(value[1])]]
     if isinstance(value, list):
-        if value and isinstance(value[0], (int, float)):
-            return [round(float(number), digits) for number in value]
-        return [round_coordinates(item, digits) for item in value]
-    return value
+        pairs: list[list[float]] = []
+        for item in value:
+            pairs.extend(coordinate_pairs(item))
+        return pairs
+    return []
+
+
+def geometry_center(geometry: dict[str, Any]) -> list[float]:
+    pairs = coordinate_pairs(geometry["coordinates"])
+    if not pairs:
+        raise ValueError("Geometry has no coordinate pairs.")
+    xs = [pair[0] for pair in pairs]
+    ys = [pair[1] for pair in pairs]
+    return [round((min(xs) + max(xs)) / 2, 5), round((min(ys) + max(ys)) / 2, 5)]
 
 
 def read_geojson(cache_path: Path, refresh: bool = False) -> dict[str, Any]:
@@ -231,7 +247,7 @@ def main() -> None:
     indirizzi = build_indirizzi(Path(args.indirizzi), id_lookup)
 
     comuni: list[dict[str, Any]] = []
-    feature_collection: dict[str, Any] = {"type": "FeatureCollection", "features": []}
+    point_collection: dict[str, Any] = {"type": "FeatureCollection", "features": []}
 
     for _, row in valid.iterrows():
         comune_id = f"{slug(row['comune'])}-{slug(row['provincia'])}"
@@ -278,20 +294,24 @@ def main() -> None:
 
         feature = matched_features.get(comune_id)
         if feature is not None:
-            slim_feature = copy.deepcopy(feature)
-            slim_feature["properties"] = {
-                "id": comune_id,
-                "comune": item["comune"],
-                "provincia": item["provincia"],
-                "provinciaSigla": item["provinciaSigla"],
-                "regione": item["regione"],
-                "rank": item["rank"],
-                "indice": item["indice"],
-            }
-            slim_feature["geometry"]["coordinates"] = round_coordinates(
-                slim_feature["geometry"]["coordinates"]
+            point_collection["features"].append(
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "id": comune_id,
+                        "comune": item["comune"],
+                        "provincia": item["provincia"],
+                        "provinciaSigla": item["provinciaSigla"],
+                        "regione": item["regione"],
+                        "rank": item["rank"],
+                        "indice": item["indice"],
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": geometry_center(feature["geometry"]),
+                    },
+                }
             )
-            feature_collection["features"].append(slim_feature)
 
     regions = sorted({item["regione"] for item in comuni if item["regione"]})
     provinces_by_region: dict[str, list[str]] = defaultdict(list)
@@ -315,7 +335,7 @@ def main() -> None:
         "counts": {
             "rowsTotal": int(len(index)),
             "rowsWithFinalIndex": int(len(valid)),
-            "municipalBoundaries": int(len(feature_collection["features"])),
+            "municipalPoints": int(len(point_collection["features"])),
             "missingMunicipalBoundaries": len(missing_geo),
         },
         "missingMunicipalBoundaries": missing_geo,
@@ -328,8 +348,8 @@ def main() -> None:
         json.dumps(payload, ensure_ascii=True, separators=(",", ":"), allow_nan=False),
         encoding="utf-8",
     )
-    (site_data / "comuni-index.geojson").write_text(
-        json.dumps(feature_collection, ensure_ascii=True, separators=(",", ":"), allow_nan=False),
+    (site_data / "comuni-points.geojson").write_text(
+        json.dumps(point_collection, ensure_ascii=True, separators=(",", ":"), allow_nan=False),
         encoding="utf-8",
     )
     (site_data / "indirizzi-comuni.json").write_text(
@@ -340,7 +360,7 @@ def main() -> None:
     print(
         "Site data OK: "
         f"{len(comuni)} comuni, "
-        f"{len(feature_collection['features'])} boundaries, "
+        f"{len(point_collection['features'])} points, "
         f"{len(indirizzi)} comuni with school rows."
     )
     if missing_geo:

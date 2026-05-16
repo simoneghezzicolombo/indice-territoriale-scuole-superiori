@@ -4,10 +4,10 @@ const state = {
   geo: null,
   geoById: new Map(),
   indirizzi: {},
-  selectedId: "merate-lecco",
+  selectedId: null,
   map: null,
-  geoLayer: null,
   markerLayer: null,
+  scoreExtent: { min: 0, max: 1 },
 };
 
 const els = {};
@@ -23,7 +23,7 @@ async function init() {
   try {
     const [indexData, geoData, indirizziData] = await Promise.all([
       fetchJson("data/indice-comuni.json"),
-      fetchJson("data/comuni-index.geojson"),
+      fetchJson("data/comuni-points.geojson"),
       fetchJson("data/indirizzi-comuni.json"),
     ]);
 
@@ -32,6 +32,7 @@ async function init() {
     state.geo = geoData;
     state.geoById = new Map(geoData.features.map((feature) => [feature.properties.id, feature]));
     state.indirizzi = indirizziData;
+    state.scoreExtent = getScoreExtent(state.comuni);
 
     populateControls(indexData.meta);
     bindEvents();
@@ -49,10 +50,6 @@ function bindElements() {
     "comuni-options",
     "region-filter",
     "province-filter",
-    "diplomati-filter",
-    "diplomati-value",
-    "affidabilita-filter",
-    "affidabilita-value",
     "reset-filters",
     "filtered-count",
     "filtered-average",
@@ -62,7 +59,7 @@ function bindElements() {
     "selected-chip",
     "stat-comuni",
     "stat-top",
-    "stat-merate",
+    "stat-indicatori",
   ].forEach((id) => {
     els[toCamel(id)] = document.getElementById(id);
   });
@@ -126,25 +123,12 @@ function bindEvents() {
 
   els.provinceFilter.addEventListener("change", () => renderAll({ fitMap: true }));
 
-  els.diplomatiFilter.addEventListener("input", () => {
-    updateRangeLabels();
-    renderAll({ fitMap: true });
-  });
-
-  els.affidabilitaFilter.addEventListener("input", () => {
-    updateRangeLabels();
-    renderAll({ fitMap: true });
-  });
-
   els.resetFilters.addEventListener("click", () => {
     els.searchInput.value = "";
     els.regionFilter.value = "";
     populateProvinceOptions();
     els.provinceFilter.value = "";
-    els.diplomatiFilter.value = "0";
-    els.affidabilitaFilter.value = "0";
-    state.selectedId = "merate-lecco";
-    updateRangeLabels();
+    state.selectedId = null;
     renderAll({ fitMap: true });
   });
 
@@ -155,7 +139,6 @@ function bindEvents() {
     }
   });
 
-  updateRangeLabels();
 }
 
 function initMap() {
@@ -171,22 +154,16 @@ function initMap() {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(state.map);
 
-  state.geoLayer = L.geoJSON(null, {
-    style: styleFeature,
-    onEachFeature: onEachFeature,
-  }).addTo(state.map);
-
-  state.markerLayer = L.layerGroup().addTo(state.map);
+  state.markerLayer = L.featureGroup().addTo(state.map);
 
   setTimeout(() => state.map.invalidateSize(), 80);
 }
 
 function renderGlobalStats(meta) {
   const top = state.comuni[0];
-  const merate = state.comuniById.get("merate-lecco");
   els.statComuni.textContent = fmt0.format(meta.counts.rowsWithFinalIndex);
   els.statTop.textContent = `${top.comune} ${fmt2.format(top.indice)}`;
-  els.statMerate.textContent = merate ? `#${merate.rank} ${fmt2.format(merate.indice)}` : "n.d.";
+  els.statIndicatori.textContent = "5 aree";
 }
 
 function renderAll(options = {}) {
@@ -202,17 +179,13 @@ function getFilteredComuni() {
   const query = normalizeSearch(els.searchInput.value);
   const region = els.regionFilter.value;
   const province = els.provinceFilter.value;
-  const minDiplomati = Number(els.diplomatiFilter.value);
-  const minAffidabilita = Number(els.affidabilitaFilter.value);
 
   return state.comuni.filter((item) => {
     const haystack = normalizeSearch(`${item.comune} ${item.provincia} ${item.regione}`);
     return (
       (!query || haystack.includes(query)) &&
       (!region || item.regione === region) &&
-      (!province || item.provincia === province) &&
-      (item.diplomati ?? 0) >= minDiplomati &&
-      (item.affidabilita ?? 0) >= minAffidabilita
+      (!province || item.provincia === province)
     );
   });
 }
@@ -223,14 +196,14 @@ function ensureSelection(filtered) {
     return;
   }
 
-  const selectedVisible = filtered.some((item) => item.id === state.selectedId);
+  const selectedVisible = state.selectedId && filtered.some((item) => item.id === state.selectedId);
   if (selectedVisible) {
     return;
   }
 
   const query = normalizeSearch(els.searchInput.value);
   const exact = filtered.find((item) => normalizeSearch(item.comune) === query);
-  state.selectedId = (exact || filtered[0]).id;
+  state.selectedId = exact?.id || (filtered.length === 1 ? filtered[0].id : null);
 }
 
 function renderFilterStats(filtered) {
@@ -246,7 +219,7 @@ function renderFilterStats(filtered) {
 
 function renderRanking(filtered) {
   if (!filtered.length) {
-    els.rankingBody.innerHTML = '<tr><td colspan="7" class="empty-state">Nessun comune nel filtro.</td></tr>';
+    els.rankingBody.innerHTML = '<tr><td colspan="4" class="empty-state">Nessun comune nel filtro.</td></tr>';
     return;
   }
 
@@ -261,10 +234,7 @@ function renderRanking(filtered) {
             <span>${escapeHtml(item.provinciaSigla || item.provincia)} · ${escapeHtml(item.regione)}</span>
           </td>
           <td class="score">${fmt2.format(item.indice)}</td>
-          <td class="optional">${formatSigned(item.docente)}</td>
-          <td class="optional">${formatSigned(item.eduscopioUni)}</td>
-          <td class="optional">${formatSigned(item.lavoroCopertura)}</td>
-          <td>${fmt0.format(item.diplomati || 0)}</td>
+          <td class="profile-cell">${profileBars(item)}</td>
         </tr>
       `;
     })
@@ -275,35 +245,22 @@ function renderMap(filtered, fitMap = false) {
   const visibleIds = new Set(filtered.map((item) => item.id));
   const features = state.geo.features.filter((feature) => visibleIds.has(feature.properties.id));
 
-  state.geoLayer.clearLayers();
   state.markerLayer.clearLayers();
-  state.geoLayer.addData({ type: "FeatureCollection", features });
   renderMarkers(features);
   applySelectedMapStyle();
 
   if (fitMap && features.length) {
-    const bounds = state.geoLayer.getBounds();
+    const bounds = state.markerLayer.getBounds();
     if (bounds.isValid()) {
       state.map.fitBounds(bounds, { padding: [20, 20], maxZoom: 10 });
     }
   }
 }
 
-function styleFeature(feature) {
-  const selected = feature.properties.id === state.selectedId;
-  return {
-    color: selected ? "#17313a" : "#ffffff",
-    weight: selected ? 3 : 0.8,
-    opacity: selected ? 1 : 0.86,
-    fillColor: colorForScore(feature.properties.indice),
-    fillOpacity: selected ? 0.92 : 0.72,
-  };
-}
-
 function markerStyle(feature) {
   const selected = feature.properties.id === state.selectedId;
   return {
-    radius: selected ? 8 : 5,
+    radius: selected ? 9 : 5.5,
     color: selected ? "#17313a" : "#ffffff",
     weight: selected ? 3 : 1.4,
     opacity: 1,
@@ -312,19 +269,10 @@ function markerStyle(feature) {
   };
 }
 
-function onEachFeature(feature, layer) {
-  const props = feature.properties;
-  layer.bindTooltip(
-    `<div class="map-tooltip"><strong>#${props.rank} ${escapeHtml(props.comune)}</strong>${escapeHtml(props.provincia)} · indice ${fmt2.format(props.indice)}</div>`,
-    { sticky: true }
-  );
-  layer.on("click", () => selectComune(props.id, { pan: false }));
-}
-
 function renderMarkers(features) {
   features.forEach((feature) => {
-    const center = L.geoJSON(feature).getBounds().getCenter();
-    const marker = L.circleMarker(center, markerStyle(feature));
+    const [lng, lat] = feature.geometry.coordinates;
+    const marker = L.circleMarker([lat, lng], markerStyle(feature));
     marker.feature = feature;
     marker.bindTooltip(
       `<div class="map-tooltip"><strong>#${feature.properties.rank} ${escapeHtml(feature.properties.comune)}</strong>${escapeHtml(feature.properties.provincia)} · indice ${fmt2.format(feature.properties.indice)}</div>`,
@@ -336,13 +284,6 @@ function renderMarkers(features) {
 }
 
 function applySelectedMapStyle() {
-  state.geoLayer.eachLayer((layer) => {
-    layer.setStyle(styleFeature(layer.feature));
-    if (layer.feature.properties.id === state.selectedId) {
-      layer.bringToFront();
-    }
-  });
-
   state.markerLayer.eachLayer((layer) => {
     layer.setStyle(markerStyle(layer.feature));
     if (layer.feature.properties.id === state.selectedId) {
@@ -352,11 +293,11 @@ function applySelectedMapStyle() {
 }
 
 function colorForScore(score) {
-  if (score >= 118) return "#17313a";
-  if (score >= 114) return "#177a74";
-  if (score >= 110) return "#3aa9a2";
-  if (score >= 106) return "#9dcfba";
-  return "#e7d4a6";
+  const pct = scorePercent(score);
+  if (pct < 0.5) {
+    return mixColor("#b9505d", "#d9a441", pct * 2);
+  }
+  return mixColor("#d9a441", "#177a74", (pct - 0.5) * 2);
 }
 
 function selectComune(id, options = {}) {
@@ -370,19 +311,16 @@ function selectComune(id, options = {}) {
   applySelectedMapStyle();
 
   if (options.pan) {
-    const feature = state.geoById.get(id);
-    if (feature) {
-      const layer = findLayerById(id);
-      if (layer) {
-        state.map.fitBounds(layer.getBounds(), { padding: [40, 40], maxZoom: 11 });
-      }
+    const layer = findLayerById(id);
+    if (layer) {
+      state.map.setView(layer.getLatLng(), Math.max(state.map.getZoom(), 9), { animate: true });
     }
   }
 }
 
 function findLayerById(id) {
   let match = null;
-  state.geoLayer.eachLayer((layer) => {
+  state.markerLayer.eachLayer((layer) => {
     if (layer.feature.properties.id === id) {
       match = layer;
     }
@@ -393,8 +331,12 @@ function findLayerById(id) {
 function renderSelected() {
   const item = state.comuniById.get(state.selectedId);
   if (!item) {
-    els.selectedChip.textContent = "Nessun comune";
-    els.comuneDetail.innerHTML = '<div class="empty-state">Nessun comune selezionato.</div>';
+    els.selectedChip.textContent = "Seleziona un comune";
+    els.comuneDetail.innerHTML = `
+      <div class="empty-state">
+        Seleziona un punto sulla mappa o una riga della classifica per leggere la scheda territoriale.
+      </div>
+    `;
     els.schoolsBody.innerHTML = '<tr><td colspan="5" class="empty-state">Nessun dato.</td></tr>';
     return;
   }
@@ -406,11 +348,36 @@ function renderSelected() {
 
 function renderDetail(item) {
   const components = [
-    ["Docente", item.docente],
-    ["Eduscopio uni", item.eduscopioUni],
-    ["Lavoro pesato", item.lavoroCopertura],
-    ["Immatricolazione", item.immatricolazione],
-    ["Continuita", item.continuita],
+    {
+      label: "Apprendimenti Invalsi",
+      value: item.docente,
+      weight: "35%",
+      note: "Italiano e matematica rispetto alla media nazionale.",
+    },
+    {
+      label: "Qualita del percorso",
+      value: item.eduscopioUni,
+      weight: "35%",
+      note: "Esiti universitari Eduscopio a parita di indirizzo.",
+    },
+    {
+      label: "Esiti lavoro",
+      value: item.lavoroCopertura,
+      weight: "10%",
+      note: "Tecnici e professionali, pesati per diplomati coperti.",
+    },
+    {
+      label: "Accesso all'universita",
+      value: item.immatricolazione,
+      weight: "10%",
+      note: "Immatricolazioni vs benchmark nazionale di indirizzo.",
+    },
+    {
+      label: "Continuita universitaria",
+      value: item.continuita,
+      weight: "10%",
+      note: "Prosecuzione senza abbandono vs benchmark nazionale.",
+    },
   ];
 
   els.comuneDetail.innerHTML = `
@@ -433,9 +400,9 @@ function renderDetail(item) {
       ${metric("Copertura lavoro", item.coperturaLavoro == null ? "n.d." : `${fmt1.format(item.coperturaLavoro)}%`)}
     </div>
 
-    <h3>Componenti</h3>
+    <h3>Composizione dell'indice</h3>
     <div class="components">
-      ${components.map(([label, value]) => componentRow(label, value)).join("")}
+      ${components.map((component) => componentRow(component)).join("")}
     </div>
 
     <h3>Indirizzi pesati</h3>
@@ -448,8 +415,8 @@ function renderDetail(item) {
     <h3>Subranking</h3>
     <div class="subranking-grid">
       ${subrankCard("Finale", item.subrankings.finale)}
-      ${subrankCard("Docente", item.subrankings.docente)}
-      ${subrankCard("Eduscopio uni", item.subrankings.eduscopio_uni)}
+      ${subrankCard("Apprendimenti", item.subrankings.docente)}
+      ${subrankCard("Percorso", item.subrankings.eduscopio_uni)}
       ${subrankCard("Lavoro", item.subrankings.lavoro_copertura)}
     </div>
   `;
@@ -459,12 +426,37 @@ function metric(label, value) {
   return `<div class="metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`;
 }
 
-function componentRow(label, value) {
+function profileBars(item) {
+  const values = [
+    ["Apprendimenti Invalsi", item.docente],
+    ["Qualita percorso", item.eduscopioUni],
+    ["Esiti lavoro", item.lavoroCopertura],
+    ["Accesso universita", item.immatricolazione],
+    ["Continuita universitaria", item.continuita],
+  ];
+  return `
+    <div class="profile-bars" aria-label="Profilo sintetico delle cinque componenti">
+      ${values
+        .map(([label, value]) => {
+          const height = value == null ? 12 : Math.max(10, Math.min(34, 12 + Math.abs(value) * 0.55));
+          const color = value == null ? "#d8e7e5" : value >= 0 ? "#177a74" : "#b9505d";
+          return `<span title="${escapeAttr(`${label}: ${formatSigned(value)}`)}" style="--h:${height}px;--c:${color}"></span>`;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function componentRow(component) {
+  const { label, value, weight, note } = component;
   const width = value == null ? 0 : Math.min(100, (Math.abs(value) / 35) * 100);
   const signClass = value == null || value >= 0 ? "" : " negative";
   return `
     <div class="component-row">
-      <div class="component-name">${escapeHtml(label)}</div>
+      <div class="component-name">
+        <strong>${escapeHtml(label)}</strong>
+        <span>${escapeHtml(weight)} · ${escapeHtml(note)}</span>
+      </div>
       <div class="bar-track"><span class="${signClass}" style="--w:${width.toFixed(1)}%"></span></div>
       <div class="component-value ${deltaClass(value)}">${formatSigned(value)}</div>
     </div>
@@ -476,7 +468,7 @@ function macroCard(label, macro) {
   const peso = macro?.peso || 0;
   return `
     <div class="macro-card">
-      <span>${escapeHtml(label)} · ${fmt0.format(peso)} dipl.</span>
+      <span>${escapeHtml(label)} · ${fmt0.format(peso)} diplomati</span>
       <strong class="${deltaClass(delta)}">${formatSigned(delta)}</strong>
     </div>
   `;
@@ -516,11 +508,6 @@ function renderSchools(id) {
     .join("");
 }
 
-function updateRangeLabels() {
-  els.diplomatiValue.textContent = `${els.diplomatiFilter.value}+`;
-  els.affidabilitaValue.textContent = `${els.affidabilitaFilter.value}+`;
-}
-
 function formatSigned(value) {
   if (value == null || Number.isNaN(value)) {
     return "n.d.";
@@ -554,6 +541,33 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
   return escapeHtml(value);
+}
+
+function getScoreExtent(comuni) {
+  const scores = comuni.map((item) => item.indice).filter((value) => Number.isFinite(value));
+  return { min: Math.min(...scores), max: Math.max(...scores) };
+}
+
+function scorePercent(score) {
+  const { min, max } = state.scoreExtent;
+  if (!Number.isFinite(score) || min === max) return 0.5;
+  return Math.max(0, Math.min(1, (score - min) / (max - min)));
+}
+
+function mixColor(from, to, amount) {
+  const a = hexToRgb(from);
+  const b = hexToRgb(to);
+  const rgb = a.map((channel, index) => Math.round(channel + (b[index] - channel) * amount));
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+
+function hexToRgb(hex) {
+  const clean = hex.replace("#", "");
+  return [
+    parseInt(clean.slice(0, 2), 16),
+    parseInt(clean.slice(2, 4), 16),
+    parseInt(clean.slice(4, 6), 16),
+  ];
 }
 
 function showFatalError(error) {

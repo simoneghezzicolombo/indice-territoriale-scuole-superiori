@@ -19,7 +19,7 @@ Layout consigliato:
 - titolo: `Indice Territoriale Scuole Superiori`;
 - sottotitolo breve: `Classifica comunale degli esiti delle superiori in Italia`;
 - link alto a destra: `Back to portfolio`;
-- mappa coropletica dei comuni;
+- mappa a punti dei comuni;
 - pannello laterale con top 20;
 - search comune;
 - filtri: regione, provincia, soglia diplomati, tipo indice.
@@ -79,7 +79,7 @@ Gia disponibili:
 
 Da aggiungere:
 
-- confini comunali semplificati in GeoJSON/TopoJSON;
+- punti comunali derivati dai confini Openpolis;
 - mapping nome comune/provincia/codice ISTAT;
 - export JSON ottimizzato per il browser.
 
@@ -92,7 +92,7 @@ site/
     app.js
     styles.css
   data/
-    comuni-index.geojson
+    comuni-points.geojson
     indice-comuni.json
     indirizzi-comuni.json
 ```
@@ -100,7 +100,7 @@ site/
 Stack usato:
 
 - pagina statica senza backend;
-- Leaflet per mappa e confini comunali;
+- Leaflet per mappa a punti comunali;
 - conversione preventiva CSV -> JSON con `scripts/build_site_data.py`;
 - GitHub Pages via workflow Actions.
 
@@ -132,7 +132,7 @@ Componenti:
 ## Milestone
 
 1. Preparare dataset JSON per web.
-2. Aggiungere confini comunali semplificati.
+2. Aggiungere punti comunali derivati dai confini Openpolis.
 3. Costruire mappa + tooltip.
 4. Costruire classifica ordinabile.
 5. Costruire scheda comune.

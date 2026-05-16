@@ -10,6 +10,7 @@
   --teal-2: #3aa9a2;
   --teal-soft: #dff3f0;
   --blue: #315e7d;
+  --amber: #d9a441;
   --warm: #a9682a;
   --rose: #b9505d;
   --shadow: 0 18px 50px rgba(23, 49, 58, 0.08);
@@ -106,6 +107,62 @@ main {
   margin-bottom: clamp(1rem, 2vw, 1.4rem);
 }
 
+.composition-band {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.35fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.composition-intro {
+  align-self: center;
+}
+
+.composition-cards {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.composition-cards article {
+  min-width: 0;
+  padding: 0.78rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.composition-cards strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  min-height: 30px;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--surface);
+  font-size: 0.86rem;
+}
+
+.composition-cards span {
+  display: block;
+  font-weight: 900;
+}
+
+.composition-cards p {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.38;
+}
+
 .eyebrow {
   margin: 0 0 0.35rem;
   color: var(--teal);
@@ -183,10 +240,9 @@ h3 {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(230px, 290px) minmax(420px, 1.25fr) minmax(420px, 0.9fr);
+  grid-template-columns: minmax(220px, 270px) minmax(460px, 1.22fr) minmax(360px, 0.82fr);
   gap: 1rem;
-  align-items: stretch;
-  min-height: calc(100vh - 245px);
+  align-items: start;
 }
 
 .filters-panel,
@@ -200,12 +256,6 @@ h3 {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-}
-
-.filters-panel,
-.map-panel,
-.ranking-panel {
-  min-height: 560px;
 }
 
 .filters-panel {
@@ -307,8 +357,8 @@ h3 {
 }
 
 .map {
-  flex: 1;
-  min-height: 470px;
+  height: min(56vh, 560px);
+  min-height: 440px;
   margin: 1rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -352,7 +402,7 @@ h3 {
 .legend i {
   height: 9px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #e7d4a6, #9dcfba, #177a74, #17313a);
+  background: linear-gradient(90deg, var(--rose), var(--amber), var(--teal));
 }
 
 .ranking-panel,
@@ -377,12 +427,16 @@ h3 {
 }
 
 .table-wrap {
-  flex: 1;
+  flex: none;
   margin: 1rem;
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
+}
+
+.ranking-panel .table-wrap {
+  max-height: 474px;
 }
 
 .table-wrap.compact {
@@ -448,6 +502,26 @@ tbody tr.is-selected {
 
 .score {
   font-weight: 900;
+}
+
+.profile-cell {
+  min-width: 92px;
+}
+
+.profile-bars {
+  display: inline-grid;
+  grid-template-columns: repeat(5, 8px);
+  align-items: end;
+  gap: 4px;
+  min-height: 36px;
+}
+
+.profile-bars span {
+  display: block;
+  width: 8px;
+  height: var(--h);
+  border-radius: 999px;
+  background: var(--c);
 }
 
 .delta-positive {
@@ -527,15 +601,30 @@ tbody tr.is-selected {
 
 .component-row {
   display: grid;
-  grid-template-columns: minmax(130px, 0.8fr) minmax(140px, 1fr) 72px;
+  grid-template-columns: minmax(210px, 1fr) minmax(160px, 0.8fr) 82px;
   gap: 0.7rem;
   align-items: center;
+  padding: 0.72rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 
 .component-name {
+  min-width: 0;
+}
+
+.component-name strong {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.component-name span {
+  display: block;
+  margin-top: 0.12rem;
   color: var(--muted);
-  font-size: 0.86rem;
-  font-weight: 800;
+  font-size: 0.76rem;
+  line-height: 1.28;
 }
 
 .bar-track {
@@ -659,15 +748,19 @@ tbody tr.is-selected {
 
   .ranking-panel {
     grid-column: 1 / -1;
-    min-height: 460px;
   }
 }
 
 @media (max-width: 980px) {
   .intro,
+  .composition-band,
   .detail-layout,
   .method-panel {
     grid-template-columns: 1fr;
+  }
+
+  .composition-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .summary-grid,
@@ -681,14 +774,9 @@ tbody tr.is-selected {
     grid-template-columns: 1fr;
   }
 
-  .filters-panel,
-  .map-panel,
-  .ranking-panel {
-    min-height: auto;
-  }
-
   .map {
     min-height: 440px;
+    height: 480px;
   }
 
   .method-panel p,
@@ -721,6 +809,19 @@ tbody tr.is-selected {
 
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .composition-cards {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.1rem;
+    scroll-snap-type: x proximity;
+  }
+
+  .composition-cards article {
+    flex: 0 0 230px;
+    scroll-snap-align: start;
   }
 
   .map-panel {
@@ -771,6 +872,7 @@ tbody tr.is-selected {
   .map {
     margin: 0.8rem;
     min-height: 360px;
+    height: 430px;
   }
 
   .legend {

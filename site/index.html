@@ -33,8 +33,8 @@
           <p class="eyebrow">Public-interest data</p>
           <h1 id="page-title">Indice Territoriale Scuole Superiori</h1>
           <p class="lede">
-            Mappa e classifica comunale degli esiti delle scuole superiori in Italia,
-            con confronti pesati per indirizzo e diplomati.
+            Atlante comunale degli esiti delle scuole superiori in Italia:
+            apprendimenti, percorsi universitari, lavoro e continuita.
           </p>
         </div>
         <dl class="summary-grid" aria-label="Sintesi indice">
@@ -43,18 +43,52 @@
             <dd id="stat-comuni">...</dd>
           </div>
           <div>
-            <dt>Top score</dt>
+            <dt>Miglior indice</dt>
             <dd id="stat-top">...</dd>
           </div>
           <div>
-            <dt>Merate</dt>
-            <dd id="stat-merate">...</dd>
+            <dt>Aree</dt>
+            <dd id="stat-indicatori">5</dd>
           </div>
           <div>
             <dt>Snapshot</dt>
             <dd>14/05/2026</dd>
           </div>
         </dl>
+      </section>
+
+      <section class="composition-band" aria-label="Composizione dell'indice">
+        <div class="composition-intro">
+          <p class="eyebrow">Come si legge</p>
+          <h2>Un indice, cinque dimensioni</h2>
+        </div>
+        <div class="composition-cards">
+          <article>
+            <strong>35%</strong>
+            <span>Apprendimenti Invalsi</span>
+            <p>Italiano e matematica, II e V superiore, rispetto alla media nazionale.</p>
+          </article>
+          <article>
+            <strong>35%</strong>
+            <span>Qualita del percorso</span>
+            <p>Risultati Eduscopio confrontati con scuole dello stesso indirizzo.</p>
+          </article>
+          <article>
+            <strong>10%</strong>
+            <span>Esiti lavoro</span>
+            <p>Risultati post-diploma per tecnici e professionali, pesati per copertura.</p>
+          </article>
+          <article>
+            <strong>10%</strong>
+            <span>Accesso all'universita</span>
+            <p>Immatricolazioni rispetto al benchmark nazionale dello stesso indirizzo.</p>
+          </article>
+          <article>
+            <strong>10%</strong>
+            <span>Continuita universitaria</span>
+            <p>Quota che prosegue senza abbandono, sempre a parita di indirizzo.</p>
+          </article>
+        </div>
       </section>
 
       <section class="workspace" aria-label="Esplorazione indice">
@@ -70,7 +104,7 @@
               id="search-input"
               type="search"
               list="comuni-options"
-              placeholder="Merate, Fossano, Desio..."
+              placeholder="Cerca comune..."
               autocomplete="off"
             />
           </label>
@@ -88,18 +122,6 @@
             <select id="province-filter">
               <option value="">Tutte</option>
             </select>
-          </label>
-
-          <label class="range-field">
-            <span>Diplomati Eduscopio</span>
-            <strong id="diplomati-value">0+</strong>
-            <input id="diplomati-filter" type="range" min="0" max="500" step="25" value="0" />
-          </label>
-
-          <label class="range-field">
-            <span>Affidabilita</span>
-            <strong id="affidabilita-value">0+</strong>
-            <input id="affidabilita-filter" type="range" min="0" max="100" step="5" value="0" />
           </label>
 
           <button class="reset-button" id="reset-filters" type="button">Azzera filtri</button>
@@ -120,15 +142,15 @@
           <div class="panel-heading inline">
             <div>
               <p class="eyebrow">Mappa</p>
-              <h2 id="map-title">Indice per comune</h2>
+              <h2 id="map-title">Scala territoriale</h2>
             </div>
             <p id="selected-chip" class="selected-chip">...</p>
           </div>
-          <div id="map" class="map" role="img" aria-label="Mappa dei comuni con indice"></div>
+          <div id="map" class="map" role="img" aria-label="Mappa dei comuni con indice rappresentati da punti"></div>
           <div class="legend" aria-label="Legenda">
-            <span>Basso</span>
+            <span>Debole</span>
             <i></i>
-            <span>Alto</span>
+            <span>Forte</span>
           </div>
         </section>
 
@@ -136,7 +158,7 @@
           <div class="panel-heading inline">
             <div>
               <p class="eyebrow">Classifica</p>
-              <h2 id="ranking-title">Ranking nazionale</h2>
+              <h2 id="ranking-title">Classifica nazionale</h2>
             </div>
             <a class="download-link" href="data/indice-comuni.json" download>JSON</a>
           </div>
@@ -147,10 +169,7 @@
                   <th>Rank</th>
                   <th>Comune</th>
                   <th>Indice</th>
-                  <th class="optional">Docente</th>
-                  <th class="optional">Uni</th>
-                  <th class="optional">Lavoro</th>
-                  <th>Dipl.</th>
+                  <th>Profilo</th>
                 </tr>
               </thead>
               <tbody id="ranking-body"></tbody>
@@ -168,7 +187,7 @@
           <div class="panel-heading inline">
             <div>
               <p class="eyebrow">Eduscopio</p>
-              <h2 id="schools-title">Scuole e indirizzi</h2>
+              <h2 id="schools-title">Scuole e indirizzi Eduscopio</h2>
             </div>
             <a class="download-link" href="data/indirizzi-comuni.json" download>JSON</a>
           </div>
@@ -179,8 +198,8 @@
                   <th>Scuola</th>
                   <th>Indirizzo</th>
                   <th>Dipl.</th>
-                  <th>Uni</th>
-                  <th>Lav.</th>
+                  <th>Universita</th>
+                  <th>Lavoro</th>
                 </tr>
               </thead>
               <tbody id="schools-body"></tbody>
@@ -192,25 +211,25 @@
       <section class="method-panel" id="metodo" aria-labelledby="method-title">
         <div>
           <p class="eyebrow">Metodo</p>
-          <h2 id="method-title">Formula finale</h2>
+          <h2 id="method-title">Formula e fonti</h2>
         </div>
         <div class="formula">
           <span>100</span>
-          <span>+ 35% Docente vs Italia</span>
-          <span>+ 35% Eduscopio universita vs benchmark nazionale dello stesso indirizzo</span>
+          <span>+ 35% apprendimenti Invalsi vs Italia</span>
+          <span>+ 35% qualita del percorso vs scuole dello stesso indirizzo</span>
           <span>+ 10% esiti lavoro pesati per copertura</span>
-          <span>+ 10% immatricolazione universitaria vs Stato</span>
-          <span>+ 10% continuita universitaria vs Stato</span>
+          <span>+ 10% accesso all'universita vs benchmark nazionale</span>
+          <span>+ 10% continuita universitaria vs benchmark nazionale</span>
         </div>
         <p>
-          L'indice misura il territorio comunale, non la singola scuola. Gli esiti Eduscopio
-          sono confrontati per indirizzo e pesati per diplomati; gli esiti lavoro contano in
-          proporzione ai diplomati coperti.
+          L'indice misura il territorio comunale, non la singola scuola. I dati Invalsi arrivano
+          dagli aggregati Docente.it; gli indicatori universitari e lavorativi arrivano da Eduscopio
+          e sono confrontati per indirizzo, pesati per diplomati e copertura disponibile.
         </p>
         <div class="source-links">
           <a href="https://www.docente.it/migliori-scuole/">Docente.it</a>
           <a href="https://eduscopio.it/">Eduscopio</a>
-          <a href="https://github.com/openpolis/geojson-italy">Confini comunali Openpolis</a>
+          <a href="https://github.com/openpolis/geojson-italy">Coordinate comunali Openpolis</a>
           <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori/blob/main/docs/METHODOLOGY.md">Metodologia completa</a>
         </div>
       </section>

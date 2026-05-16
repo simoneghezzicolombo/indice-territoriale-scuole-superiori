@@ -82,7 +82,7 @@ Le cache locali vengono create in `output/cache_*` e sono escluse da Git.
 - `output/subranking_indicatori_focus.csv`: ranking dei comuni focus.
 - `output/docente_eduscopio_indirizzi_6i.csv`: dati per scuola/indirizzo.
 - `site/data/indice-comuni.json`: dataset ottimizzato per la web app.
-- `site/data/comuni-index.geojson`: confini comunali filtrati ai comuni con indice.
+- `site/data/comuni-points.geojson`: punti comunali filtrati ai comuni con indice.
 - `site/data/indirizzi-comuni.json`: scuole e indirizzi per la scheda comune.
 
 ## Sito
