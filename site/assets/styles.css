@@ -1,19 +1,21 @@
 :root {
-  --bg: #f7fbfb;
-  --bg-soft: #eef7f6;
+  --bg: #f5faf9;
+  --bg-soft: #eaf5f3;
   --surface: #ffffff;
-  --surface-2: #f3faf9;
+  --surface-2: #f4faf8;
   --text: #17313a;
   --muted: #60777d;
-  --line: #d8e7e5;
+  --line: #d4e4e1;
   --teal: #177a74;
   --teal-2: #3aa9a2;
   --teal-soft: #dff3f0;
   --blue: #315e7d;
   --amber: #d9a441;
+  --olive: #77864b;
   --warm: #a9682a;
   --rose: #b9505d;
-  --shadow: 0 18px 50px rgba(23, 49, 58, 0.08);
+  --shadow: 0 24px 70px rgba(23, 49, 58, 0.1);
+  --shadow-soft: 0 10px 30px rgba(23, 49, 58, 0.07);
   --radius: 8px;
 }
 
@@ -27,7 +29,10 @@ html {
 
 body {
   margin: 0;
-  background: var(--bg);
+  min-height: 100vh;
+  background:
+    linear-gradient(120deg, rgba(23, 122, 116, 0.1) 0 22%, transparent 22% 100%),
+    linear-gradient(180deg, #fbfdfc 0%, var(--bg) 44%, #f8f5ec 100%);
   color: var(--text);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
@@ -72,7 +77,7 @@ select {
   gap: 1rem;
   min-height: 64px;
   padding: 0.8rem clamp(1rem, 3vw, 2.5rem);
-  background: rgba(247, 251, 251, 0.92);
+  background: rgba(251, 253, 252, 0.9);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(18px);
 }
@@ -114,7 +119,8 @@ main {
   align-items: stretch;
   margin-bottom: 1rem;
   padding: 1rem;
-  background: var(--surface);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 250, 249, 0.92));
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -124,6 +130,11 @@ main {
   align-self: center;
 }
 
+.composition-intro p:last-child {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+}
+
 .composition-cards {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -131,11 +142,44 @@ main {
 }
 
 .composition-cards article {
+  position: relative;
   min-width: 0;
   padding: 0.78rem;
-  background: var(--surface-2);
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
   border: 1px solid var(--line);
+  border-top: 4px solid var(--accent, var(--teal));
   border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.composition-cards article::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--accent, var(--teal)), transparent);
+  content: "";
+  opacity: 0.18;
+}
+
+.learning-card {
+  --accent: var(--teal);
+}
+
+.path-card {
+  --accent: var(--blue);
+}
+
+.work-card {
+  --accent: var(--rose);
+}
+
+.access-card {
+  --accent: var(--amber);
+}
+
+.continuity-card {
+  --accent: var(--olive);
 }
 
 .composition-cards strong {
@@ -146,7 +190,7 @@ main {
   min-height: 30px;
   margin-bottom: 0.5rem;
   border-radius: 999px;
-  background: var(--text);
+  background: var(--accent, var(--text));
   color: var(--surface);
   font-size: 0.86rem;
 }
@@ -213,11 +257,26 @@ h3 {
 .mini-stats div,
 .macro-card,
 .subrank-card {
+  position: relative;
   min-width: 0;
   padding: 0.78rem;
-  background: var(--surface);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.summary-grid div::before,
+.metric::before,
+.mini-stats div::before,
+.macro-card::before,
+.subrank-card::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--teal), var(--amber));
+  content: "";
 }
 
 .summary-grid dt,
@@ -238,6 +297,13 @@ h3 {
   font-weight: 800;
 }
 
+.summary-grid p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.28;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(220px, 270px) minmax(460px, 1.22fr) minmax(360px, 0.82fr);
@@ -252,7 +318,7 @@ h3 {
 .schools-panel,
 .method-panel {
   min-width: 0;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -269,6 +335,14 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
+}
+
+.panel-note {
+  max-width: 620px;
+  margin: 0.28rem 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
 }
 
 .panel-heading.inline {
@@ -299,7 +373,7 @@ h3 {
   min-height: 42px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.96);
   color: var(--text);
   padding: 0.6rem 0.72rem;
   outline: none;
@@ -334,6 +408,12 @@ h3 {
   background: var(--text);
   color: var(--surface);
   cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.reset-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
 }
 
 .mini-stats {
@@ -360,10 +440,11 @@ h3 {
   height: min(56vh, 560px);
   min-height: 440px;
   margin: 1rem;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(23, 49, 58, 0.14);
   border-radius: var(--radius);
   overflow: hidden;
-  background: var(--bg-soft);
+  background: #dceae7;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.75);
 }
 
 .selected-chip {
@@ -382,7 +463,7 @@ h3 {
   position: absolute;
   left: 1.75rem;
   right: 1.75rem;
-  bottom: 1.75rem;
+  bottom: 2.15rem;
   z-index: 500;
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -402,7 +483,7 @@ h3 {
 .legend i {
   height: 9px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--rose), var(--amber), var(--teal));
+  background: linear-gradient(90deg, var(--rose), var(--amber), var(--teal), var(--blue));
 }
 
 .ranking-panel,
@@ -424,6 +505,12 @@ h3 {
   font-size: 0.82rem;
   font-weight: 800;
   text-decoration: none;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.download-link:hover {
+  background: #e6f4f1;
+  transform: translateY(-1px);
 }
 
 .table-wrap {
@@ -453,7 +540,7 @@ thead th {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--surface-2);
+  background: #eef7f5;
   color: var(--muted);
   font-size: 0.72rem;
   text-align: left;
@@ -473,7 +560,7 @@ tbody tr {
 
 tbody tr:hover,
 tbody tr.is-selected {
-  background: var(--teal-soft);
+  background: linear-gradient(90deg, rgba(23, 122, 116, 0.14), rgba(23, 122, 116, 0.04));
 }
 
 .rank-select {
@@ -481,10 +568,15 @@ tbody tr.is-selected {
   height: 32px;
   border: 1px solid transparent;
   border-radius: var(--radius);
-  background: var(--surface-2);
+  background: #eef7f5;
   color: var(--text);
   font-weight: 900;
   cursor: pointer;
+}
+
+tbody tr.is-selected .rank-select {
+  background: var(--text);
+  color: var(--surface);
 }
 
 .commune-cell strong,
@@ -522,6 +614,7 @@ tbody tr.is-selected {
   height: var(--h);
   border-radius: 999px;
   background: var(--c);
+  box-shadow: 0 2px 7px rgba(23, 49, 58, 0.12);
 }
 
 .delta-positive {
@@ -547,6 +640,10 @@ tbody tr.is-selected {
   padding: 1rem;
 }
 
+.detail-panel h3 {
+  margin-top: 1.05rem;
+}
+
 .detail-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -562,7 +659,7 @@ tbody tr.is-selected {
   min-width: 88px;
   min-height: 88px;
   border-radius: var(--radius);
-  background: var(--text);
+  background: linear-gradient(145deg, var(--text), var(--blue));
   color: var(--surface);
   text-align: center;
 }
@@ -593,6 +690,12 @@ tbody tr.is-selected {
   font-size: 1.15rem;
 }
 
+.subrank-value {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
 .components {
   display: grid;
   gap: 0.72rem;
@@ -601,11 +704,11 @@ tbody tr.is-selected {
 
 .component-row {
   display: grid;
-  grid-template-columns: minmax(210px, 1fr) minmax(160px, 0.8fr) 82px;
+  grid-template-columns: minmax(210px, 1fr) minmax(140px, 0.75fr) 112px;
   gap: 0.7rem;
   align-items: center;
   padding: 0.72rem;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--line);
   border-radius: var(--radius);
 }
@@ -632,7 +735,7 @@ tbody tr.is-selected {
   height: 10px;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--bg-soft);
+  background: #edf3f1;
 }
 
 .bar-track span {
@@ -640,16 +743,17 @@ tbody tr.is-selected {
   inset: 0 auto 0 0;
   width: var(--w);
   border-radius: inherit;
-  background: var(--teal);
+  background: linear-gradient(90deg, var(--teal), var(--teal-2));
 }
 
 .bar-track span.negative {
-  background: var(--rose);
+  background: linear-gradient(90deg, var(--rose), #d97778);
 }
 
 .component-value {
   font-weight: 900;
   text-align: right;
+  white-space: nowrap;
 }
 
 .macro-grid,
@@ -670,6 +774,9 @@ tbody tr.is-selected {
   gap: 1rem;
   align-items: start;
   margin-top: 1rem;
+  background:
+    linear-gradient(135deg, rgba(23, 122, 116, 0.08), transparent 32%),
+    rgba(255, 255, 255, 0.9);
 }
 
 .formula {
@@ -678,17 +785,59 @@ tbody tr.is-selected {
 }
 
 .formula span {
+  position: relative;
   padding: 0.58rem 0.72rem;
+  padding-left: 0.95rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
   font-weight: 800;
 }
 
+.formula span::before {
+  position: absolute;
+  inset: 0.55rem auto 0.55rem 0.48rem;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--teal);
+  content: "";
+}
+
 .method-panel p {
   grid-column: 2;
   margin: 0;
   color: var(--muted);
+}
+
+.source-explainer {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.source-explainer div {
+  min-width: 0;
+  padding: 0.72rem;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.source-explainer strong,
+.source-explainer span {
+  display: block;
+}
+
+.source-explainer strong {
+  font-size: 0.84rem;
+}
+
+.source-explainer span {
+  margin-top: 0.18rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.32;
 }
 
 .source-links {
@@ -729,6 +878,15 @@ tbody tr.is-selected {
 
 .leaflet-container {
   font-family: inherit;
+}
+
+.leaflet-tile {
+  filter: saturate(0.58) contrast(0.96) brightness(1.04);
+}
+
+.leaflet-interactive {
+  filter: drop-shadow(0 3px 5px rgba(23, 49, 58, 0.24));
+  transition: opacity 160ms ease, stroke-width 160ms ease;
 }
 
 .map-tooltip {
@@ -780,8 +938,13 @@ tbody tr.is-selected {
   }
 
   .method-panel p,
+  .source-explainer,
   .source-links {
     grid-column: 1;
+  }
+
+  .source-explainer {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -877,7 +1040,7 @@ tbody tr.is-selected {
 
   .legend {
     left: 1.2rem;
-    right: 1.2rem;
-    bottom: 1.2rem;
+    right: 4.8rem;
+    bottom: 3.15rem;
   }
 }

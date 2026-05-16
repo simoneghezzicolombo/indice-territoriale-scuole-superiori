@@ -59,7 +59,7 @@ function bindElements() {
     "selected-chip",
     "stat-comuni",
     "stat-top",
-    "stat-indicatori",
+    "stat-baseline",
   ].forEach((id) => {
     els[toCamel(id)] = document.getElementById(id);
   });
@@ -162,8 +162,8 @@ function initMap() {
 function renderGlobalStats(meta) {
   const top = state.comuni[0];
   els.statComuni.textContent = fmt0.format(meta.counts.rowsWithFinalIndex);
-  els.statTop.textContent = `${top.comune} ${fmt2.format(top.indice)}`;
-  els.statIndicatori.textContent = "5 aree";
+  els.statTop.textContent = `${top.comune} · ${fmt2.format(top.indice)} punti`;
+  els.statBaseline.textContent = "100";
 }
 
 function renderAll(options = {}) {
@@ -228,10 +228,10 @@ function renderRanking(filtered) {
       const selected = item.id === state.selectedId ? " is-selected" : "";
       return `
         <tr class="${selected}" data-id="${escapeAttr(item.id)}">
-          <td><button class="rank-select" type="button" aria-label="Seleziona ${escapeAttr(item.comune)}">#${item.rank}</button></td>
+          <td><button class="rank-select" type="button" aria-label="Seleziona ${escapeAttr(item.comune)}">${item.rank}</button></td>
           <td class="commune-cell">
             <strong>${escapeHtml(item.comune)}</strong>
-            <span>${escapeHtml(item.provinciaSigla || item.provincia)} · ${escapeHtml(item.regione)}</span>
+            <span>${escapeHtml(item.provinciaSigla || item.provincia)} &middot; ${escapeHtml(item.regione)}</span>
           </td>
           <td class="score">${fmt2.format(item.indice)}</td>
           <td class="profile-cell">${profileBars(item)}</td>
@@ -275,7 +275,7 @@ function renderMarkers(features) {
     const marker = L.circleMarker([lat, lng], markerStyle(feature));
     marker.feature = feature;
     marker.bindTooltip(
-      `<div class="map-tooltip"><strong>#${feature.properties.rank} ${escapeHtml(feature.properties.comune)}</strong>${escapeHtml(feature.properties.provincia)} · indice ${fmt2.format(feature.properties.indice)}</div>`,
+      `<div class="map-tooltip"><strong>${feature.properties.rank}ª posizione · ${escapeHtml(feature.properties.comune)}</strong>${escapeHtml(feature.properties.provincia)} &middot; ${fmt2.format(feature.properties.indice)} punti</div>`,
       { sticky: true }
     );
     marker.on("click", () => selectComune(feature.properties.id, { pan: false }));
@@ -294,10 +294,13 @@ function applySelectedMapStyle() {
 
 function colorForScore(score) {
   const pct = scorePercent(score);
-  if (pct < 0.5) {
-    return mixColor("#b9505d", "#d9a441", pct * 2);
+  if (pct < 0.38) {
+    return mixColor("#b9505d", "#d9a441", pct / 0.38);
   }
-  return mixColor("#d9a441", "#177a74", (pct - 0.5) * 2);
+  if (pct < 0.72) {
+    return mixColor("#d9a441", "#177a74", (pct - 0.38) / 0.34);
+  }
+  return mixColor("#177a74", "#315e7d", (pct - 0.72) / 0.28);
 }
 
 function selectComune(id, options = {}) {
@@ -341,7 +344,7 @@ function renderSelected() {
     return;
   }
 
-  els.selectedChip.textContent = `#${item.rank} ${item.comune} · ${fmt2.format(item.indice)}`;
+  els.selectedChip.textContent = `${item.rank}ª posizione · ${item.comune} · ${fmt2.format(item.indice)} punti`;
   renderDetail(item);
   renderSchools(item.id);
 }
@@ -349,34 +352,34 @@ function renderSelected() {
 function renderDetail(item) {
   const components = [
     {
-      label: "Apprendimenti Invalsi",
+      label: "Apprendimenti INVALSI",
       value: item.docente,
       weight: "35%",
-      note: "Italiano e matematica rispetto alla media nazionale.",
+      note: "Prove nazionali di italiano e matematica.",
     },
     {
-      label: "Qualita del percorso",
+      label: "Percorso dopo il diploma",
       value: item.eduscopioUni,
       weight: "35%",
-      note: "Esiti universitari Eduscopio a parita di indirizzo.",
+      note: "Risultati negli studi universitari.",
     },
     {
-      label: "Esiti lavoro",
+      label: "Esiti nel lavoro",
       value: item.lavoroCopertura,
       weight: "10%",
-      note: "Tecnici e professionali, pesati per diplomati coperti.",
+      note: "Occupazione e qualità del lavoro dopo il diploma.",
     },
     {
-      label: "Accesso all'universita",
+      label: "Accesso all'università",
       value: item.immatricolazione,
       weight: "10%",
-      note: "Immatricolazioni vs benchmark nazionale di indirizzo.",
+      note: "Quanti diplomati si iscrivono all'università.",
     },
     {
-      label: "Continuita universitaria",
+      label: "Continuità universitaria",
       value: item.continuita,
       weight: "10%",
-      note: "Prosecuzione senza abbandono vs benchmark nazionale.",
+      note: "Quanti continuano senza abbandonare presto.",
     },
   ];
 
@@ -385,19 +388,19 @@ function renderDetail(item) {
       <div>
         <p class="eyebrow">Scheda comune</p>
         <h2>${escapeHtml(item.comune)}</h2>
-        <p class="lede">${escapeHtml(item.provincia)} · ${escapeHtml(item.regione)}</p>
+        <p class="lede">${escapeHtml(item.provincia)} &middot; ${escapeHtml(item.regione)}</p>
       </div>
-      <div class="rank-badge" aria-label="Rank nazionale">
-        <span>Rank</span>
-        <strong>#${item.rank}</strong>
+      <div class="rank-badge" aria-label="Posizione nazionale">
+        <span>Posizione</span>
+        <strong>${item.rank}</strong>
       </div>
     </div>
 
     <div class="metric-grid">
-      ${metric("Indice", fmt2.format(item.indice))}
-      ${metric("Diplomati", fmt0.format(item.diplomati || 0))}
-      ${metric("Affidabilita", item.affidabilita == null ? "n.d." : fmt1.format(item.affidabilita))}
-      ${metric("Copertura lavoro", item.coperturaLavoro == null ? "n.d." : `${fmt1.format(item.coperturaLavoro)}%`)}
+      ${metric("Punteggio totale", `${fmt2.format(item.indice)} punti`)}
+      ${metric("Diplomati considerati", fmt0.format(item.diplomati || 0))}
+      ${metric("Copertura dati", item.affidabilita == null ? "n.d." : `${fmt1.format(item.affidabilita)}%`)}
+      ${metric("Lavoro: dati presenti", item.coperturaLavoro == null ? "n.d." : `${fmt1.format(item.coperturaLavoro)}%`)}
     </div>
 
     <h3>Composizione dell'indice</h3>
@@ -405,18 +408,18 @@ function renderDetail(item) {
       ${components.map((component) => componentRow(component)).join("")}
     </div>
 
-    <h3>Indirizzi pesati</h3>
+    <h3>Quanto pesano gli indirizzi</h3>
     <div class="macro-grid">
       ${macroCard("Licei", item.macro.licei)}
       ${macroCard("Tecnici", item.macro.tecnici)}
       ${macroCard("Professionali", item.macro.professionali)}
     </div>
 
-    <h3>Subranking</h3>
+    <h3>Classifiche per dimensione</h3>
     <div class="subranking-grid">
-      ${subrankCard("Finale", item.subrankings.finale)}
+      ${subrankCard("Totale", item.subrankings.finale)}
       ${subrankCard("Apprendimenti", item.subrankings.docente)}
-      ${subrankCard("Percorso", item.subrankings.eduscopio_uni)}
+      ${subrankCard("Dopo il diploma", item.subrankings.eduscopio_uni)}
       ${subrankCard("Lavoro", item.subrankings.lavoro_copertura)}
     </div>
   `;
@@ -428,18 +431,18 @@ function metric(label, value) {
 
 function profileBars(item) {
   const values = [
-    ["Apprendimenti Invalsi", item.docente],
-    ["Qualita percorso", item.eduscopioUni],
-    ["Esiti lavoro", item.lavoroCopertura],
-    ["Accesso universita", item.immatricolazione],
-    ["Continuita universitaria", item.continuita],
+    ["Apprendimenti INVALSI", item.docente],
+    ["Percorso dopo il diploma", item.eduscopioUni],
+    ["Esiti nel lavoro", item.lavoroCopertura],
+    ["Accesso all'università", item.immatricolazione],
+    ["Continuità universitaria", item.continuita],
   ];
   return `
     <div class="profile-bars" aria-label="Profilo sintetico delle cinque componenti">
       ${values
         .map(([label, value]) => {
           const height = value == null ? 12 : Math.max(10, Math.min(34, 12 + Math.abs(value) * 0.55));
-          const color = value == null ? "#d8e7e5" : value >= 0 ? "#177a74" : "#b9505d";
+          const color = value == null ? "#d8e7e5" : value > 1 ? "#177a74" : value < -1 ? "#b9505d" : "#d9a441";
           return `<span title="${escapeAttr(`${label}: ${formatSigned(value)}`)}" style="--h:${height}px;--c:${color}"></span>`;
         })
         .join("")}
@@ -455,10 +458,10 @@ function componentRow(component) {
     <div class="component-row">
       <div class="component-name">
         <strong>${escapeHtml(label)}</strong>
-        <span>${escapeHtml(weight)} · ${escapeHtml(note)}</span>
+        <span>Peso ${escapeHtml(weight)} &middot; ${escapeHtml(note)}</span>
       </div>
       <div class="bar-track"><span class="${signClass}" style="--w:${width.toFixed(1)}%"></span></div>
-      <div class="component-value ${deltaClass(value)}">${formatSigned(value)}</div>
+      <div class="component-value ${deltaClass(value)}">${formatPoints(value)}</div>
     </div>
   `;
 }
@@ -468,15 +471,20 @@ function macroCard(label, macro) {
   const peso = macro?.peso || 0;
   return `
     <div class="macro-card">
-      <span>${escapeHtml(label)} · ${fmt0.format(peso)} diplomati</span>
-      <strong class="${deltaClass(delta)}">${formatSigned(delta)}</strong>
+      <span>${escapeHtml(label)} &middot; ${fmt0.format(peso)} diplomati</span>
+      <strong class="${deltaClass(delta)}">${formatPoints(delta)}</strong>
     </div>
   `;
 }
 
 function subrankCard(label, data) {
-  const rank = data?.rank ? `#${data.rank}` : "n.d.";
-  const value = data?.value == null ? "" : ` · ${formatSigned(data.value)}`;
+  const rank = data?.rank ? `${fmt0.format(data.rank)}ª posizione` : "n.d.";
+  const formattedValue = data?.value == null
+    ? ""
+    : label === "Totale"
+      ? `${fmt2.format(data.value)} punti`
+      : `${formatSigned(data.value)} punti`;
+  const value = formattedValue ? ` <span class="subrank-value">&middot; ${escapeHtml(formattedValue)}</span>` : "";
   return `
     <div class="subrank-card">
       <span>${escapeHtml(label)}</span>
@@ -514,6 +522,11 @@ function formatSigned(value) {
   }
   const sign = value > 0 ? "+" : "";
   return `${sign}${fmt2.format(value)}`;
+}
+
+function formatPoints(value) {
+  const formatted = formatSigned(value);
+  return formatted === "n.d." ? formatted : `${formatted} punti`;
 }
 
 function deltaClass(value) {

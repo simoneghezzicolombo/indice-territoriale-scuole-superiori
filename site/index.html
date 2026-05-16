@@ -30,29 +30,33 @@
     <main id="content">
       <section class="intro" aria-labelledby="page-title">
         <div>
-          <p class="eyebrow">Public-interest data</p>
+          <p class="eyebrow">Dati e territorio</p>
           <h1 id="page-title">Indice Territoriale Scuole Superiori</h1>
           <p class="lede">
-            Atlante comunale degli esiti delle scuole superiori in Italia:
-            apprendimenti, percorsi universitari, lavoro e continuita.
+            Una mappa per leggere come vanno i territori italiani: competenze scolastiche,
+            percorso dopo il diploma, università e lavoro.
           </p>
         </div>
         <dl class="summary-grid" aria-label="Sintesi indice">
           <div>
-            <dt>Comuni</dt>
+            <dt>Comuni analizzati</dt>
             <dd id="stat-comuni">...</dd>
+            <p>con dati sufficienti per il confronto</p>
           </div>
           <div>
-            <dt>Miglior indice</dt>
+            <dt>Primo in classifica</dt>
             <dd id="stat-top">...</dd>
+            <p>il comune con il punteggio più alto</p>
           </div>
           <div>
-            <dt>Aree</dt>
-            <dd id="stat-indicatori">5</dd>
+            <dt>Punto di equilibrio</dt>
+            <dd id="stat-baseline">100</dd>
+            <p>100 è il livello neutro del punteggio</p>
           </div>
           <div>
-            <dt>Snapshot</dt>
-            <dd>14/05/2026</dd>
+            <dt>Aggiornamento</dt>
+            <dd>maggio 2026</dd>
+            <p>fonti pubbliche online</p>
           </div>
         </dl>
       </section>
@@ -61,32 +65,36 @@
         <div class="composition-intro">
           <p class="eyebrow">Come si legge</p>
           <h2>Un indice, cinque dimensioni</h2>
+          <p>
+            Si parte da 100 punti. Ogni dimensione può rafforzare o indebolire
+            il risultato finale in base al peso indicato.
+          </p>
         </div>
         <div class="composition-cards">
-          <article>
+          <article class="learning-card">
             <strong>35%</strong>
-            <span>Apprendimenti Invalsi</span>
-            <p>Italiano e matematica, II e V superiore, rispetto alla media nazionale.</p>
+            <span>Apprendimenti INVALSI</span>
+            <p>Le prove nazionali di italiano e matematica: qui contano II e V superiore.</p>
           </article>
-          <article>
+          <article class="path-card">
             <strong>35%</strong>
-            <span>Qualita del percorso</span>
-            <p>Risultati Eduscopio confrontati con scuole dello stesso indirizzo.</p>
+            <span>Percorso dopo il diploma</span>
+            <p>Come prosegue chi si diploma: risultati negli studi universitari.</p>
           </article>
-          <article>
+          <article class="work-card">
             <strong>10%</strong>
-            <span>Esiti lavoro</span>
-            <p>Risultati post-diploma per tecnici e professionali, pesati per copertura.</p>
+            <span>Esiti nel lavoro</span>
+            <p>Per tecnici e professionali: occupazione e qualità del lavoro dopo il diploma.</p>
           </article>
-          <article>
+          <article class="access-card">
             <strong>10%</strong>
-            <span>Accesso all'universita</span>
-            <p>Immatricolazioni rispetto al benchmark nazionale dello stesso indirizzo.</p>
+            <span>Accesso all'università</span>
+            <p>Quanti diplomati scelgono di iscriversi all'università.</p>
           </article>
-          <article>
+          <article class="continuity-card">
             <strong>10%</strong>
-            <span>Continuita universitaria</span>
-            <p>Quota che prosegue senza abbandono, sempre a parita di indirizzo.</p>
+            <span>Continuità universitaria</span>
+            <p>Quanti proseguono gli studi senza abbandonare subito.</p>
           </article>
         </div>
       </section>
@@ -128,11 +136,11 @@
 
           <div class="mini-stats" aria-label="Comuni filtrati">
             <div>
-              <span>Risultati</span>
+              <span>Comuni mostrati</span>
               <strong id="filtered-count">...</strong>
             </div>
             <div>
-              <span>Indice medio</span>
+              <span>Punteggio medio</span>
               <strong id="filtered-average">...</strong>
             </div>
           </div>
@@ -142,15 +150,16 @@
           <div class="panel-heading inline">
             <div>
               <p class="eyebrow">Mappa</p>
-              <h2 id="map-title">Scala territoriale</h2>
+              <h2 id="map-title">Mappa dei comuni</h2>
+              <p class="panel-note">Ogni punto è un comune. Il colore va da più fragile a più forte.</p>
             </div>
             <p id="selected-chip" class="selected-chip">...</p>
           </div>
           <div id="map" class="map" role="img" aria-label="Mappa dei comuni con indice rappresentati da punti"></div>
           <div class="legend" aria-label="Legenda">
-            <span>Debole</span>
+            <span>Più fragile</span>
             <i></i>
-            <span>Forte</span>
+            <span>Più forte</span>
           </div>
         </section>
 
@@ -159,16 +168,17 @@
             <div>
               <p class="eyebrow">Classifica</p>
               <h2 id="ranking-title">Classifica nazionale</h2>
+              <p class="panel-note">Le cinque tacche riassumono le dimensioni: verde forte, giallo stabile, rosso fragile.</p>
             </div>
-            <a class="download-link" href="data/indice-comuni.json" download>JSON</a>
+            <a class="download-link" href="data/indice-comuni.json" download>Scarica dati</a>
           </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Rank</th>
+                  <th>Pos.</th>
                   <th>Comune</th>
-                  <th>Indice</th>
+                  <th>Punteggio</th>
                   <th>Profilo</th>
                 </tr>
               </thead>
@@ -186,10 +196,11 @@
         <section class="schools-panel" aria-labelledby="schools-title">
           <div class="panel-heading inline">
             <div>
-              <p class="eyebrow">Eduscopio</p>
-              <h2 id="schools-title">Scuole e indirizzi Eduscopio</h2>
+              <p class="eyebrow">Dettaglio scuole</p>
+              <h2 id="schools-title">Scuole e indirizzi</h2>
+              <p class="panel-note">Gli indirizzi usati per costruire il punteggio del comune.</p>
             </div>
-            <a class="download-link" href="data/indirizzi-comuni.json" download>JSON</a>
+            <a class="download-link" href="data/indirizzi-comuni.json" download>Scarica dati</a>
           </div>
           <div class="table-wrap compact">
             <table>
@@ -197,8 +208,8 @@
                 <tr>
                   <th>Scuola</th>
                   <th>Indirizzo</th>
-                  <th>Dipl.</th>
-                  <th>Universita</th>
+                  <th>Diplomati</th>
+                  <th>Università</th>
                   <th>Lavoro</th>
                 </tr>
               </thead>
@@ -214,30 +225,35 @@
           <h2 id="method-title">Formula e fonti</h2>
         </div>
         <div class="formula">
-          <span>100</span>
-          <span>+ 35% apprendimenti Invalsi vs Italia</span>
-          <span>+ 35% qualita del percorso vs scuole dello stesso indirizzo</span>
-          <span>+ 10% esiti lavoro pesati per copertura</span>
-          <span>+ 10% accesso all'universita vs benchmark nazionale</span>
-          <span>+ 10% continuita universitaria vs benchmark nazionale</span>
+          <span>Partenza: 100 punti</span>
+          <span>35% apprendimenti INVALSI</span>
+          <span>35% percorso dopo il diploma</span>
+          <span>10% esiti nel lavoro</span>
+          <span>10% accesso all'università</span>
+          <span>10% continuità universitaria</span>
         </div>
         <p>
-          L'indice misura il territorio comunale, non la singola scuola. I dati Invalsi arrivano
-          dagli aggregati Docente.it; gli indicatori universitari e lavorativi arrivano da Eduscopio
-          e sono confrontati per indirizzo, pesati per diplomati e copertura disponibile.
+          L'indice misura il comune, non la singola scuola. INVALSI indica le prove nazionali
+          di italiano e matematica. Eduscopio osserva cosa succede dopo il diploma: studio
+          universitario e, per alcuni indirizzi, lavoro. Gli indirizzi con più diplomati contano di più.
         </p>
+        <div class="source-explainer">
+          <div><strong>INVALSI</strong><span>Quanto sono solide le competenze in italiano e matematica.</span></div>
+          <div><strong>Dopo il diploma</strong><span>Come proseguono gli studenti negli studi o nel lavoro.</span></div>
+          <div><strong>Peso diplomati</strong><span>Un indirizzo grande incide più di uno molto piccolo.</span></div>
+        </div>
         <div class="source-links">
           <a href="https://www.docente.it/migliori-scuole/">Docente.it</a>
           <a href="https://eduscopio.it/">Eduscopio</a>
           <a href="https://github.com/openpolis/geojson-italy">Coordinate comunali Openpolis</a>
-          <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori/blob/main/docs/METHODOLOGY.md">Metodologia completa</a>
+          <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori/blob/main/docs/METHODOLOGY.md">Metodo completo</a>
         </div>
       </section>
     </main>
 
     <footer class="footer">
       <span>Indice Territoriale Scuole Superiori</span>
-      <a href="https://simoneghezzicolombo.github.io/">Back to portfolio</a>
+      <a href="https://simoneghezzicolombo.github.io/">Torna al portfolio</a>
     </footer>
 
     <script
