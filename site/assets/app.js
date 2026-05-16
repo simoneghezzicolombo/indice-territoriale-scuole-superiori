@@ -12,7 +12,7 @@ const state = {
 
 const els = {};
 
-const fmt0 = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0 });
+const fmt0 = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0, useGrouping: true });
 const fmt1 = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const fmt2 = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -60,6 +60,9 @@ function bindElements() {
     "stat-comuni",
     "stat-top",
     "stat-baseline",
+    "coverage-schools",
+    "coverage-addresses",
+    "coverage-comuni",
   ].forEach((id) => {
     els[toCamel(id)] = document.getElementById(id);
   });
@@ -161,9 +164,16 @@ function initMap() {
 
 function renderGlobalStats(meta) {
   const top = state.comuni[0];
+  const schoolRows = Object.values(state.indirizzi).flat();
+  const schoolIds = new Set(
+    schoolRows.map((row) => row.codice || `${row.scuola || ""}|${row.indirizzo || ""}`)
+  );
   els.statComuni.textContent = fmt0.format(meta.counts.rowsWithFinalIndex);
   els.statTop.textContent = `${top.comune} · ${fmt2.format(top.indice)} punti`;
   els.statBaseline.textContent = "100";
+  els.coverageSchools.textContent = fmt0.format(schoolIds.size);
+  els.coverageAddresses.textContent = fmt0.format(schoolRows.length);
+  els.coverageComuni.textContent = fmt0.format(Object.keys(state.indirizzi).length);
 }
 
 function renderAll(options = {}) {
@@ -399,6 +409,7 @@ function renderDetail(item) {
     <div class="metric-grid">
       ${metric("Punteggio totale", `${fmt2.format(item.indice)} punti`)}
       ${metric("Diplomati considerati", fmt0.format(item.diplomati || 0))}
+      ${metric("Indirizzi inclusi", fmt0.format(item.indirizzi || 0))}
       ${metric("Copertura dati", item.affidabilita == null ? "n.d." : `${fmt1.format(item.affidabilita)}%`)}
       ${metric("Lavoro: dati presenti", item.coperturaLavoro == null ? "n.d." : `${fmt1.format(item.coperturaLavoro)}%`)}
     </div>
@@ -503,14 +514,14 @@ function renderSchools(id) {
   els.schoolsBody.innerHTML = rows
     .map((row) => `
       <tr>
-        <td class="school-cell">
+        <td class="school-cell" data-label="Scuola">
           <strong>${escapeHtml(row.scuola || "n.d.")}</strong>
           <span>${escapeHtml(row.codice || "")}</span>
         </td>
-        <td>${escapeHtml(row.indirizzo || "n.d.")}</td>
-        <td>${fmt0.format(row.diplomati || 0)}</td>
-        <td><span class="${deltaClass(row.uniDelta)}">${formatSigned(row.uniDelta)}</span></td>
-        <td><span class="${deltaClass(row.lavDelta)}">${formatSigned(row.lavDelta)}</span></td>
+        <td data-label="Indirizzo">${escapeHtml(row.indirizzo || "n.d.")}</td>
+        <td data-label="Diplomati">${fmt0.format(row.diplomati || 0)}</td>
+        <td data-label="Università"><span class="${deltaClass(row.uniDelta)}">${formatSigned(row.uniDelta)}</span></td>
+        <td data-label="Lavoro"><span class="${deltaClass(row.lavDelta)}">${formatSigned(row.lavDelta)}</span></td>
       </tr>
     `)
     .join("");

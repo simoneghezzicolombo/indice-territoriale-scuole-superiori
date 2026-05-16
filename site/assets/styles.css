@@ -126,6 +126,70 @@ main {
   box-shadow: var(--shadow);
 }
 
+.coverage-band {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.42fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background:
+    linear-gradient(120deg, rgba(217, 164, 65, 0.12), transparent 42%),
+    rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.coverage-copy {
+  align-self: center;
+}
+
+.coverage-copy p:last-child {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+}
+
+.coverage-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.coverage-cards article {
+  min-width: 0;
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.coverage-cards span,
+.coverage-cards strong,
+.coverage-cards p {
+  display: block;
+}
+
+.coverage-cards span {
+  color: var(--teal);
+  font-size: clamp(1.45rem, 2.4vw, 2.05rem);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.coverage-cards strong {
+  margin-top: 0.28rem;
+  font-size: 0.98rem;
+}
+
+.coverage-cards p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
 .composition-intro {
   align-self: center;
 }
@@ -677,7 +741,7 @@ tbody tr.is-selected .rank-select {
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.7rem;
   margin: 1rem 0;
 }
@@ -766,6 +830,17 @@ tbody tr.is-selected .rank-select {
 
 .subranking-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.schools-note {
+  margin: 0.85rem 1rem 0;
+  padding: 0.72rem 0.8rem;
+  background: rgba(23, 122, 116, 0.07);
+  border: 1px solid rgba(23, 122, 116, 0.18);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.38;
 }
 
 .method-panel {
@@ -912,6 +987,7 @@ tbody tr.is-selected .rank-select {
 @media (max-width: 980px) {
   .intro,
   .composition-band,
+  .coverage-band,
   .detail-layout,
   .method-panel {
     grid-template-columns: 1fr;
@@ -923,6 +999,7 @@ tbody tr.is-selected .rank-select {
 
   .summary-grid,
   .metric-grid,
+  .coverage-cards,
   .macro-grid,
   .subranking-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -974,29 +1051,25 @@ tbody tr.is-selected .rank-select {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .composition-cards {
-    display: flex;
-    gap: 0.75rem;
-    overflow-x: auto;
-    padding-bottom: 0.1rem;
-    scroll-snap-type: x proximity;
+  .composition-cards,
+  .coverage-cards {
+    grid-template-columns: 1fr;
   }
 
   .composition-cards article {
-    flex: 0 0 230px;
-    scroll-snap-align: start;
+    min-height: 0;
   }
 
   .map-panel {
-    order: 1;
-  }
-
-  .ranking-panel {
     order: 2;
   }
 
-  .filters-panel {
+  .ranking-panel {
     order: 3;
+  }
+
+  .filters-panel {
+    order: 1;
   }
 
   .panel-heading.inline {
@@ -1030,6 +1103,88 @@ tbody tr.is-selected .rank-select {
   th,
   td {
     padding: 0.62rem 0.5rem;
+  }
+
+  .ranking-panel table {
+    font-size: 0.82rem;
+  }
+
+  .ranking-panel .table-wrap {
+    max-height: 430px;
+  }
+
+  .rank-select {
+    width: 34px;
+    height: 30px;
+  }
+
+  .profile-cell {
+    min-width: 62px;
+  }
+
+  .profile-bars {
+    grid-template-columns: repeat(5, 6px);
+    gap: 3px;
+  }
+
+  .profile-bars span {
+    width: 6px;
+  }
+
+  .table-wrap {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .schools-panel thead {
+    display: none;
+  }
+
+  .schools-panel table,
+  .schools-panel tbody,
+  .schools-panel tr,
+  .schools-panel td {
+    display: block;
+    width: 100%;
+  }
+
+  .schools-panel tr {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .schools-panel tr:last-child {
+    border-bottom: 0;
+  }
+
+  .schools-panel td {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 0.65rem;
+    padding: 0.22rem 0;
+    border-bottom: 0;
+  }
+
+  .schools-panel td::before {
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    content: attr(data-label);
+  }
+
+  .schools-panel td.school-cell strong,
+  .schools-panel td.school-cell span {
+    grid-column: 2;
+  }
+
+  .schools-panel td.empty-state {
+    display: grid;
+    min-height: 130px;
+    place-items: center;
+  }
+
+  .schools-panel td.empty-state::before {
+    content: none;
   }
 
   .map {

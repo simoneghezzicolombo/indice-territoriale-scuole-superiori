@@ -99,6 +99,35 @@
         </div>
       </section>
 
+      <section class="coverage-band" aria-labelledby="coverage-title">
+        <div class="coverage-copy">
+          <p class="eyebrow">Scuole incluse</p>
+          <h2 id="coverage-title">Che cosa entra nell'indice</h2>
+          <p>
+            Sono considerate le scuole superiori presenti nei dati Eduscopio con almeno
+            un indirizzo e diplomati disponibili, nei comuni per cui esistono anche dati
+            comunali INVALSI. Ogni riga di dettaglio è una coppia scuola-indirizzo.
+          </p>
+        </div>
+        <div class="coverage-cards" aria-label="Copertura scuole incluse">
+          <article>
+            <span id="coverage-schools">...</span>
+            <strong>scuole superiori</strong>
+            <p>identificate per codice scuola</p>
+          </article>
+          <article>
+            <span id="coverage-addresses">...</span>
+            <strong>indirizzi</strong>
+            <p>licei, tecnici e professionali</p>
+          </article>
+          <article>
+            <span id="coverage-comuni">...</span>
+            <strong>comuni</strong>
+            <p>con dati sufficienti per il confronto</p>
+          </article>
+        </div>
+      </section>
+
       <section class="workspace" aria-label="Esplorazione indice">
         <aside class="filters-panel" aria-label="Filtri">
           <div class="panel-heading">
@@ -198,9 +227,16 @@
             <div>
               <p class="eyebrow">Dettaglio scuole</p>
               <h2 id="schools-title">Scuole e indirizzi</h2>
-              <p class="panel-note">Gli indirizzi usati per costruire il punteggio del comune.</p>
+              <p class="panel-note">
+                Gli indirizzi usati per costruire il punteggio del comune.
+              </p>
             </div>
             <a class="download-link" href="data/indirizzi-comuni.json" download>Scarica dati</a>
+          </div>
+          <div class="schools-note">
+            Se una scuola ha più indirizzi, compare più volte: è voluto, perché ogni
+            indirizzo pesa in base ai diplomati. I dati sul lavoro compaiono solo dove
+            Eduscopio li rende disponibili.
           </div>
           <div class="table-wrap compact">
             <table>
