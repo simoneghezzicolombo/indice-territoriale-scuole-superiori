@@ -184,6 +184,46 @@ def build_indirizzi(path: Path, id_lookup: dict[str, str]) -> dict[str, list[dic
     return dict(records)
 
 
+def weighted_average(rows: list[dict[str, Any]], value_col: str, weight_col: str = "peso_diplomati") -> float | None:
+    numerator = 0.0
+    denominator = 0.0
+    for row in rows:
+        value = row.get(value_col)
+        weight = row.get(weight_col)
+        if value is None or pd.isna(value) or weight is None or pd.isna(weight):
+            continue
+        value_float = float(value)
+        weight_float = float(weight)
+        if not math.isfinite(value_float) or not math.isfinite(weight_float) or weight_float <= 0:
+            continue
+        numerator += value_float * weight_float
+        denominator += weight_float
+    if denominator == 0:
+        return None
+    return numerator / denominator
+
+
+def build_absolute_lookup(path: Path, id_lookup: dict[str, str]) -> dict[str, dict[str, float | None]]:
+    if not path.exists():
+        return {}
+
+    df = pd.read_csv(path)
+    lookup: dict[str, dict[str, float | None]] = {}
+    for comune, group in df.groupby("comune"):
+        comune_id = id_lookup.get(normalize(comune))
+        if not comune_id:
+            continue
+        rows = group.to_dict("records")
+        lookup[comune_id] = {
+            "uniScore": weighted_average(rows, "uni_score"),
+            "lavoroScore": weighted_average(rows, "lav_score"),
+            "immatricolazionePct": weighted_average(rows, "immatricolazione_scuola_pct"),
+            "continuitaPct": weighted_average(rows, "non_abbandono_scuola_pct"),
+            "abbandonoPct": weighted_average(rows, "abbandono_scuola_pct"),
+        }
+    return lookup
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--index", default="output/docente_eduscopio_indice_lavoro_copertura.csv")
@@ -245,6 +285,7 @@ def main() -> None:
 
     subrankings = build_subranking_lookup(Path(args.subrankings), id_lookup)
     indirizzi = build_indirizzi(Path(args.indirizzi), id_lookup)
+    absolute_lookup = build_absolute_lookup(Path(args.indirizzi), id_lookup)
 
     comuni: list[dict[str, Any]] = []
     point_collection: dict[str, Any] = {"type": "FeatureCollection", "features": []}
@@ -252,6 +293,7 @@ def main() -> None:
     for _, row in valid.iterrows():
         comune_id = f"{slug(row['comune'])}-{slug(row['provincia'])}"
         display = display_lookup[comune_id]
+        absolute = absolute_lookup.get(comune_id, {})
         item = {
             "id": comune_id,
             "comune": display["comune"],
@@ -267,6 +309,14 @@ def main() -> None:
             "lavoroCopertura": finite(row.get("esiti_lavoro_delta_pesato_copertura_punti"), 2),
             "immatricolazione": finite(row.get("immatricolazione_delta_naz_punti"), 2),
             "continuita": finite(row.get("continuita_uni_delta_naz_punti"), 2),
+            "absolute": {
+                "docentePct": finite(row.get("docente_media_superiori_pct"), 1),
+                "uniScore": finite(absolute.get("uniScore"), 2),
+                "lavoroScore": finite(absolute.get("lavoroScore"), 2),
+                "immatricolazionePct": finite(absolute.get("immatricolazionePct"), 1),
+                "continuitaPct": finite(absolute.get("continuitaPct"), 1),
+                "abbandonoPct": finite(absolute.get("abbandonoPct"), 1),
+            },
             "diplomati": finite(row.get("peso_diplomati_eduscopio"), 0),
             "indirizzi": finite(row.get("indirizzi_eduscopio"), 0),
             "coperturaLavoro": finite(row.get("quota_diplomati_con_esiti_lavoro_pct"), 2),

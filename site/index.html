@@ -15,7 +15,7 @@
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       crossorigin=""
     />
-    <link rel="stylesheet" href="assets/styles.css?v=20260517-dimensions" />
+    <link rel="stylesheet" href="assets/styles.css?v=20260517-editorial" />
   </head>
   <body>
     <a class="skip-link" href="#content">Salta al contenuto</a>
@@ -61,6 +61,20 @@
             <p>fonti pubbliche online</p>
           </div>
         </dl>
+      </section>
+
+      <section class="story-band" aria-labelledby="story-title">
+        <div class="story-copy">
+          <p class="eyebrow">Il risultato</p>
+          <h2 id="story-title">Dove il territorio scolastico è più forte?</h2>
+          <p>
+            L'indice confronta i comuni italiani combinando competenze scolastiche,
+            risultati universitari e primi esiti lavorativi dei diplomati.
+          </p>
+        </div>
+        <div class="insight-grid" id="insights-grid" aria-label="Risultati principali">
+          <article><span>...</span><strong>Caricamento</strong><p>Analisi dei dati in corso.</p></article>
+        </div>
       </section>
 
       <section class="composition-band" aria-label="Composizione dell'indice">
@@ -211,13 +225,21 @@
             </div>
             <a class="download-link" href="data/indice-comuni.json" download>Scarica dati</a>
           </div>
+          <div class="ranking-metric-controls" id="ranking-metric-controls" role="group" aria-label="Classifica visualizzata">
+            <button type="button" class="is-active" data-ranking-metric="indice">Totale</button>
+            <button type="button" data-ranking-metric="docente">INVALSI</button>
+            <button type="button" data-ranking-metric="eduscopioUni">Università</button>
+            <button type="button" data-ranking-metric="lavoroCopertura">Lavoro</button>
+            <button type="button" data-ranking-metric="immatricolazione">Iscrizione uni</button>
+            <button type="button" data-ranking-metric="continuita">Continuità</button>
+          </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>Pos.</th>
                   <th>Comune</th>
-                  <th>Punteggio</th>
+                  <th id="ranking-score-label">Punteggio</th>
                   <th>Profilo</th>
                 </tr>
               </thead>
@@ -225,6 +247,27 @@
             </table>
           </div>
         </section>
+      </section>
+
+      <section class="compare-panel" aria-labelledby="compare-title">
+        <div class="panel-heading inline">
+          <div>
+            <p class="eyebrow">Confronto</p>
+            <h2 id="compare-title">Confronta due comuni</h2>
+            <p class="panel-note">Le barre mostrano le stesse cinque dimensioni usate dall'indice.</p>
+          </div>
+        </div>
+        <div class="compare-controls">
+          <label class="field">
+            <span>Comune A</span>
+            <input id="compare-a" type="search" list="comuni-options" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Comune B</span>
+            <input id="compare-b" type="search" list="comuni-options" autocomplete="off" />
+          </label>
+        </div>
+        <div id="compare-result" class="compare-result" aria-live="polite"></div>
       </section>
 
       <section class="detail-layout" aria-label="Scheda comune">
@@ -284,6 +327,17 @@
           e matematica. Eduscopio entra con FGA universitario, iscrizione, continuità e,
           dove disponibile, lavoro. Gli indirizzi con più diplomati contano di più.
         </p>
+        <div class="score-legend" aria-label="Lettura del punteggio">
+          <span><strong>110+</strong> molto forte</span>
+          <span><strong>103-110</strong> forte</span>
+          <span><strong>97-103</strong> stabile</span>
+          <span><strong>90-97</strong> fragile</span>
+          <span><strong>&lt;90</strong> molto fragile</span>
+        </div>
+        <div class="limits-box">
+          <strong>Limiti di lettura</strong>
+          <span>Entrano solo i comuni con dati sufficienti; la copertura sul lavoro varia perché Eduscopio pubblica quei dati soprattutto per tecnici e professionali. Il risultato racconta il territorio comunale, non una graduatoria ufficiale delle singole scuole.</span>
+        </div>
         <div class="source-explainer">
           <div><strong>Docente.it / INVALSI</strong><span>Percentuale di studenti sopra i traguardi previsti in italiano e matematica.</span></div>
           <div><strong>Eduscopio università</strong><span>FGA, iscrizione e continuità universitaria degli ex studenti.</span></div>
@@ -307,6 +361,6 @@
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       crossorigin=""
     ></script>
-    <script src="assets/app.js?v=20260517-dimensions" defer></script>
+    <script src="assets/app.js?v=20260517-editorial" defer></script>
   </body>
 </html>

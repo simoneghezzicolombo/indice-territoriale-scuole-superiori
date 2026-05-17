@@ -8,6 +8,9 @@ const state = {
   map: null,
   markerLayer: null,
   mapMetric: "indice",
+  rankingMetric: "indice",
+  compareAId: null,
+  compareBId: null,
   metricExtents: {},
 };
 
@@ -16,6 +19,7 @@ const els = {};
 const fmt0 = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0, useGrouping: true });
 const fmt1 = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const fmt2 = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const DATA_VERSION = "20260517-editorial";
 
 const DIMENSIONS = [
   {
@@ -88,9 +92,9 @@ async function init() {
   bindElements();
   try {
     const [indexData, geoData, indirizziData] = await Promise.all([
-      fetchJson("data/indice-comuni.json"),
-      fetchJson("data/comuni-points.geojson"),
-      fetchJson("data/indirizzi-comuni.json"),
+      fetchJson(versionedDataUrl("data/indice-comuni.json")),
+      fetchJson(versionedDataUrl("data/comuni-points.geojson")),
+      fetchJson(versionedDataUrl("data/indirizzi-comuni.json")),
     ]);
 
     state.comuni = indexData.comuni;
@@ -101,9 +105,12 @@ async function init() {
     state.metricExtents = getMetricExtents(state.comuni);
 
     populateControls(indexData.meta);
+    hydrateFromUrl();
+    ensureCompareDefaults();
     bindEvents();
     initMap();
     renderGlobalStats(indexData.meta);
+    renderInsights();
     renderAll({ fitMap: true });
   } catch (error) {
     showFatalError(error);
@@ -120,8 +127,14 @@ function bindElements() {
     "filtered-count",
     "filtered-average",
     "ranking-body",
+    "ranking-metric-controls",
+    "ranking-score-label",
     "schools-body",
     "comune-detail",
+    "compare-a",
+    "compare-b",
+    "compare-result",
+    "insights-grid",
     "selected-chip",
     "stat-comuni",
     "stat-top",
@@ -148,6 +161,10 @@ async function fetchJson(url) {
     throw new Error(`Impossibile caricare ${url}`);
   }
   return response.json();
+}
+
+function versionedDataUrl(url) {
+  return `${url}?v=${DATA_VERSION}`;
 }
 
 function populateControls(meta) {
@@ -202,7 +219,10 @@ function bindEvents() {
     populateProvinceOptions();
     els.provinceFilter.value = "";
     state.selectedId = null;
+    state.compareAId = null;
+    ensureCompareDefaults();
     renderAll({ fitMap: true });
+    updateUrl();
   });
 
   els.rankingBody.addEventListener("click", (event) => {
@@ -210,6 +230,18 @@ function bindEvents() {
     if (row) {
       selectComune(row.dataset.id, { pan: true });
     }
+  });
+
+  els.rankingMetricControls.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-ranking-metric]");
+    if (!button || !DIMENSIONS_BY_KEY.has(button.dataset.rankingMetric)) {
+      return;
+    }
+
+    state.rankingMetric = button.dataset.rankingMetric;
+    renderRanking(getFilteredComuni());
+    renderRankingControls();
+    updateUrl();
   });
 
   els.mapMetricControls.addEventListener("click", (event) => {
@@ -221,7 +253,11 @@ function bindEvents() {
     state.mapMetric = button.dataset.mapMetric;
     renderMapControls();
     renderMap(getFilteredComuni(), false);
+    updateUrl();
   });
+
+  bindCompareInput(els.compareA, "compareAId", { syncSelection: true });
+  bindCompareInput(els.compareB, "compareBId", { syncSelection: false });
 }
 
 function initMap() {
@@ -256,14 +292,57 @@ function renderGlobalStats(meta) {
   els.coverageComuni.textContent = fmt0.format(Object.keys(state.indirizzi).length);
 }
 
+function renderInsights() {
+  const top = state.comuni[0];
+  const second = state.comuni[1];
+  const bestInvalsi = bestByDimension("docente");
+  const bestLavoro = bestByDimension("lavoroCopertura");
+
+  const insights = [
+    {
+      kicker: "Classifica finale",
+      title: `${top.comune} guida l'indice`,
+      text: `${fmt2.format(top.indice)} punti: è il valore più alto tra i comuni coperti.`,
+    },
+    {
+      kicker: "Secondo posto",
+      title: `${second.comune} segue a ${fmt2.format(second.indice)} punti`,
+      text: communeProfile(second, reportDimensions(second)),
+    },
+    {
+      kicker: "Competenze",
+      title: `${bestInvalsi.comune} prima in INVALSI`,
+      text: `${formatPoints(bestInvalsi.docente)} rispetto al livello neutro dell'indice.`,
+    },
+    {
+      kicker: "Lavoro",
+      title: `${bestLavoro.comune} emerge negli esiti lavorativi`,
+      text: `${formatPoints(bestLavoro.lavoroCopertura)} considerando la copertura disponibile.`,
+    },
+  ];
+
+  els.insightsGrid.innerHTML = insights
+    .map((insight) => `
+      <article>
+        <span>${escapeHtml(insight.kicker)}</span>
+        <strong>${escapeHtml(insight.title)}</strong>
+        <p>${escapeHtml(insight.text)}</p>
+      </article>
+    `)
+    .join("");
+}
+
 function renderAll(options = {}) {
   const filtered = getFilteredComuni();
   ensureSelection(filtered);
+  ensureCompareDefaults();
   renderFilterStats(filtered);
+  renderRankingControls();
   renderRanking(filtered);
   renderMapControls();
   renderMap(filtered, options.fitMap);
   renderSelected();
+  renderCompare();
 }
 
 function renderMapControls() {
@@ -271,6 +350,17 @@ function renderMapControls() {
   els.mapMetricControls.querySelectorAll("button[data-map-metric]").forEach((button) => {
     const dimension = DIMENSIONS_BY_KEY.get(button.dataset.mapMetric);
     button.classList.toggle("is-active", button.dataset.mapMetric === current.key);
+    button.style.setProperty("--metric-color", dimension?.color || current.color);
+    button.style.setProperty("--metric-soft", dimension?.pale || current.pale);
+  });
+}
+
+function renderRankingControls() {
+  const current = currentRankingDimension();
+  els.rankingScoreLabel.textContent = current.key === "indice" ? "Punteggio" : current.short;
+  els.rankingMetricControls.querySelectorAll("button[data-ranking-metric]").forEach((button) => {
+    const dimension = DIMENSIONS_BY_KEY.get(button.dataset.rankingMetric);
+    button.classList.toggle("is-active", button.dataset.rankingMetric === current.key);
     button.style.setProperty("--metric-color", dimension?.color || current.color);
     button.style.setProperty("--metric-soft", dimension?.pale || current.pale);
   });
@@ -324,17 +414,27 @@ function renderRanking(filtered) {
     return;
   }
 
-  els.rankingBody.innerHTML = filtered
+  const dimension = currentRankingDimension();
+  const ranked = [...filtered].sort((a, b) => {
+    const rankA = metricRank(a, dimension);
+    const rankB = metricRank(b, dimension);
+    if (rankA != null && rankB != null) return rankA - rankB;
+    return safeValue(dimension.value(b)) - safeValue(dimension.value(a));
+  });
+
+  els.rankingBody.innerHTML = ranked
     .map((item) => {
       const selected = item.id === state.selectedId ? " is-selected" : "";
+      const rank = metricRank(item, dimension) || item.rank;
+      const value = dimension.value(item);
       return `
         <tr class="${selected}" data-id="${escapeAttr(item.id)}">
-          <td><button class="rank-select" type="button" aria-label="Seleziona ${escapeAttr(item.comune)}">${item.rank}</button></td>
+          <td><button class="rank-select" type="button" aria-label="Seleziona ${escapeAttr(item.comune)}">${rank}</button></td>
           <td class="commune-cell">
             <strong>${escapeHtml(item.comune)}</strong>
             <span>${escapeHtml(item.provinciaSigla || item.provincia)} &middot; ${escapeHtml(item.regione)}</span>
           </td>
-          <td class="score">${fmt2.format(item.indice)}</td>
+          <td class="score">${formatRankingMetricCell(item, dimension, value)}</td>
           <td class="profile-cell">${profileBars(item)}</td>
         </tr>
       `;
@@ -414,7 +514,7 @@ function renderMarkers(features) {
     const rankText = rank == null ? "" : `${fmt0.format(rank)}ª posizione · `;
     marker.feature = feature;
     marker.bindTooltip(
-      `<div class="map-tooltip"><strong>${rankText}${escapeHtml(feature.properties.comune)}</strong>${escapeHtml(feature.properties.provincia)} &middot; ${escapeHtml(dimension.label)}: ${escapeHtml(formatDimensionValue(dimension, value))}</div>`,
+      `<div class="map-tooltip"><strong>${rankText}${escapeHtml(feature.properties.comune)}</strong>${escapeHtml(feature.properties.provincia)} &middot; ${escapeHtml(dimension.label)}: ${escapeHtml(formatDimensionTooltip(item, dimension, value))}</div>`,
       { sticky: true }
     );
     marker.on("click", () => selectComune(feature.properties.id, { pan: false }));
@@ -426,7 +526,7 @@ function applySelectedMapStyle() {
   state.markerLayer.eachLayer((layer) => {
     layer.setIcon(markerIcon(layer.feature));
     layer.setZIndexOffset(markerZIndex(layer.feature));
-    if (layer.feature.properties.id === state.selectedId) {
+    if (layer.feature.properties.id === state.selectedId && typeof layer.bringToFront === "function") {
       layer.bringToFront();
     }
   });
@@ -438,9 +538,13 @@ function selectComune(id, options = {}) {
   }
 
   state.selectedId = id;
+  state.compareAId = id;
+  ensureCompareDefaults();
   renderSelected();
   renderRanking(getFilteredComuni());
+  renderCompare();
   applySelectedMapStyle();
+  updateUrl();
 
   if (options.pan) {
     const layer = findLayerById(id);
@@ -516,6 +620,8 @@ function renderDetail(item) {
       note: "Quanti continuano senza abbandonare presto.",
     },
   ];
+  const reportRows = reportDimensions(item);
+  const profile = communeProfile(item, reportRows);
 
   els.comuneDetail.innerHTML = `
     <div class="detail-hero">
@@ -523,6 +629,7 @@ function renderDetail(item) {
         <p class="eyebrow">Scheda comune</p>
         <h2>${escapeHtml(item.comune)}</h2>
         <p class="lede">${escapeHtml(item.provincia)} &middot; ${escapeHtml(item.regione)}</p>
+        <p class="detail-reading">${escapeHtml(profile)}</p>
       </div>
       <div class="rank-badge" aria-label="Posizione nazionale">
         <span>Posizione</span>
@@ -536,6 +643,11 @@ function renderDetail(item) {
       ${metric("Indirizzi inclusi", fmt0.format(item.indirizzi || 0))}
       ${metric("Copertura dati", item.affidabilita == null ? "n.d." : `${fmt1.format(item.affidabilita)}%`)}
       ${metric("Lavoro: dati presenti", item.coperturaLavoro == null ? "n.d." : `${fmt1.format(item.coperturaLavoro)}%`)}
+    </div>
+
+    <h3>Pagella del comune</h3>
+    <div class="report-card" role="table" aria-label="Pagella del comune">
+      ${reportRows.map((row) => reportRow(row)).join("")}
     </div>
 
     <h3>Composizione dell'indice</h3>
@@ -562,6 +674,70 @@ function renderDetail(item) {
 
 function metric(label, value) {
   return `<div class="metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`;
+}
+
+function reportDimensions(item) {
+  return DIMENSIONS
+    .filter((dimension) => dimension.key !== "indice")
+    .map((dimension) => {
+      const value = dimension.value(item);
+      return {
+        item,
+        dimension,
+        value,
+        rank: metricRank(item, dimension),
+        reading: dimensionReading(item, dimension, value),
+      };
+    });
+}
+
+function reportRow(row) {
+  const absolute = absoluteDimensionLabel(row.item, row.dimension);
+  const value = formatDimensionValue(row.dimension, row.value);
+  const rank = row.rank == null ? "n.d." : `${fmt0.format(row.rank)}°`;
+  return `
+    <div class="report-row" style="--component-color:${row.dimension.color};--component-soft:${row.dimension.pale}" role="row">
+      <span class="report-dimension" role="cell">${escapeHtml(row.dimension.label)}</span>
+      <strong class="report-absolute" role="cell">${escapeHtml(absolute)}</strong>
+      <span class="report-delta" role="cell">${escapeHtml(value)} · ${escapeHtml(rank)}</span>
+      <em role="cell">${escapeHtml(row.reading)}</em>
+    </div>
+  `;
+}
+
+function communeProfile(item, rows) {
+  const scoreLabel = scoreReading(item.indice);
+  const best = rows
+    .filter((row) => Number.isFinite(row.value))
+    .sort((a, b) => b.value - a.value)[0];
+  const caveat = item.coperturaLavoro != null && item.coperturaLavoro < 50
+    ? " I dati sul lavoro sono parziali."
+    : "";
+  if (!best) {
+    return `Profilo ${scoreLabel}.`;
+  }
+  return `Profilo ${scoreLabel}: punto più forte su ${best.dimension.label.toLowerCase()}.${caveat}`;
+}
+
+function scoreReading(score) {
+  if (!Number.isFinite(score)) return "non disponibile";
+  if (score >= 110) return "molto forte";
+  if (score >= 103) return "forte";
+  if (score >= 97) return "stabile";
+  if (score >= 90) return "fragile";
+  return "molto fragile";
+}
+
+function dimensionReading(item, dimension, value) {
+  if (!Number.isFinite(value)) return "non disponibile";
+  if (dimension.key === "lavoroCopertura" && item.coperturaLavoro != null && item.coperturaLavoro < 50) {
+    return value >= 0 ? "sopra la media, copertura parziale" : "debole, copertura parziale";
+  }
+  if (value >= 15) return "molto forte";
+  if (value >= 6) return "forte";
+  if (value >= -3) return "stabile";
+  if (value >= -10) return "fragile";
+  return "molto fragile";
 }
 
 function profileBars(item) {
@@ -651,6 +827,110 @@ function renderSchools(id) {
     .join("");
 }
 
+function renderCompare() {
+  ensureCompareDefaults();
+  const first = state.comuniById.get(state.compareAId);
+  const second = state.comuniById.get(state.compareBId);
+
+  els.compareA.value = first?.comune || "";
+  els.compareB.value = second?.comune || "";
+
+  if (!first || !second) {
+    els.compareResult.innerHTML = '<div class="empty-state">Seleziona due comuni per confrontarli.</div>';
+    return;
+  }
+
+  const diff = first.indice - second.indice;
+  const diffText = diff === 0 ? "pari nell'indice finale" : diff > 0 ? `${first.comune} avanti` : `${second.comune} avanti`;
+  els.compareResult.innerHTML = `
+    <div class="compare-summary">
+      <div>
+        <span>${escapeHtml(first.comune)}</span>
+        <strong>${fmt2.format(first.indice)}</strong>
+        <p>${first.rank}° posto · ${escapeHtml(scoreReading(first.indice))}</p>
+      </div>
+      <div>
+        <span>Differenza</span>
+        <strong>${formatPoints(diff)}</strong>
+        <p>${escapeHtml(diffText)}</p>
+      </div>
+      <div>
+        <span>${escapeHtml(second.comune)}</span>
+        <strong>${fmt2.format(second.indice)}</strong>
+        <p>${second.rank}° posto · ${escapeHtml(scoreReading(second.indice))}</p>
+      </div>
+    </div>
+    <div class="compare-bars">
+      ${DIMENSIONS.filter((dimension) => dimension.key !== "indice").map((dimension) => compareBar(first, second, dimension)).join("")}
+    </div>
+  `;
+}
+
+function compareBar(first, second, dimension) {
+  const firstValue = dimension.value(first);
+  const secondValue = dimension.value(second);
+  return `
+    <div class="compare-row" style="--component-color:${dimension.color};--component-soft:${dimension.pale}">
+      <div class="compare-name">
+        <strong>${escapeHtml(dimension.label)}</strong>
+        <span>${escapeHtml(dimensionReading(first, dimension, firstValue))} · ${escapeHtml(dimensionReading(second, dimension, secondValue))}</span>
+      </div>
+      ${compareValue(first, firstValue, dimension)}
+      ${compareValue(second, secondValue, dimension)}
+    </div>
+  `;
+}
+
+function compareValue(item, value, dimension) {
+  const pct = Number.isFinite(value) ? metricPercent(value, dimension.key) : 0;
+  return `
+    <div class="compare-value">
+      <span>${escapeHtml(item.comune)}</span>
+      <div class="compare-track"><i style="--w:${(pct * 100).toFixed(1)}%"></i></div>
+      <strong>${escapeHtml(absoluteDimensionLabel(item, dimension))}</strong>
+      <span>${escapeHtml(formatDimensionValue(dimension, value))}</span>
+    </div>
+  `;
+}
+
+function ensureCompareDefaults() {
+  if (!state.compareAId && state.selectedId) {
+    state.compareAId = state.selectedId;
+  }
+  if (!state.compareAId) {
+    state.compareAId = state.comuni[0]?.id || null;
+  }
+  if (!state.compareBId || state.compareBId === state.compareAId) {
+    const fallback = state.comuni.find((item) => item.id !== state.compareAId);
+    state.compareBId = fallback?.id || null;
+  }
+}
+
+function bindCompareInput(input, stateKey, options = {}) {
+  const apply = () => {
+    const match = findComuneByText(input.value);
+    if (!match) {
+      renderCompare();
+      return;
+    }
+    state[stateKey] = match.id;
+    ensureCompareDefaults();
+    if (options.syncSelection) {
+      selectComune(match.id, { pan: true });
+      return;
+    }
+    renderCompare();
+    updateUrl();
+  };
+
+  input.addEventListener("change", apply);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      apply();
+    }
+  });
+}
+
 function formatSigned(value) {
   if (value == null || Number.isNaN(value)) {
     return "n.d.";
@@ -691,8 +971,62 @@ function escapeAttr(value) {
   return escapeHtml(value);
 }
 
+function hydrateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const comune = params.get("comune") || window.location.hash.replace("#", "");
+  const compare = params.get("confronta");
+  const classifica = params.get("classifica");
+  const mappa = params.get("mappa");
+
+  const selected = comune ? findComuneByText(comune) : null;
+  if (selected) {
+    state.selectedId = selected.id;
+    state.compareAId = selected.id;
+  }
+
+  const compareItem = compare ? findComuneByText(compare) : null;
+  if (compareItem) {
+    state.compareBId = compareItem.id;
+  }
+
+  if (classifica && DIMENSIONS_BY_KEY.has(classifica)) {
+    state.rankingMetric = classifica;
+  }
+  if (mappa && DIMENSIONS_BY_KEY.has(mappa)) {
+    state.mapMetric = mappa;
+  }
+}
+
+function updateUrl() {
+  const params = new URLSearchParams();
+  if (state.selectedId) params.set("comune", state.selectedId);
+  if (state.selectedId && state.compareBId && state.compareBId !== state.selectedId) params.set("confronta", state.compareBId);
+  if (state.rankingMetric !== "indice") params.set("classifica", state.rankingMetric);
+  if (state.mapMetric !== "indice") params.set("mappa", state.mapMetric);
+  const query = params.toString();
+  const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}`;
+  window.history.replaceState(null, "", nextUrl);
+}
+
+function findComuneByText(value) {
+  const normalized = normalizeSearch(value);
+  if (!normalized) return null;
+  return (
+    state.comuniById.get(value) ||
+    state.comuni.find((item) => normalizeSearch(item.id) === normalized) ||
+    state.comuni.find((item) => normalizeSearch(item.comune) === normalized) ||
+    state.comuni.find((item) => normalizeSearch(`${item.comune} ${item.provincia}`) === normalized) ||
+    state.comuni.find((item) => normalizeSearch(`${item.comune} ${item.provinciaSigla}`) === normalized) ||
+    null
+  );
+}
+
 function currentDimension() {
   return DIMENSIONS_BY_KEY.get(state.mapMetric) || DIMENSIONS[0];
+}
+
+function currentRankingDimension() {
+  return DIMENSIONS_BY_KEY.get(state.rankingMetric) || DIMENSIONS[0];
 }
 
 function metricRank(item, dimension) {
@@ -702,6 +1036,55 @@ function metricRank(item, dimension) {
 
 function formatDimensionValue(dimension, value) {
   return dimension.valueLabel(value);
+}
+
+function formatDimensionTooltip(item, dimension, value) {
+  if (dimension.key === "indice") {
+    return formatDimensionValue(dimension, value);
+  }
+  return `${absoluteDimensionLabel(item, dimension)} · ${formatDimensionValue(dimension, value)}`;
+}
+
+function formatRankingMetricCell(item, dimension, value) {
+  if (dimension.key === "indice") {
+    return escapeHtml(formatDimensionValue(dimension, value));
+  }
+  return `
+    <strong>${escapeHtml(absoluteDimensionLabel(item, dimension))}</strong>
+    <span>${escapeHtml(formatDimensionValue(dimension, value))}</span>
+  `;
+}
+
+function absoluteDimensionLabel(item, dimension) {
+  const absolute = item?.absolute || {};
+  if (dimension.key === "docente") {
+    return formatPctLabel(absolute.docentePct, "studenti sopra i traguardi");
+  }
+  if (dimension.key === "eduscopioUni") {
+    return formatScoreLabel(absolute.uniScore, "FGA medio");
+  }
+  if (dimension.key === "lavoroCopertura") {
+    const score = formatScoreLabel(absolute.lavoroScore, "punteggio lavoro");
+    const coverage = formatPctLabel(item?.coperturaLavoro, "copertura");
+    return score === "n.d." ? coverage : `${score}, ${coverage}`;
+  }
+  if (dimension.key === "immatricolazione") {
+    return formatPctLabel(absolute.immatricolazionePct, "iscritti all'università");
+  }
+  if (dimension.key === "continuita") {
+    return formatPctLabel(absolute.continuitaPct, "continuità");
+  }
+  return formatDimensionValue(dimension, dimension.value(item));
+}
+
+function formatPctLabel(value, label) {
+  if (!Number.isFinite(value)) return "n.d.";
+  return `${fmt1.format(value)}% ${label}`;
+}
+
+function formatScoreLabel(value, label) {
+  if (!Number.isFinite(value)) return "n.d.";
+  return `${fmt1.format(value)}/100 ${label}`;
 }
 
 function getMetricExtents(comuni) {
@@ -721,6 +1104,15 @@ function getMetricExtents(comuni) {
       ];
     })
   );
+}
+
+function bestByDimension(key) {
+  const dimension = DIMENSIONS_BY_KEY.get(key);
+  return [...state.comuni].sort((a, b) => safeValue(dimension.value(b)) - safeValue(dimension.value(a)))[0];
+}
+
+function safeValue(value) {
+  return Number.isFinite(value) ? value : Number.NEGATIVE_INFINITY;
 }
 
 function percentile(values, amount) {

@@ -114,6 +114,7 @@ main {
   margin-bottom: clamp(1rem, 2vw, 1.4rem);
 }
 
+.story-band,
 .composition-band {
   display: grid;
   grid-template-columns: minmax(220px, 0.35fr) minmax(0, 1fr);
@@ -126,6 +127,63 @@ main {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+}
+
+.story-band {
+  grid-template-columns: minmax(260px, 0.42fr) minmax(0, 1fr);
+  background:
+    linear-gradient(120deg, rgba(49, 94, 125, 0.1), transparent 42%),
+    rgba(255, 255, 255, 0.92);
+}
+
+.story-copy {
+  align-self: center;
+}
+
+.story-copy p:last-child {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+}
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.insight-grid article {
+  min-width: 0;
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.insight-grid span,
+.insight-grid strong,
+.insight-grid p {
+  display: block;
+}
+
+.insight-grid span {
+  color: var(--teal);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.insight-grid strong {
+  margin-top: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.insight-grid p {
+  margin: 0.32rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.34;
 }
 
 .coverage-band {
@@ -382,6 +440,7 @@ h3 {
 .ranking-panel,
 .detail-panel,
 .schools-panel,
+.compare-panel,
 .method-panel {
   min-width: 0;
   background: rgba(255, 255, 255, 0.9);
@@ -419,14 +478,16 @@ h3 {
   padding: 1rem 1rem 0;
 }
 
-.map-metric-controls {
+.map-metric-controls,
+.ranking-metric-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
   padding: 0.75rem 1rem 0;
 }
 
-.map-metric-controls button {
+.map-metric-controls button,
+.ranking-metric-controls button {
   min-height: 34px;
   padding: 0 0.64rem;
   border: 1px solid var(--line);
@@ -439,12 +500,14 @@ h3 {
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
-.map-metric-controls button:hover {
+.map-metric-controls button:hover,
+.ranking-metric-controls button:hover {
   border-color: var(--metric-color, var(--teal));
   transform: translateY(-1px);
 }
 
-.map-metric-controls button.is-active {
+.map-metric-controls button.is-active,
+.ranking-metric-controls button.is-active {
   border-color: var(--metric-color, var(--teal));
   background: var(--metric-color, var(--teal));
   color: var(--surface);
@@ -480,7 +543,8 @@ h3 {
 .field select:focus,
 .reset-button:focus-visible,
 .rank-select:focus-visible,
-.map-metric-controls button:focus-visible {
+.map-metric-controls button:focus-visible,
+.ranking-metric-controls button:focus-visible {
   border-color: var(--teal);
   box-shadow: 0 0 0 3px rgba(23, 122, 116, 0.16);
 }
@@ -694,6 +758,18 @@ tbody tr.is-selected .rank-select {
   font-weight: 900;
 }
 
+.score strong,
+.score span {
+  display: block;
+}
+
+.score span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
 .profile-cell {
   min-width: 92px;
 }
@@ -734,12 +810,116 @@ tbody tr.is-selected .rank-select {
 
 .detail-panel,
 .schools-panel,
+.compare-panel,
 .method-panel {
   padding: 1rem;
 }
 
 .detail-panel h3 {
   margin-top: 1.05rem;
+}
+
+.compare-panel {
+  margin-top: 1rem;
+}
+
+.compare-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.compare-result {
+  margin-top: 1rem;
+}
+
+.compare-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 0.5fr) minmax(0, 1fr);
+  gap: 0.7rem;
+}
+
+.compare-summary div {
+  min-width: 0;
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.compare-summary span,
+.compare-summary strong,
+.compare-summary p {
+  display: block;
+}
+
+.compare-summary span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.compare-summary strong {
+  margin-top: 0.12rem;
+  font-size: clamp(1.25rem, 2vw, 1.7rem);
+}
+
+.compare-summary p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.compare-bars {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+}
+
+.compare-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.75fr) repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--component-color, var(--teal));
+  border-radius: var(--radius);
+}
+
+.compare-name strong,
+.compare-name span,
+.compare-value span,
+.compare-value strong {
+  display: block;
+}
+
+.compare-name span,
+.compare-value span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.compare-track {
+  position: relative;
+  height: 11px;
+  margin: 0.28rem 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--component-soft, #edf3f1);
+}
+
+.compare-track i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w);
+  border-radius: inherit;
+  background: var(--component-color, var(--teal));
 }
 
 .detail-hero {
@@ -773,6 +953,13 @@ tbody tr.is-selected .rank-select {
   line-height: 1;
 }
 
+.detail-reading {
+  max-width: 620px;
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -798,6 +985,51 @@ tbody tr.is-selected .rank-select {
   display: grid;
   gap: 0.72rem;
   margin-top: 1rem;
+}
+
+.report-card {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.report-row {
+  display: grid;
+  grid-template-columns: minmax(170px, 1.05fr) minmax(92px, 0.55fr) 72px minmax(150px, 0.8fr);
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.68rem 0.72rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--component-color, var(--teal));
+  border-radius: var(--radius);
+}
+
+.report-row strong,
+.report-row span,
+.report-row em {
+  min-width: 0;
+}
+
+.report-absolute {
+  font-size: 0.92rem;
+}
+
+.report-delta {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.report-row em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.78rem;
+  line-height: 1.28;
+}
+
+.report-dimension {
+  font-weight: 850;
 }
 
 .component-row {
@@ -935,6 +1167,43 @@ tbody tr.is-selected .rank-select {
   color: var(--muted);
 }
 
+.score-legend,
+.limits-box {
+  grid-column: 2;
+}
+
+.score-legend {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.score-legend span,
+.limits-box {
+  padding: 0.65rem;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.score-legend strong,
+.limits-box strong,
+.limits-box span {
+  display: block;
+}
+
+.score-legend strong,
+.limits-box strong {
+  color: var(--text);
+}
+
+.limits-box span {
+  margin-top: 0.22rem;
+}
+
 .source-explainer {
   grid-column: 2;
   display: grid;
@@ -1067,6 +1336,7 @@ tbody tr.is-selected .rank-select {
 
 @media (max-width: 980px) {
   .intro,
+  .story-band,
   .composition-band,
   .coverage-band,
   .detail-layout,
@@ -1074,6 +1344,7 @@ tbody tr.is-selected .rank-select {
     grid-template-columns: 1fr;
   }
 
+  .insight-grid,
   .composition-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1096,9 +1367,15 @@ tbody tr.is-selected .rank-select {
   }
 
   .method-panel p,
+  .score-legend,
+  .limits-box,
   .source-explainer,
   .source-links {
     grid-column: 1;
+  }
+
+  .score-legend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .source-explainer {
@@ -1133,6 +1410,7 @@ tbody tr.is-selected .rank-select {
   }
 
   .composition-cards,
+  .insight-grid,
   .coverage-cards {
     grid-template-columns: 1fr;
   }
@@ -1164,7 +1442,14 @@ tbody tr.is-selected .rank-select {
     gap: 0.4rem;
   }
 
-  .map-metric-controls button {
+  .ranking-metric-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .map-metric-controls button,
+  .ranking-metric-controls button {
     padding: 0 0.45rem;
     font-size: 0.74rem;
   }
@@ -1182,6 +1467,17 @@ tbody tr.is-selected .rank-select {
   .component-row {
     grid-template-columns: 1fr;
     gap: 0.35rem;
+  }
+
+  .report-row,
+  .compare-row,
+  .compare-summary,
+  .compare-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .score-legend {
+    grid-template-columns: 1fr;
   }
 
   .component-value {
