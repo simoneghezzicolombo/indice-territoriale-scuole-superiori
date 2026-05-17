@@ -7,7 +7,8 @@ const state = {
   selectedId: null,
   map: null,
   markerLayer: null,
-  scoreExtent: { min: 0, max: 1 },
+  mapMetric: "indice",
+  metricExtents: {},
 };
 
 const els = {};
@@ -15,6 +16,71 @@ const els = {};
 const fmt0 = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0, useGrouping: true });
 const fmt1 = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const fmt2 = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const DIMENSIONS = [
+  {
+    key: "indice",
+    subranking: "finale",
+    short: "Totale",
+    label: "Punteggio totale",
+    color: "#17313a",
+    pale: "#dfe9eb",
+    value: (item) => item?.indice,
+    valueLabel: (value) => (value == null ? "n.d." : `${fmt2.format(value)} punti`),
+  },
+  {
+    key: "docente",
+    subranking: "docente",
+    short: "INVALSI",
+    label: "Competenze INVALSI",
+    color: "#177a74",
+    pale: "#dff3f0",
+    value: (item) => item?.docente,
+    valueLabel: formatPoints,
+  },
+  {
+    key: "eduscopioUni",
+    subranking: "eduscopio_uni",
+    short: "Università",
+    label: "Esiti universitari",
+    color: "#315e7d",
+    pale: "#dfeaf1",
+    value: (item) => item?.eduscopioUni,
+    valueLabel: formatPoints,
+  },
+  {
+    key: "lavoroCopertura",
+    subranking: "lavoro_copertura",
+    short: "Lavoro",
+    label: "Esiti nel lavoro",
+    color: "#7c5c9e",
+    pale: "#eee7f4",
+    value: (item) => item?.lavoroCopertura,
+    valueLabel: formatPoints,
+  },
+  {
+    key: "immatricolazione",
+    subranking: "immatricolazione",
+    short: "Iscrizione uni",
+    label: "Accesso all'università",
+    color: "#d9a441",
+    pale: "#f6ecd0",
+    value: (item) => item?.immatricolazione,
+    valueLabel: formatPoints,
+  },
+  {
+    key: "continuita",
+    subranking: "continuita",
+    short: "Continuità",
+    label: "Continuità universitaria",
+    color: "#77864b",
+    pale: "#e9eed8",
+    value: (item) => item?.continuita,
+    valueLabel: formatPoints,
+  },
+];
+
+const DIMENSIONS_BY_KEY = new Map(DIMENSIONS.map((dimension) => [dimension.key, dimension]));
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -32,7 +98,7 @@ async function init() {
     state.geo = geoData;
     state.geoById = new Map(geoData.features.map((feature) => [feature.properties.id, feature]));
     state.indirizzi = indirizziData;
-    state.scoreExtent = getScoreExtent(state.comuni);
+    state.metricExtents = getMetricExtents(state.comuni);
 
     populateControls(indexData.meta);
     bindEvents();
@@ -63,6 +129,10 @@ function bindElements() {
     "coverage-schools",
     "coverage-addresses",
     "coverage-comuni",
+    "map-metric-controls",
+    "legend-low",
+    "legend-gradient",
+    "legend-high",
   ].forEach((id) => {
     els[toCamel(id)] = document.getElementById(id);
   });
@@ -142,6 +212,16 @@ function bindEvents() {
     }
   });
 
+  els.mapMetricControls.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-map-metric]");
+    if (!button || !DIMENSIONS_BY_KEY.has(button.dataset.mapMetric)) {
+      return;
+    }
+
+    state.mapMetric = button.dataset.mapMetric;
+    renderMapControls();
+    renderMap(getFilteredComuni(), false);
+  });
 }
 
 function initMap() {
@@ -181,8 +261,19 @@ function renderAll(options = {}) {
   ensureSelection(filtered);
   renderFilterStats(filtered);
   renderRanking(filtered);
+  renderMapControls();
   renderMap(filtered, options.fitMap);
   renderSelected();
+}
+
+function renderMapControls() {
+  const current = currentDimension();
+  els.mapMetricControls.querySelectorAll("button[data-map-metric]").forEach((button) => {
+    const dimension = DIMENSIONS_BY_KEY.get(button.dataset.mapMetric);
+    button.classList.toggle("is-active", button.dataset.mapMetric === current.key);
+    button.style.setProperty("--metric-color", dimension?.color || current.color);
+    button.style.setProperty("--metric-soft", dimension?.pale || current.pale);
+  });
 }
 
 function getFilteredComuni() {
@@ -256,6 +347,7 @@ function renderMap(filtered, fitMap = false) {
   const features = state.geo.features.filter((feature) => visibleIds.has(feature.properties.id));
 
   state.markerLayer.clearLayers();
+  renderMapLegend();
   renderMarkers(features);
   applySelectedMapStyle();
 
@@ -267,25 +359,62 @@ function renderMap(filtered, fitMap = false) {
   }
 }
 
-function markerStyle(feature) {
+function renderMapLegend() {
+  const dimension = currentDimension();
+  els.legendLow.textContent = `${dimension.short} più debole`;
+  els.legendHigh.textContent = `${dimension.short} più forte`;
+  els.legendGradient.style.background = `linear-gradient(90deg, ${dimension.pale}, ${dimension.color}, ${scaleColor(dimension.color, 0.55)})`;
+}
+
+function markerIcon(feature) {
+  const item = state.comuniById.get(feature.properties.id);
+  const dimension = currentDimension();
+  const value = dimension.value(item);
+  const rank = metricRank(item, dimension);
+  const pct = metricPercent(value, dimension.key);
   const selected = feature.properties.id === state.selectedId;
-  return {
-    radius: selected ? 9 : 5.5,
-    color: selected ? "#17313a" : "#ffffff",
-    weight: selected ? 3 : 1.4,
-    opacity: 1,
-    fillColor: colorForScore(feature.properties.indice),
-    fillOpacity: selected ? 0.98 : 0.9,
-  };
+  const showRank = rank != null && rank <= 5;
+  const size = selected ? 27 : showRank ? 23 : Math.round(11 + pct * 10);
+  const fill = colorForMetric(value, dimension);
+  const border = selected ? "#17313a" : "#ffffff";
+  const rankLabel = showRank ? escapeHtml(rank) : "";
+
+  return L.divIcon({
+    className: "map-marker",
+    html: `<span class="map-dot${showRank ? " has-rank" : ""}${selected ? " is-selected" : ""}" style="--dot-size:${size}px;--dot-fill:${fill};--dot-border:${border};">${rankLabel}</span>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+}
+
+function markerZIndex(feature) {
+  const item = state.comuniById.get(feature.properties.id);
+  const dimension = currentDimension();
+  const rank = metricRank(item, dimension);
+  const value = dimension.value(item);
+  const selectedBoost = feature.properties.id === state.selectedId ? 2000 : 0;
+  if (rank != null && rank <= 5) {
+    return selectedBoost + 1000 - rank;
+  }
+  return selectedBoost + Math.round(metricPercent(value, dimension.key) * 200);
 }
 
 function renderMarkers(features) {
   features.forEach((feature) => {
     const [lng, lat] = feature.geometry.coordinates;
-    const marker = L.circleMarker([lat, lng], markerStyle(feature));
+    const marker = L.marker([lat, lng], {
+      icon: markerIcon(feature),
+      keyboard: true,
+      zIndexOffset: markerZIndex(feature),
+    });
+    const item = state.comuniById.get(feature.properties.id);
+    const dimension = currentDimension();
+    const rank = metricRank(item, dimension);
+    const value = dimension.value(item);
+    const rankText = rank == null ? "" : `${fmt0.format(rank)}ª posizione · `;
     marker.feature = feature;
     marker.bindTooltip(
-      `<div class="map-tooltip"><strong>${feature.properties.rank}ª posizione · ${escapeHtml(feature.properties.comune)}</strong>${escapeHtml(feature.properties.provincia)} &middot; ${fmt2.format(feature.properties.indice)} punti</div>`,
+      `<div class="map-tooltip"><strong>${rankText}${escapeHtml(feature.properties.comune)}</strong>${escapeHtml(feature.properties.provincia)} &middot; ${escapeHtml(dimension.label)}: ${escapeHtml(formatDimensionValue(dimension, value))}</div>`,
       { sticky: true }
     );
     marker.on("click", () => selectComune(feature.properties.id, { pan: false }));
@@ -295,22 +424,12 @@ function renderMarkers(features) {
 
 function applySelectedMapStyle() {
   state.markerLayer.eachLayer((layer) => {
-    layer.setStyle(markerStyle(layer.feature));
+    layer.setIcon(markerIcon(layer.feature));
+    layer.setZIndexOffset(markerZIndex(layer.feature));
     if (layer.feature.properties.id === state.selectedId) {
       layer.bringToFront();
     }
   });
-}
-
-function colorForScore(score) {
-  const pct = scorePercent(score);
-  if (pct < 0.38) {
-    return mixColor("#b9505d", "#d9a441", pct / 0.38);
-  }
-  if (pct < 0.72) {
-    return mixColor("#d9a441", "#177a74", (pct - 0.38) / 0.34);
-  }
-  return mixColor("#177a74", "#315e7d", (pct - 0.72) / 0.28);
 }
 
 function selectComune(id, options = {}) {
@@ -362,30 +481,35 @@ function renderSelected() {
 function renderDetail(item) {
   const components = [
     {
-      label: "Apprendimenti INVALSI",
+      key: "docente",
+      label: "Competenze INVALSI",
       value: item.docente,
       weight: "35%",
-      note: "Prove nazionali di italiano e matematica.",
+      note: "Quota di studenti sopra i traguardi previsti in italiano e matematica.",
     },
     {
-      label: "Percorso dopo il diploma",
+      key: "eduscopioUni",
+      label: "Esiti universitari",
       value: item.eduscopioUni,
       weight: "35%",
-      note: "Risultati negli studi universitari.",
+      note: "FGA Eduscopio: voti e crediti universitari degli ex studenti.",
     },
     {
+      key: "lavoroCopertura",
       label: "Esiti nel lavoro",
       value: item.lavoroCopertura,
       weight: "10%",
-      note: "Occupazione e qualità del lavoro dopo il diploma.",
+      note: "Occupazione e coerenza tra lavoro trovato e percorso di studi.",
     },
     {
+      key: "immatricolazione",
       label: "Accesso all'università",
       value: item.immatricolazione,
       weight: "10%",
       note: "Quanti diplomati si iscrivono all'università.",
     },
     {
+      key: "continuita",
       label: "Continuità universitaria",
       value: item.continuita,
       weight: "10%",
@@ -429,8 +553,8 @@ function renderDetail(item) {
     <h3>Classifiche per dimensione</h3>
     <div class="subranking-grid">
       ${subrankCard("Totale", item.subrankings.finale)}
-      ${subrankCard("Apprendimenti", item.subrankings.docente)}
-      ${subrankCard("Dopo il diploma", item.subrankings.eduscopio_uni)}
+      ${subrankCard("Competenze INVALSI", item.subrankings.docente)}
+      ${subrankCard("Esiti universitari", item.subrankings.eduscopio_uni)}
       ${subrankCard("Lavoro", item.subrankings.lavoro_copertura)}
     </div>
   `;
@@ -442,19 +566,19 @@ function metric(label, value) {
 
 function profileBars(item) {
   const values = [
-    ["Apprendimenti INVALSI", item.docente],
-    ["Percorso dopo il diploma", item.eduscopioUni],
-    ["Esiti nel lavoro", item.lavoroCopertura],
-    ["Accesso all'università", item.immatricolazione],
-    ["Continuità universitaria", item.continuita],
+    [DIMENSIONS_BY_KEY.get("docente"), item.docente],
+    [DIMENSIONS_BY_KEY.get("eduscopioUni"), item.eduscopioUni],
+    [DIMENSIONS_BY_KEY.get("lavoroCopertura"), item.lavoroCopertura],
+    [DIMENSIONS_BY_KEY.get("immatricolazione"), item.immatricolazione],
+    [DIMENSIONS_BY_KEY.get("continuita"), item.continuita],
   ];
   return `
     <div class="profile-bars" aria-label="Profilo sintetico delle cinque componenti">
       ${values
-        .map(([label, value]) => {
+        .map(([dimension, value]) => {
           const height = value == null ? 12 : Math.max(10, Math.min(34, 12 + Math.abs(value) * 0.55));
-          const color = value == null ? "#d8e7e5" : value > 1 ? "#177a74" : value < -1 ? "#b9505d" : "#d9a441";
-          return `<span title="${escapeAttr(`${label}: ${formatSigned(value)}`)}" style="--h:${height}px;--c:${color}"></span>`;
+          const color = value == null ? "#d8e7e5" : dimension.color;
+          return `<span title="${escapeAttr(`${dimension.label}: ${formatSigned(value)}`)}" style="--h:${height}px;--c:${color}"></span>`;
         })
         .join("")}
     </div>
@@ -462,16 +586,16 @@ function profileBars(item) {
 }
 
 function componentRow(component) {
-  const { label, value, weight, note } = component;
+  const { key, label, value, weight, note } = component;
+  const dimension = DIMENSIONS_BY_KEY.get(key) || currentDimension();
   const width = value == null ? 0 : Math.min(100, (Math.abs(value) / 35) * 100);
-  const signClass = value == null || value >= 0 ? "" : " negative";
   return `
-    <div class="component-row">
+    <div class="component-row" style="--component-color:${dimension.color};--component-soft:${dimension.pale}">
       <div class="component-name">
         <strong>${escapeHtml(label)}</strong>
         <span>Peso ${escapeHtml(weight)} &middot; ${escapeHtml(note)}</span>
       </div>
-      <div class="bar-track"><span class="${signClass}" style="--w:${width.toFixed(1)}%"></span></div>
+      <div class="bar-track"><span style="--w:${width.toFixed(1)}%"></span></div>
       <div class="component-value ${deltaClass(value)}">${formatPoints(value)}</div>
     </div>
   `;
@@ -567,21 +691,76 @@ function escapeAttr(value) {
   return escapeHtml(value);
 }
 
-function getScoreExtent(comuni) {
-  const scores = comuni.map((item) => item.indice).filter((value) => Number.isFinite(value));
-  return { min: Math.min(...scores), max: Math.max(...scores) };
+function currentDimension() {
+  return DIMENSIONS_BY_KEY.get(state.mapMetric) || DIMENSIONS[0];
 }
 
-function scorePercent(score) {
-  const { min, max } = state.scoreExtent;
-  if (!Number.isFinite(score) || min === max) return 0.5;
-  return Math.max(0, Math.min(1, (score - min) / (max - min)));
+function metricRank(item, dimension) {
+  if (!item) return null;
+  return item.subrankings?.[dimension.subranking]?.rank || (dimension.key === "indice" ? item.rank : null);
+}
+
+function formatDimensionValue(dimension, value) {
+  return dimension.valueLabel(value);
+}
+
+function getMetricExtents(comuni) {
+  return Object.fromEntries(
+    DIMENSIONS.map((dimension) => {
+      const values = comuni
+        .map((item) => dimension.value(item))
+        .filter((value) => Number.isFinite(value))
+        .sort((a, b) => a - b);
+
+      return [
+        dimension.key,
+        {
+          min: percentile(values, 0.04),
+          max: percentile(values, 0.96),
+        },
+      ];
+    })
+  );
+}
+
+function percentile(values, amount) {
+  if (!values.length) return 0;
+  const index = (values.length - 1) * amount;
+  const lower = Math.floor(index);
+  const upper = Math.ceil(index);
+  if (lower === upper) return values[lower];
+  return values[lower] + (values[upper] - values[lower]) * (index - lower);
+}
+
+function metricPercent(value, key) {
+  const extent = state.metricExtents[key];
+  if (!Number.isFinite(value) || !extent || extent.min === extent.max) return 0.5;
+  return clamp((value - extent.min) / (extent.max - extent.min), 0, 1);
+}
+
+function colorForMetric(value, dimension) {
+  if (!Number.isFinite(value)) return "#d8e7e5";
+  const pct = metricPercent(value, dimension.key);
+  if (pct < 0.72) {
+    return mixColor(dimension.pale, dimension.color, pct / 0.72);
+  }
+  return mixColor(dimension.color, scaleColor(dimension.color, 0.52), (pct - 0.72) / 0.28);
+}
+
+function scaleColor(hex, factor) {
+  const rgb = hexToRgb(hex).map((channel) => Math.max(0, Math.min(255, Math.round(channel * factor))));
+  return `#${rgb.map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
 }
 
 function mixColor(from, to, amount) {
   const a = hexToRgb(from);
   const b = hexToRgb(to);
-  const rgb = a.map((channel, index) => Math.round(channel + (b[index] - channel) * amount));
+  const clamped = clamp(amount, 0, 1);
+  const rgb = a.map((channel, index) => Math.round(channel + (b[index] - channel) * clamped));
   return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 }
 

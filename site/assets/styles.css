@@ -10,6 +10,8 @@
   --teal-2: #3aa9a2;
   --teal-soft: #dff3f0;
   --blue: #315e7d;
+  --violet: #7c5c9e;
+  --violet-soft: #eee7f4;
   --amber: #d9a441;
   --olive: #77864b;
   --warm: #a9682a;
@@ -235,7 +237,7 @@ main {
 }
 
 .work-card {
-  --accent: var(--rose);
+  --accent: var(--violet);
 }
 
 .access-card {
@@ -417,6 +419,37 @@ h3 {
   padding: 1rem 1rem 0;
 }
 
+.map-metric-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.75rem 1rem 0;
+}
+
+.map-metric-controls button {
+  min-height: 34px;
+  padding: 0 0.64rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--metric-soft, var(--surface-2));
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 850;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.map-metric-controls button:hover {
+  border-color: var(--metric-color, var(--teal));
+  transform: translateY(-1px);
+}
+
+.map-metric-controls button.is-active {
+  border-color: var(--metric-color, var(--teal));
+  background: var(--metric-color, var(--teal));
+  color: var(--surface);
+}
+
 .field,
 .range-field {
   display: grid;
@@ -446,7 +479,8 @@ h3 {
 .field input:focus,
 .field select:focus,
 .reset-button:focus-visible,
-.rank-select:focus-visible {
+.rank-select:focus-visible,
+.map-metric-controls button:focus-visible {
   border-color: var(--teal);
   box-shadow: 0 0 0 3px rgba(23, 122, 116, 0.16);
 }
@@ -547,7 +581,7 @@ h3 {
 .legend i {
   height: 9px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--rose), var(--amber), var(--teal), var(--blue));
+  background: linear-gradient(90deg, #dfe9eb, var(--text));
 }
 
 .ranking-panel,
@@ -682,12 +716,12 @@ tbody tr.is-selected .rank-select {
 }
 
 .delta-positive {
-  color: var(--teal);
+  color: var(--text);
   font-weight: 800;
 }
 
 .delta-negative {
-  color: var(--rose);
+  color: var(--text);
   font-weight: 800;
 }
 
@@ -774,6 +808,7 @@ tbody tr.is-selected .rank-select {
   padding: 0.72rem;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--line);
+  border-left: 5px solid var(--component-color, var(--teal));
   border-radius: var(--radius);
 }
 
@@ -799,7 +834,7 @@ tbody tr.is-selected .rank-select {
   height: 10px;
   overflow: hidden;
   border-radius: 999px;
-  background: #edf3f1;
+  background: var(--component-soft, #edf3f1);
 }
 
 .bar-track span {
@@ -807,11 +842,7 @@ tbody tr.is-selected .rank-select {
   inset: 0 auto 0 0;
   width: var(--w);
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--teal), var(--teal-2));
-}
-
-.bar-track span.negative {
-  background: linear-gradient(90deg, var(--rose), #d97778);
+  background: var(--component-color, var(--teal));
 }
 
 .component-value {
@@ -876,6 +907,26 @@ tbody tr.is-selected .rank-select {
   border-radius: 999px;
   background: var(--teal);
   content: "";
+}
+
+.formula span:nth-child(2)::before {
+  background: var(--teal);
+}
+
+.formula span:nth-child(3)::before {
+  background: var(--blue);
+}
+
+.formula span:nth-child(4)::before {
+  background: var(--violet);
+}
+
+.formula span:nth-child(5)::before {
+  background: var(--amber);
+}
+
+.formula span:nth-child(6)::before {
+  background: var(--olive);
 }
 
 .method-panel p {
@@ -959,9 +1010,39 @@ tbody tr.is-selected .rank-select {
   filter: saturate(0.58) contrast(0.96) brightness(1.04);
 }
 
-.leaflet-interactive {
-  filter: drop-shadow(0 3px 5px rgba(23, 49, 58, 0.24));
-  transition: opacity 160ms ease, stroke-width 160ms ease;
+.map-marker {
+  background: transparent;
+  border: 0;
+}
+
+.map-dot {
+  display: grid;
+  width: var(--dot-size);
+  height: var(--dot-size);
+  place-items: center;
+  border: 2px solid var(--dot-border, #ffffff);
+  border-radius: 999px;
+  background: var(--dot-fill, var(--teal));
+  box-shadow:
+    0 4px 11px rgba(23, 49, 58, 0.24),
+    0 0 0 1px rgba(23, 49, 58, 0.08);
+  color: var(--surface);
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.map-dot.has-rank {
+  border-width: 2.5px;
+  text-shadow: 0 1px 2px rgba(23, 49, 58, 0.28);
+}
+
+.map-dot.is-selected {
+  transform: scale(1.12);
+  box-shadow:
+    0 6px 16px rgba(23, 49, 58, 0.32),
+    0 0 0 4px rgba(217, 164, 65, 0.28);
 }
 
 .map-tooltip {
@@ -1075,6 +1156,17 @@ tbody tr.is-selected .rank-select {
   .panel-heading.inline {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .map-metric-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .map-metric-controls button {
+    padding: 0 0.45rem;
+    font-size: 0.74rem;
   }
 
   .detail-hero {

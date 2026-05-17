@@ -8,12 +8,14 @@
       name="description"
       content="Mappa e classifica comunale degli esiti delle scuole superiori in Italia, pesata per indirizzo e diplomati."
     />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#17313a" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       crossorigin=""
     />
-    <link rel="stylesheet" href="assets/styles.css?v=20260516-mobile" />
+    <link rel="stylesheet" href="assets/styles.css?v=20260517-dimensions" />
   </head>
   <body>
     <a class="skip-link" href="#content">Salta al contenuto</a>
@@ -34,7 +36,7 @@
           <h1 id="page-title">Indice Territoriale Scuole Superiori</h1>
           <p class="lede">
             Una mappa per leggere come vanno i territori italiani: competenze scolastiche,
-            percorso dopo il diploma, università e lavoro.
+            risultati universitari, iscrizione all'università e lavoro.
           </p>
         </div>
         <dl class="summary-grid" aria-label="Sintesi indice">
@@ -73,18 +75,18 @@
         <div class="composition-cards">
           <article class="learning-card">
             <strong>35%</strong>
-            <span>Apprendimenti INVALSI</span>
-            <p>Le prove nazionali di italiano e matematica: qui contano II e V superiore.</p>
+            <span>Competenze INVALSI</span>
+            <p>Percentuale di studenti che raggiunge i traguardi previsti in italiano e matematica, in II e V superiore.</p>
           </article>
           <article class="path-card">
             <strong>35%</strong>
-            <span>Percorso dopo il diploma</span>
-            <p>Come prosegue chi si diploma: risultati negli studi universitari.</p>
+            <span>Esiti universitari</span>
+            <p>Indice FGA Eduscopio: voti e crediti universitari degli ex studenti, confrontati per indirizzo.</p>
           </article>
           <article class="work-card">
             <strong>10%</strong>
             <span>Esiti nel lavoro</span>
-            <p>Per tecnici e professionali: occupazione e qualità del lavoro dopo il diploma.</p>
+            <p>Per tecnici e professionali: occupazione e coerenza tra lavoro trovato e percorso di studi.</p>
           </article>
           <article class="access-card">
             <strong>10%</strong>
@@ -180,15 +182,23 @@
             <div>
               <p class="eyebrow">Mappa</p>
               <h2 id="map-title">Mappa dei comuni</h2>
-              <p class="panel-note">Ogni punto è un comune. Il colore va da più fragile a più forte.</p>
+              <p class="panel-note">Scegli una dimensione. Il colore resta quello della dimensione; più è intenso, migliore è il risultato.</p>
             </div>
             <p id="selected-chip" class="selected-chip">...</p>
           </div>
+          <div class="map-metric-controls" id="map-metric-controls" role="group" aria-label="Dimensione visualizzata sulla mappa">
+            <button type="button" class="is-active" data-map-metric="indice">Totale</button>
+            <button type="button" data-map-metric="docente">INVALSI</button>
+            <button type="button" data-map-metric="eduscopioUni">Università</button>
+            <button type="button" data-map-metric="lavoroCopertura">Lavoro</button>
+            <button type="button" data-map-metric="immatricolazione">Iscrizione uni</button>
+            <button type="button" data-map-metric="continuita">Continuità</button>
+          </div>
           <div id="map" class="map" role="img" aria-label="Mappa dei comuni con indice rappresentati da punti"></div>
           <div class="legend" aria-label="Legenda">
-            <span>Più fragile</span>
-            <i></i>
-            <span>Più forte</span>
+            <span id="legend-low">Più debole</span>
+            <i id="legend-gradient"></i>
+            <span id="legend-high">Più forte</span>
           </div>
         </section>
 
@@ -197,7 +207,7 @@
             <div>
               <p class="eyebrow">Classifica</p>
               <h2 id="ranking-title">Classifica nazionale</h2>
-              <p class="panel-note">Le cinque tacche riassumono le dimensioni: verde forte, giallo stabile, rosso fragile.</p>
+              <p class="panel-note">Le cinque tacche usano gli stessi colori delle dimensioni; l'altezza mostra quanto incide ciascun contributo.</p>
             </div>
             <a class="download-link" href="data/indice-comuni.json" download>Scarica dati</a>
           </div>
@@ -262,21 +272,22 @@
         </div>
         <div class="formula">
           <span>Partenza: 100 punti</span>
-          <span>35% apprendimenti INVALSI</span>
-          <span>35% percorso dopo il diploma</span>
+          <span>35% competenze INVALSI</span>
+          <span>35% esiti universitari Eduscopio</span>
           <span>10% esiti nel lavoro</span>
           <span>10% accesso all'università</span>
           <span>10% continuità universitaria</span>
         </div>
         <p>
-          L'indice misura il comune, non la singola scuola. INVALSI indica le prove nazionali
-          di italiano e matematica. Eduscopio osserva cosa succede dopo il diploma: studio
-          universitario e, per alcuni indirizzi, lavoro. Gli indirizzi con più diplomati contano di più.
+          L'indice misura il comune, non la singola scuola. INVALSI entra come distanza
+          dalla quota italiana di studenti che raggiungono i traguardi previsti in italiano
+          e matematica. Eduscopio entra con FGA universitario, iscrizione, continuità e,
+          dove disponibile, lavoro. Gli indirizzi con più diplomati contano di più.
         </p>
         <div class="source-explainer">
-          <div><strong>INVALSI</strong><span>Quanto sono solide le competenze in italiano e matematica.</span></div>
-          <div><strong>Dopo il diploma</strong><span>Come proseguono gli studenti negli studi o nel lavoro.</span></div>
-          <div><strong>Peso diplomati</strong><span>Un indirizzo grande incide più di uno molto piccolo.</span></div>
+          <div><strong>Docente.it / INVALSI</strong><span>Percentuale di studenti sopra i traguardi previsti in italiano e matematica.</span></div>
+          <div><strong>Eduscopio università</strong><span>FGA, iscrizione e continuità universitaria degli ex studenti.</span></div>
+          <div><strong>Eduscopio lavoro</strong><span>Occupazione e coerenza lavoro-studi per tecnici e professionali.</span></div>
         </div>
         <div class="source-links">
           <a href="https://www.docente.it/migliori-scuole/">Docente.it</a>
@@ -296,6 +307,6 @@
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       crossorigin=""
     ></script>
-    <script src="assets/app.js?v=20260516-mobile" defer></script>
+    <script src="assets/app.js?v=20260517-dimensions" defer></script>
   </body>
 </html>
