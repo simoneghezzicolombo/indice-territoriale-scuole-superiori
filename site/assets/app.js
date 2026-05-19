@@ -7,6 +7,8 @@ const state = {
   selectedId: null,
   map: null,
   markerLayer: null,
+  mapView: "comuni",
+  mapFocus: "italia",
   mapMetric: "indice",
   rankingMetric: "indice",
   compareAId: null,
@@ -19,7 +21,7 @@ const els = {};
 const fmt0 = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0, useGrouping: true });
 const fmt1 = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const fmt2 = new Intl.NumberFormat("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const DATA_VERSION = "20260517-editorial";
+const DATA_VERSION = "20260519-lab24";
 
 const DIMENSIONS = [
   {
@@ -86,6 +88,41 @@ const DIMENSIONS = [
 
 const DIMENSIONS_BY_KEY = new Map(DIMENSIONS.map((dimension) => [dimension.key, dimension]));
 
+const FOCUS_PRESETS = {
+  italia: {
+    label: "Italia",
+    matches: () => true,
+  },
+  lombardia: {
+    label: "Lombardia",
+    matches: (item) => regionIn(item, ["Lombardia"]),
+  },
+  brianza: {
+    label: "Brianza",
+    matches: (item) => ["MB", "LC"].includes(item.provinciaSigla),
+  },
+  "nord-ovest": {
+    label: "Nord-Ovest",
+    matches: (item) => regionIn(item, ["Piemonte", "Valle d'Aosta", "Liguria", "Lombardia"]),
+  },
+  "nord-est": {
+    label: "Nord-Est",
+    matches: (item) => regionIn(item, ["Trentino-Alto Adige", "Veneto", "Friuli-Venezia Giulia", "Emilia-Romagna"]),
+  },
+  centro: {
+    label: "Centro",
+    matches: (item) => regionIn(item, ["Toscana", "Umbria", "Marche", "Lazio"]),
+  },
+  "sud-isole": {
+    label: "Sud e Isole",
+    matches: (item) => regionIn(item, ["Abruzzo", "Molise", "Campania", "Puglia", "Basilicata", "Calabria", "Sicilia", "Sardegna"]),
+  },
+  "aree-metropolitane": {
+    label: "Aree metropolitane",
+    matches: (item) => ["BA", "BO", "CA", "CT", "FI", "GE", "ME", "MI", "NA", "PA", "RC", "RM", "TO", "VE"].includes(item.provinciaSigla),
+  },
+};
+
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
@@ -143,6 +180,9 @@ function bindElements() {
     "coverage-addresses",
     "coverage-comuni",
     "map-metric-controls",
+    "map-view-controls",
+    "map-focus-field",
+    "map-focus-select",
     "legend-low",
     "legend-gradient",
     "legend-high",
@@ -256,6 +296,26 @@ function bindEvents() {
     updateUrl();
   });
 
+  els.mapViewControls.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-map-view]");
+    if (!button || !["comuni", "province", "focus"].includes(button.dataset.mapView)) {
+      return;
+    }
+
+    state.mapView = button.dataset.mapView;
+    renderMapControls();
+    renderMap(getFilteredComuni(), true);
+    updateUrl();
+  });
+
+  els.mapFocusSelect.addEventListener("change", () => {
+    state.mapFocus = FOCUS_PRESETS[els.mapFocusSelect.value] ? els.mapFocusSelect.value : "italia";
+    state.mapView = "focus";
+    renderMapControls();
+    renderMap(getFilteredComuni(), true);
+    updateUrl();
+  });
+
   bindCompareInput(els.compareA, "compareAId", { syncSelection: true });
   bindCompareInput(els.compareB, "compareBId", { syncSelection: false });
 }
@@ -353,6 +413,14 @@ function renderMapControls() {
     button.style.setProperty("--metric-color", dimension?.color || current.color);
     button.style.setProperty("--metric-soft", dimension?.pale || current.pale);
   });
+
+  els.mapViewControls.querySelectorAll("button[data-map-view]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.mapView === state.mapView);
+  });
+
+  els.mapFocusSelect.value = FOCUS_PRESETS[state.mapFocus] ? state.mapFocus : "italia";
+  els.mapFocusSelect.disabled = state.mapView !== "focus";
+  els.mapFocusField.classList.toggle("is-disabled", state.mapView !== "focus");
 }
 
 function renderRankingControls() {
@@ -443,15 +511,20 @@ function renderRanking(filtered) {
 }
 
 function renderMap(filtered, fitMap = false) {
-  const visibleIds = new Set(filtered.map((item) => item.id));
+  const mapItems = getMapItems(filtered);
+  const visibleIds = new Set(mapItems.map((item) => item.id));
   const features = state.geo.features.filter((feature) => visibleIds.has(feature.properties.id));
 
   state.markerLayer.clearLayers();
   renderMapLegend();
-  renderMarkers(features);
-  applySelectedMapStyle();
+  if (state.mapView === "province") {
+    renderProvinceMarkers(provinceAggregates(filtered));
+  } else {
+    renderMarkers(features);
+    applySelectedMapStyle();
+  }
 
-  if (fitMap && features.length) {
+  if (fitMap && state.markerLayer.getLayers().length) {
     const bounds = state.markerLayer.getBounds();
     if (bounds.isValid()) {
       state.map.fitBounds(bounds, { padding: [20, 20], maxZoom: 10 });
@@ -459,9 +532,79 @@ function renderMap(filtered, fitMap = false) {
   }
 }
 
+function getMapItems(filtered) {
+  if (state.mapView !== "focus") {
+    return filtered;
+  }
+  const preset = FOCUS_PRESETS[state.mapFocus] || FOCUS_PRESETS.italia;
+  return filtered.filter((item) => preset.matches(item));
+}
+
+function provinceAggregates(items) {
+  const dimension = currentDimension();
+  const groups = new Map();
+
+  items.forEach((item) => {
+    const feature = state.geoById.get(item.id);
+    if (!feature) return;
+
+    const [lng, lat] = feature.geometry.coordinates;
+    const key = item.provinciaSigla || item.provincia;
+    const weight = Math.max(1, Number(item.diplomati) || 1);
+    const value = dimension.value(item);
+    const group = groups.get(key) || {
+      key,
+      provincia: item.provincia,
+      provinciaSigla: item.provinciaSigla,
+      regione: item.regione,
+      count: 0,
+      diplomati: 0,
+      latSum: 0,
+      lngSum: 0,
+      coordWeight: 0,
+      valueSum: 0,
+      valueWeight: 0,
+      value: null,
+      rank: null,
+    };
+
+    group.count += 1;
+    group.diplomati += Number(item.diplomati) || 0;
+    group.latSum += lat * weight;
+    group.lngSum += lng * weight;
+    group.coordWeight += weight;
+    if (Number.isFinite(value)) {
+      group.valueSum += value * weight;
+      group.valueWeight += weight;
+    }
+    groups.set(key, group);
+  });
+
+  const aggregates = [...groups.values()].map((group) => ({
+    ...group,
+    lat: group.latSum / group.coordWeight,
+    lng: group.lngSum / group.coordWeight,
+    value: group.valueWeight ? group.valueSum / group.valueWeight : null,
+  }));
+
+  aggregates
+    .filter((record) => Number.isFinite(record.value))
+    .sort((a, b) => b.value - a.value)
+    .forEach((record, index) => {
+      record.rank = index + 1;
+    });
+
+  return aggregates;
+}
+
 function renderMapLegend() {
   const dimension = currentDimension();
-  els.legendLow.textContent = `${dimension.short} più debole`;
+  const scope = state.mapView === "province"
+    ? "Province"
+    : state.mapView === "focus"
+      ? FOCUS_PRESETS[state.mapFocus]?.label || "focus"
+      : dimension.short;
+  els.legendLow.textContent = `${scope}: più debole`;
   els.legendHigh.textContent = `${dimension.short} più forte`;
   els.legendGradient.style.background = `linear-gradient(90deg, ${dimension.pale}, ${dimension.color}, ${scaleColor(dimension.color, 0.55)})`;
 }
@@ -522,8 +665,63 @@ function renderMarkers(features) {
   });
 }
 
+function renderProvinceMarkers(records) {
+  const maxDiplomati = Math.max(...records.map((record) => record.diplomati || 0), 1);
+  records.forEach((record) => {
+    const marker = L.marker([record.lat, record.lng], {
+      icon: provinceMarkerIcon(record, maxDiplomati),
+      keyboard: true,
+      zIndexOffset: provinceMarkerZIndex(record),
+    });
+    const dimension = currentDimension();
+    const rankText = record.rank && record.rank <= 5 ? `${fmt0.format(record.rank)}ª posizione · ` : "";
+    marker.bindTooltip(
+      `<div class="map-tooltip"><strong>${rankText}${escapeHtml(record.provincia)}</strong>${escapeHtml(record.regione)} &middot; ${escapeHtml(dimension.label)}: ${escapeHtml(formatDimensionValue(dimension, record.value))}<br>${fmt0.format(record.count)} comuni coperti, ${fmt0.format(record.diplomati)} diplomati</div>`,
+      { sticky: true }
+    );
+    marker.on("click", () => selectProvince(record));
+    marker.addTo(state.markerLayer);
+  });
+}
+
+function provinceMarkerIcon(record, maxDiplomati) {
+  const dimension = currentDimension();
+  const pct = metricPercent(record.value, dimension.key);
+  const rankLabel = record.rank && record.rank <= 5 ? escapeHtml(record.rank) : "";
+  const size = Math.round(18 + Math.sqrt((record.diplomati || 1) / maxDiplomati) * 24);
+  const fill = colorForMetric(record.value, dimension);
+
+  return L.divIcon({
+    className: "map-marker",
+    html: `<span class="map-dot map-dot-province${rankLabel ? " has-rank" : ""}" style="--dot-size:${size}px;--dot-fill:${fill};--dot-border:#ffffff;--dot-alpha:${0.72 + pct * 0.24};">${rankLabel}</span>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+}
+
+function provinceMarkerZIndex(record) {
+  const dimension = currentDimension();
+  if (record.rank && record.rank <= 5) {
+    return 1000 - record.rank;
+  }
+  return Math.round(metricPercent(record.value, dimension.key) * 200);
+}
+
+function selectProvince(record) {
+  els.searchInput.value = "";
+  els.regionFilter.value = record.regione || "";
+  populateProvinceOptions();
+  els.provinceFilter.value = record.provincia || "";
+  state.mapView = "comuni";
+  renderAll({ fitMap: true });
+  updateUrl();
+}
+
 function applySelectedMapStyle() {
   state.markerLayer.eachLayer((layer) => {
+    if (!layer.feature?.properties?.id) {
+      return;
+    }
     layer.setIcon(markerIcon(layer.feature));
     layer.setZIndexOffset(markerZIndex(layer.feature));
     if (layer.feature.properties.id === state.selectedId && typeof layer.bringToFront === "function") {
@@ -540,10 +738,18 @@ function selectComune(id, options = {}) {
   state.selectedId = id;
   state.compareAId = id;
   ensureCompareDefaults();
+  const filtered = getFilteredComuni();
   renderSelected();
-  renderRanking(getFilteredComuni());
+  renderRanking(filtered);
   renderCompare();
-  applySelectedMapStyle();
+
+  if (options.pan && state.mapView !== "comuni") {
+    state.mapView = "comuni";
+    renderMapControls();
+    renderMap(filtered, false);
+  } else {
+    applySelectedMapStyle();
+  }
   updateUrl();
 
   if (options.pan) {
@@ -557,7 +763,7 @@ function selectComune(id, options = {}) {
 function findLayerById(id) {
   let match = null;
   state.markerLayer.eachLayer((layer) => {
-    if (layer.feature.properties.id === id) {
+    if (layer.feature?.properties?.id === id) {
       match = layer;
     }
   });
@@ -977,6 +1183,8 @@ function hydrateFromUrl() {
   const compare = params.get("confronta");
   const classifica = params.get("classifica");
   const mappa = params.get("mappa");
+  const vista = params.get("vista");
+  const territorio = params.get("territorio");
 
   const selected = comune ? findComuneByText(comune) : null;
   if (selected) {
@@ -995,6 +1203,13 @@ function hydrateFromUrl() {
   if (mappa && DIMENSIONS_BY_KEY.has(mappa)) {
     state.mapMetric = mappa;
   }
+  if (vista && ["comuni", "province", "focus"].includes(vista)) {
+    state.mapView = vista;
+  }
+  if (territorio && FOCUS_PRESETS[territorio]) {
+    state.mapFocus = territorio;
+    state.mapView = "focus";
+  }
 }
 
 function updateUrl() {
@@ -1003,6 +1218,8 @@ function updateUrl() {
   if (state.selectedId && state.compareBId && state.compareBId !== state.selectedId) params.set("confronta", state.compareBId);
   if (state.rankingMetric !== "indice") params.set("classifica", state.rankingMetric);
   if (state.mapMetric !== "indice") params.set("mappa", state.mapMetric);
+  if (state.mapView !== "comuni") params.set("vista", state.mapView);
+  if (state.mapView === "focus" && state.mapFocus !== "italia") params.set("territorio", state.mapFocus);
   const query = params.toString();
   const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}`;
   window.history.replaceState(null, "", nextUrl);
@@ -1019,6 +1236,11 @@ function findComuneByText(value) {
     state.comuni.find((item) => normalizeSearch(`${item.comune} ${item.provinciaSigla}`) === normalized) ||
     null
   );
+}
+
+function regionIn(item, regions) {
+  const current = normalizeSearch(item?.regione);
+  return regions.some((region) => current === normalizeSearch(region));
 }
 
 function currentDimension() {

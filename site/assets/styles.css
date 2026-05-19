@@ -441,7 +441,8 @@ h3 {
 .detail-panel,
 .schools-panel,
 .compare-panel,
-.method-panel {
+.method-panel,
+.reuse-panel {
   min-width: 0;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--line);
@@ -513,6 +514,53 @@ h3 {
   color: var(--surface);
 }
 
+.map-view-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 220px);
+  gap: 0.75rem;
+  align-items: end;
+  padding: 0.75rem 1rem 0;
+}
+
+.map-view-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.map-view-buttons button {
+  min-height: 38px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 850;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.map-view-buttons button:hover {
+  border-color: var(--text);
+  transform: translateY(-1px);
+}
+
+.map-view-buttons button.is-active {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--surface);
+}
+
+.map-focus-field {
+  opacity: 1;
+  transition: opacity 160ms ease;
+}
+
+.map-focus-field.is-disabled {
+  opacity: 0.48;
+}
+
 .field,
 .range-field {
   display: grid;
@@ -544,7 +592,8 @@ h3 {
 .reset-button:focus-visible,
 .rank-select:focus-visible,
 .map-metric-controls button:focus-visible,
-.ranking-metric-controls button:focus-visible {
+.ranking-metric-controls button:focus-visible,
+.map-view-buttons button:focus-visible {
   border-color: var(--teal);
   box-shadow: 0 0 0 3px rgba(23, 122, 116, 0.16);
 }
@@ -811,7 +860,8 @@ tbody tr.is-selected .rank-select {
 .detail-panel,
 .schools-panel,
 .compare-panel,
-.method-panel {
+.method-panel,
+.reuse-panel {
   padding: 1rem;
 }
 
@@ -1253,6 +1303,88 @@ tbody tr.is-selected .rank-select {
   text-decoration: none;
 }
 
+.reuse-panel {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.35fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 1rem;
+  background:
+    linear-gradient(120deg, rgba(49, 94, 125, 0.09), transparent 34%),
+    rgba(255, 255, 255, 0.92);
+}
+
+.reuse-intro p:last-child {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+}
+
+.reuse-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.reuse-grid article {
+  min-width: 0;
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.reuse-grid span,
+.reuse-grid strong,
+.reuse-grid p,
+.reuse-grid a {
+  display: block;
+}
+
+.reuse-grid span {
+  color: var(--teal);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.reuse-grid strong {
+  margin-top: 0.2rem;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.reuse-grid p {
+  margin: 0.34rem 0 0.7rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.34;
+}
+
+.reuse-grid a {
+  margin-top: auto;
+  color: var(--teal);
+  font-size: 0.82rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.credits-line {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.credits-line span {
+  padding: 0.36rem 0.5rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
 .footer {
   display: flex;
   align-items: center;
@@ -1314,6 +1446,13 @@ tbody tr.is-selected .rank-select {
     0 0 0 4px rgba(217, 164, 65, 0.28);
 }
 
+.map-dot-province {
+  opacity: var(--dot-alpha, 0.9);
+  box-shadow:
+    0 7px 18px rgba(23, 49, 58, 0.28),
+    0 0 0 5px rgba(255, 255, 255, 0.36);
+}
+
 .map-tooltip {
   color: var(--text);
   font-size: 0.82rem;
@@ -1340,12 +1479,14 @@ tbody tr.is-selected .rank-select {
   .composition-band,
   .coverage-band,
   .detail-layout,
-  .method-panel {
+  .method-panel,
+  .reuse-panel {
     grid-template-columns: 1fr;
   }
 
   .insight-grid,
-  .composition-cards {
+  .composition-cards,
+  .reuse-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1370,7 +1511,8 @@ tbody tr.is-selected .rank-select {
   .score-legend,
   .limits-box,
   .source-explainer,
-  .source-links {
+  .source-links,
+  .credits-line {
     grid-column: 1;
   }
 
@@ -1411,7 +1553,8 @@ tbody tr.is-selected .rank-select {
 
   .composition-cards,
   .insight-grid,
-  .coverage-cards {
+  .coverage-cards,
+  .reuse-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1440,6 +1583,14 @@ tbody tr.is-selected .rank-select {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.4rem;
+  }
+
+  .map-view-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .map-view-buttons {
+    grid-template-columns: 1fr;
   }
 
   .ranking-metric-controls {

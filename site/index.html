@@ -8,6 +8,28 @@
       name="description"
       content="Mappa e classifica comunale degli esiti delle scuole superiori in Italia, pesata per indirizzo e diplomati."
     />
+    <link rel="canonical" href="https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/" />
+    <meta property="og:title" content="Indice Territoriale Scuole Superiori" />
+    <meta
+      property="og:description"
+      content="Una mappa comunale per leggere competenze scolastiche, risultati universitari e primi esiti lavorativi dei diplomati."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/" />
+    <meta
+      property="og:image"
+      content="https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/social-card.svg"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Indice Territoriale Scuole Superiori" />
+    <meta
+      name="twitter:description"
+      content="Classifica, mappa e schede comunali degli esiti delle scuole superiori in Italia."
+    />
+    <meta
+      name="twitter:image"
+      content="https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/social-card.svg"
+    />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#17313a" />
     <link
@@ -15,7 +37,7 @@
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       crossorigin=""
     />
-    <link rel="stylesheet" href="assets/styles.css?v=20260517-editorial" />
+    <link rel="stylesheet" href="assets/styles.css?v=20260519-lab24" />
   </head>
   <body>
     <a class="skip-link" href="#content">Salta al contenuto</a>
@@ -25,6 +47,7 @@
       <nav aria-label="Navigazione principale">
         <a href="https://simoneghezzicolombo.github.io/#projects">Portfolio</a>
         <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori">GitHub</a>
+        <a href="#dati">Dati</a>
         <a href="#metodo">Metodo</a>
       </nav>
     </header>
@@ -196,7 +219,7 @@
             <div>
               <p class="eyebrow">Mappa</p>
               <h2 id="map-title">Mappa dei comuni</h2>
-              <p class="panel-note">Scegli una dimensione. Il colore resta quello della dimensione; più è intenso, migliore è il risultato.</p>
+              <p class="panel-note">Il colore rappresenta la dimensione scelta. Puoi vedere i comuni, aggregare per provincia o isolare un territorio.</p>
             </div>
             <p id="selected-chip" class="selected-chip">...</p>
           </div>
@@ -207,6 +230,26 @@
             <button type="button" data-map-metric="lavoroCopertura">Lavoro</button>
             <button type="button" data-map-metric="immatricolazione">Iscrizione uni</button>
             <button type="button" data-map-metric="continuita">Continuità</button>
+          </div>
+          <div class="map-view-controls" aria-label="Vista della mappa">
+            <div class="map-view-buttons" id="map-view-controls" role="group">
+              <button type="button" class="is-active" data-map-view="comuni">Comuni</button>
+              <button type="button" data-map-view="province">Province</button>
+              <button type="button" data-map-view="focus">Focus territoriale</button>
+            </div>
+            <label class="field map-focus-field" id="map-focus-field">
+              <span>Territorio</span>
+              <select id="map-focus-select">
+                <option value="italia">Italia</option>
+                <option value="lombardia">Lombardia</option>
+                <option value="brianza">Brianza</option>
+                <option value="nord-ovest">Nord-Ovest</option>
+                <option value="nord-est">Nord-Est</option>
+                <option value="centro">Centro</option>
+                <option value="sud-isole">Sud e Isole</option>
+                <option value="aree-metropolitane">Aree metropolitane</option>
+              </select>
+            </label>
           </div>
           <div id="map" class="map" role="img" aria-label="Mappa dei comuni con indice rappresentati da punti"></div>
           <div class="legend" aria-label="Legenda">
@@ -326,6 +369,8 @@
           dalla quota italiana di studenti che raggiungono i traguardi previsti in italiano
           e matematica. Eduscopio entra con FGA universitario, iscrizione, continuità e,
           dove disponibile, lavoro. Gli indirizzi con più diplomati contano di più.
+          Sopra 100 il territorio mostra un profilo più forte del livello neutro dell'indice;
+          sotto 100 segnala un profilo più fragile.
         </p>
         <div class="score-legend" aria-label="Lettura del punteggio">
           <span><strong>110+</strong> molto forte</span>
@@ -350,6 +395,49 @@
           <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori/blob/main/docs/METHODOLOGY.md">Metodo completo</a>
         </div>
       </section>
+
+      <section class="reuse-panel" id="dati" aria-labelledby="reuse-title">
+        <div class="reuse-intro">
+          <p class="eyebrow">Dati aperti</p>
+          <h2 id="reuse-title">Download, metodo e riuso</h2>
+          <p>
+            Il progetto pubblica i dati elaborati, la formula e il codice sorgente.
+            I risultati vanno letti come un indice territoriale sperimentale, non come
+            una graduatoria ufficiale delle singole scuole.
+          </p>
+        </div>
+        <div class="reuse-grid">
+          <article>
+            <span>Dataset</span>
+            <strong>Comuni e punteggi</strong>
+            <p>Classifica finale, dimensioni, valori assoluti e copertura dati.</p>
+            <a href="data/indice-comuni.json" download>Scarica JSON</a>
+          </article>
+          <article>
+            <span>Dettaglio</span>
+            <strong>Scuole e indirizzi</strong>
+            <p>Righe scuola-indirizzo pesate per diplomati quando disponibili.</p>
+            <a href="data/indirizzi-comuni.json" download>Scarica JSON</a>
+          </article>
+          <article>
+            <span>Metodo</span>
+            <strong>Formula completa</strong>
+            <p>Fonti, normalizzazione, limiti e criteri di inclusione.</p>
+            <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori/blob/main/docs/METHODOLOGY.md">Leggi metodo</a>
+          </article>
+          <article>
+            <span>Riuso</span>
+            <strong>Codice su GitHub</strong>
+            <p>Repository pubblico del progetto. Codice MIT, fonti da citare.</p>
+            <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori">Apri repo</a>
+          </article>
+        </div>
+        <div class="credits-line">
+          <span>Progetto, dati e sviluppo: Simone Ghezzi Colombo.</span>
+          <span>Fonti: Docente.it / INVALSI, Eduscopio, Openpolis.</span>
+          <span>Aggiornamento: maggio 2026.</span>
+        </div>
+      </section>
     </main>
 
     <footer class="footer">
@@ -361,6 +449,6 @@
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       crossorigin=""
     ></script>
-    <script src="assets/app.js?v=20260517-editorial" defer></script>
+    <script src="assets/app.js?v=20260519-lab24" defer></script>
   </body>
 </html>
