@@ -433,6 +433,7 @@ h3 {
   grid-template-columns: minmax(220px, 270px) minmax(460px, 1.22fr) minmax(360px, 0.82fr);
   gap: 1rem;
   align-items: start;
+  margin-bottom: 1rem;
 }
 
 .filters-panel,
@@ -511,7 +512,7 @@ h3 {
 .ranking-metric-controls button.is-active {
   border-color: var(--metric-color, var(--teal));
   background: var(--metric-color, var(--teal));
-  color: var(--surface);
+  color: var(--metric-ink, var(--surface));
 }
 
 .map-view-controls {
@@ -638,6 +639,78 @@ h3 {
   display: block;
   margin-top: 0.15rem;
   font-size: 1.15rem;
+}
+
+.selection-summary {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  background: rgba(23, 122, 116, 0.07);
+  border: 1px solid rgba(23, 122, 116, 0.18);
+  border-radius: var(--radius);
+}
+
+.selection-summary strong,
+.selection-summary span,
+.selection-summary em,
+.selection-summary p,
+.selection-summary a {
+  display: block;
+}
+
+.selection-summary > strong,
+.selection-summary div strong {
+  color: var(--text);
+  font-size: 1.02rem;
+  line-height: 1.2;
+}
+
+.selection-summary span,
+.selection-summary em,
+.selection-summary p,
+.selection-summary dt,
+.selection-summary dd {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.selection-summary span,
+.selection-summary dt {
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.selection-summary em {
+  font-style: normal;
+}
+
+.selection-summary p {
+  margin: 0;
+}
+
+.selection-summary dl {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.selection-summary dt,
+.selection-summary dd {
+  margin: 0;
+}
+
+.selection-summary dd {
+  color: var(--text);
+  font-weight: 850;
+}
+
+.selection-summary a {
+  color: var(--teal);
+  font-size: 0.8rem;
+  font-weight: 850;
+  text-decoration: none;
 }
 
 .map-panel {
@@ -964,12 +1037,30 @@ tbody tr.is-selected .rank-select {
   background: var(--component-soft, #edf3f1);
 }
 
+.compare-track::after {
+  position: absolute;
+  inset: -2px auto -2px 50%;
+  width: 1px;
+  background: rgba(23, 49, 58, 0.36);
+  content: "";
+}
+
 .compare-track i {
   position: absolute;
-  inset: 0 auto 0 0;
+  inset: 0 auto 0 50%;
   width: var(--w);
   border-radius: inherit;
   background: var(--component-color, var(--teal));
+}
+
+.compare-track i.is-negative {
+  right: 50%;
+  left: auto;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--component-color, var(--teal)) 0 5px,
+    color-mix(in srgb, var(--component-color, var(--teal)) 62%, white) 5px 10px
+  );
 }
 
 .detail-hero {
@@ -1015,6 +1106,46 @@ tbody tr.is-selected .rank-select {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.7rem;
   margin: 1rem 0;
+}
+
+.benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+}
+
+.benchmark-card {
+  min-width: 0;
+  padding: 0.72rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.benchmark-card span,
+.benchmark-card strong,
+.benchmark-card em {
+  display: block;
+}
+
+.benchmark-card span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.benchmark-card strong {
+  margin-top: 0.18rem;
+  font-size: 1.08rem;
+}
+
+.benchmark-card em {
+  margin-top: 0.16rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
 }
 
 .metric strong,
@@ -1427,7 +1558,7 @@ tbody tr.is-selected .rank-select {
   box-shadow:
     0 4px 11px rgba(23, 49, 58, 0.24),
     0 0 0 1px rgba(23, 49, 58, 0.08);
-  color: var(--surface);
+  color: var(--dot-ink, var(--surface));
   font-size: 0.68rem;
   font-weight: 900;
   line-height: 1;
@@ -1463,6 +1594,24 @@ tbody tr.is-selected .rank-select {
   font-size: 0.95rem;
 }
 
+@media (min-width: 1321px) {
+  .map-panel {
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 96px);
+  }
+
+  .map {
+    flex: 1;
+    min-height: 360px;
+    height: auto;
+  }
+
+  .ranking-panel .table-wrap {
+    max-height: calc(100vh - 270px);
+  }
+}
+
 @media (max-width: 1320px) {
   .workspace {
     grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
@@ -1493,6 +1642,7 @@ tbody tr.is-selected .rank-select {
   .summary-grid,
   .metric-grid,
   .coverage-cards,
+  .benchmark-grid,
   .macro-grid,
   .subranking-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1542,6 +1692,7 @@ tbody tr.is-selected .rank-select {
   }
 
   .metric-grid,
+  .benchmark-grid,
   .macro-grid,
   .subranking-grid {
     grid-template-columns: 1fr;
@@ -1648,6 +1799,16 @@ tbody tr.is-selected .rank-select {
     font-size: 0.82rem;
   }
 
+  .ranking-panel th:nth-child(4),
+  .ranking-panel td.profile-cell {
+    display: none;
+  }
+
+  .ranking-panel .commune-cell span,
+  .ranking-panel .score span {
+    font-size: 0.72rem;
+  }
+
   .ranking-panel .table-wrap {
     max-height: 430px;
   }
@@ -1655,19 +1816,6 @@ tbody tr.is-selected .rank-select {
   .rank-select {
     width: 34px;
     height: 30px;
-  }
-
-  .profile-cell {
-    min-width: 62px;
-  }
-
-  .profile-bars {
-    grid-template-columns: repeat(5, 6px);
-    gap: 3px;
-  }
-
-  .profile-bars span {
-    width: 6px;
   }
 
   .table-wrap {

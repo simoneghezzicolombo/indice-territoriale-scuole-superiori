@@ -37,7 +37,7 @@
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       crossorigin=""
     />
-    <link rel="stylesheet" href="assets/styles.css?v=20260519-lab24" />
+    <link rel="stylesheet" href="assets/styles.css?v=20260519-ux" />
   </head>
   <body>
     <a class="skip-link" href="#content">Salta al contenuto</a>
@@ -84,6 +84,133 @@
             <p>fonti pubbliche online</p>
           </div>
         </dl>
+      </section>
+
+      <section class="workspace" aria-label="Esplorazione indice">
+        <aside class="filters-panel" aria-label="Filtri">
+          <div class="panel-heading">
+            <p class="eyebrow">Esplora</p>
+            <h2>Comuni</h2>
+          </div>
+
+          <div class="selection-summary" id="selection-summary" aria-live="polite"></div>
+
+          <label class="field">
+            <span>Cerca</span>
+            <input
+              id="search-input"
+              type="search"
+              list="comuni-options"
+              placeholder="Cerca comune..."
+              autocomplete="off"
+            />
+          </label>
+          <datalist id="comuni-options"></datalist>
+
+          <label class="field">
+            <span>Regione</span>
+            <select id="region-filter">
+              <option value="">Tutte</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Provincia</span>
+            <select id="province-filter">
+              <option value="">Tutte</option>
+            </select>
+          </label>
+
+          <button class="reset-button" id="reset-filters" type="button">Azzera filtri</button>
+
+          <div class="mini-stats" aria-label="Comuni filtrati">
+            <div>
+              <span>Comuni mostrati</span>
+              <strong id="filtered-count">...</strong>
+            </div>
+            <div>
+              <span>Punteggio medio</span>
+              <strong id="filtered-average">...</strong>
+            </div>
+          </div>
+        </aside>
+
+        <section class="map-panel" aria-labelledby="map-title">
+          <div class="panel-heading inline">
+            <div>
+              <p class="eyebrow">Mappa</p>
+              <h2 id="map-title">Mappa dei comuni</h2>
+              <p class="panel-note">Il colore rappresenta la dimensione scelta. Puoi vedere i comuni, aggregare per provincia o isolare un territorio.</p>
+            </div>
+            <p id="selected-chip" class="selected-chip">...</p>
+          </div>
+          <div class="map-metric-controls" id="map-metric-controls" role="group" aria-label="Dimensione visualizzata sulla mappa">
+            <button type="button" class="is-active" data-map-metric="indice" aria-pressed="true">Totale</button>
+            <button type="button" data-map-metric="docente" aria-pressed="false">INVALSI</button>
+            <button type="button" data-map-metric="eduscopioUni" aria-pressed="false">Università</button>
+            <button type="button" data-map-metric="lavoroCopertura" aria-pressed="false">Lavoro</button>
+            <button type="button" data-map-metric="immatricolazione" aria-pressed="false">Iscrizione uni</button>
+            <button type="button" data-map-metric="continuita" aria-pressed="false">Continuità</button>
+          </div>
+          <div class="map-view-controls" aria-label="Vista della mappa">
+            <div class="map-view-buttons" id="map-view-controls" role="group">
+              <button type="button" class="is-active" data-map-view="comuni" aria-pressed="true">Comuni</button>
+              <button type="button" data-map-view="province" aria-pressed="false">Province</button>
+              <button type="button" data-map-view="focus" aria-pressed="false">Focus territoriale</button>
+            </div>
+            <label class="field map-focus-field" id="map-focus-field">
+              <span>Territorio</span>
+              <select id="map-focus-select">
+                <option value="italia">Italia</option>
+                <option value="lombardia">Lombardia</option>
+                <option value="brianza">Brianza</option>
+                <option value="nord-ovest">Nord-Ovest</option>
+                <option value="nord-est">Nord-Est</option>
+                <option value="centro">Centro</option>
+                <option value="sud-isole">Sud e Isole</option>
+                <option value="aree-metropolitane">Aree metropolitane</option>
+              </select>
+            </label>
+          </div>
+          <div id="map" class="map" role="img" aria-label="Mappa dei comuni con indice rappresentati da punti"></div>
+          <div class="legend" aria-label="Legenda">
+            <span id="legend-low">Più debole</span>
+            <i id="legend-gradient"></i>
+            <span id="legend-high">Più forte</span>
+          </div>
+        </section>
+
+        <section class="ranking-panel" aria-labelledby="ranking-title">
+          <div class="panel-heading inline">
+            <div>
+              <p class="eyebrow">Classifica</p>
+              <h2 id="ranking-title">Classifica nazionale</h2>
+              <p class="panel-note">Le cinque tacche usano gli stessi colori delle dimensioni; l'altezza mostra quanto incide ciascun contributo.</p>
+            </div>
+            <a class="download-link" href="data/indice-comuni.json" download>Scarica dati</a>
+          </div>
+          <div class="ranking-metric-controls" id="ranking-metric-controls" role="group" aria-label="Classifica visualizzata">
+            <button type="button" class="is-active" data-ranking-metric="indice" aria-pressed="true">Totale</button>
+            <button type="button" data-ranking-metric="docente" aria-pressed="false">INVALSI</button>
+            <button type="button" data-ranking-metric="eduscopioUni" aria-pressed="false">Università</button>
+            <button type="button" data-ranking-metric="lavoroCopertura" aria-pressed="false">Lavoro</button>
+            <button type="button" data-ranking-metric="immatricolazione" aria-pressed="false">Iscrizione uni</button>
+            <button type="button" data-ranking-metric="continuita" aria-pressed="false">Continuità</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pos.</th>
+                  <th>Comune</th>
+                  <th id="ranking-score-label">Punteggio</th>
+                  <th>Profilo</th>
+                </tr>
+              </thead>
+              <tbody id="ranking-body"></tbody>
+            </table>
+          </div>
+        </section>
       </section>
 
       <section class="story-band" aria-labelledby="story-title">
@@ -165,131 +292,6 @@
             <p>con dati sufficienti per il confronto</p>
           </article>
         </div>
-      </section>
-
-      <section class="workspace" aria-label="Esplorazione indice">
-        <aside class="filters-panel" aria-label="Filtri">
-          <div class="panel-heading">
-            <p class="eyebrow">Esplora</p>
-            <h2>Comuni</h2>
-          </div>
-
-          <label class="field">
-            <span>Cerca</span>
-            <input
-              id="search-input"
-              type="search"
-              list="comuni-options"
-              placeholder="Cerca comune..."
-              autocomplete="off"
-            />
-          </label>
-          <datalist id="comuni-options"></datalist>
-
-          <label class="field">
-            <span>Regione</span>
-            <select id="region-filter">
-              <option value="">Tutte</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Provincia</span>
-            <select id="province-filter">
-              <option value="">Tutte</option>
-            </select>
-          </label>
-
-          <button class="reset-button" id="reset-filters" type="button">Azzera filtri</button>
-
-          <div class="mini-stats" aria-label="Comuni filtrati">
-            <div>
-              <span>Comuni mostrati</span>
-              <strong id="filtered-count">...</strong>
-            </div>
-            <div>
-              <span>Punteggio medio</span>
-              <strong id="filtered-average">...</strong>
-            </div>
-          </div>
-        </aside>
-
-        <section class="map-panel" aria-labelledby="map-title">
-          <div class="panel-heading inline">
-            <div>
-              <p class="eyebrow">Mappa</p>
-              <h2 id="map-title">Mappa dei comuni</h2>
-              <p class="panel-note">Il colore rappresenta la dimensione scelta. Puoi vedere i comuni, aggregare per provincia o isolare un territorio.</p>
-            </div>
-            <p id="selected-chip" class="selected-chip">...</p>
-          </div>
-          <div class="map-metric-controls" id="map-metric-controls" role="group" aria-label="Dimensione visualizzata sulla mappa">
-            <button type="button" class="is-active" data-map-metric="indice">Totale</button>
-            <button type="button" data-map-metric="docente">INVALSI</button>
-            <button type="button" data-map-metric="eduscopioUni">Università</button>
-            <button type="button" data-map-metric="lavoroCopertura">Lavoro</button>
-            <button type="button" data-map-metric="immatricolazione">Iscrizione uni</button>
-            <button type="button" data-map-metric="continuita">Continuità</button>
-          </div>
-          <div class="map-view-controls" aria-label="Vista della mappa">
-            <div class="map-view-buttons" id="map-view-controls" role="group">
-              <button type="button" class="is-active" data-map-view="comuni">Comuni</button>
-              <button type="button" data-map-view="province">Province</button>
-              <button type="button" data-map-view="focus">Focus territoriale</button>
-            </div>
-            <label class="field map-focus-field" id="map-focus-field">
-              <span>Territorio</span>
-              <select id="map-focus-select">
-                <option value="italia">Italia</option>
-                <option value="lombardia">Lombardia</option>
-                <option value="brianza">Brianza</option>
-                <option value="nord-ovest">Nord-Ovest</option>
-                <option value="nord-est">Nord-Est</option>
-                <option value="centro">Centro</option>
-                <option value="sud-isole">Sud e Isole</option>
-                <option value="aree-metropolitane">Aree metropolitane</option>
-              </select>
-            </label>
-          </div>
-          <div id="map" class="map" role="img" aria-label="Mappa dei comuni con indice rappresentati da punti"></div>
-          <div class="legend" aria-label="Legenda">
-            <span id="legend-low">Più debole</span>
-            <i id="legend-gradient"></i>
-            <span id="legend-high">Più forte</span>
-          </div>
-        </section>
-
-        <section class="ranking-panel" aria-labelledby="ranking-title">
-          <div class="panel-heading inline">
-            <div>
-              <p class="eyebrow">Classifica</p>
-              <h2 id="ranking-title">Classifica nazionale</h2>
-              <p class="panel-note">Le cinque tacche usano gli stessi colori delle dimensioni; l'altezza mostra quanto incide ciascun contributo.</p>
-            </div>
-            <a class="download-link" href="data/indice-comuni.json" download>Scarica dati</a>
-          </div>
-          <div class="ranking-metric-controls" id="ranking-metric-controls" role="group" aria-label="Classifica visualizzata">
-            <button type="button" class="is-active" data-ranking-metric="indice">Totale</button>
-            <button type="button" data-ranking-metric="docente">INVALSI</button>
-            <button type="button" data-ranking-metric="eduscopioUni">Università</button>
-            <button type="button" data-ranking-metric="lavoroCopertura">Lavoro</button>
-            <button type="button" data-ranking-metric="immatricolazione">Iscrizione uni</button>
-            <button type="button" data-ranking-metric="continuita">Continuità</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Pos.</th>
-                  <th>Comune</th>
-                  <th id="ranking-score-label">Punteggio</th>
-                  <th>Profilo</th>
-                </tr>
-              </thead>
-              <tbody id="ranking-body"></tbody>
-            </table>
-          </div>
-        </section>
       </section>
 
       <section class="compare-panel" aria-labelledby="compare-title">
@@ -449,6 +451,6 @@
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       crossorigin=""
     ></script>
-    <script src="assets/app.js?v=20260519-lab24" defer></script>
+    <script src="assets/app.js?v=20260519-ux" defer></script>
   </body>
 </html>
