@@ -1,3 +1,4 @@
+# Python & Scraping environment
 __pycache__/
 *.py[cod]
 *.pyo
@@ -23,3 +24,15 @@ output/*.html
 Thumbs.db
 .idea/
 .vscode/
+
+# React & Node build files
+node_modules/
+build/
+dist/
+coverage/
+*.log
+.env*
+!.env.example
+
+# Archive files
+*.zip

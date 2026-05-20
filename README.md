@@ -54,12 +54,6 @@ Per rigenerare i dati statici del sito:
 python scripts/build_site_data.py --strict
 ```
 
-Per provare il sito in locale:
-
-```powershell
-python -m http.server 8000 -d site
-```
-
 Per rigenerare tutto da web:
 
 ```powershell
@@ -74,7 +68,23 @@ python scripts/run_pipeline.py --skip-docente --strict-validate
 
 Le cache locali vengono create in `output/cache_*` e sono escluse da Git.
 
-## Output Principali
+## Web App
+
+La web app usa **React, TypeScript, Tailwind CSS 4 e Leaflet**. Il build di produzione scrive direttamente nella cartella `site/`, pubblicata da GitHub Pages.
+
+```powershell
+npm install
+npm run dev
+npm run build
+```
+
+Il server locale di sviluppo usa:
+
+```text
+http://localhost:3000/
+```
+
+## Output principali
 
 - `output/docente_eduscopio_indice_lavoro_copertura.csv`: classifica completa con il modello finale.
 - `output/classifica_finale_lavoro_copertura_sintesi.csv`: versione ridotta e leggibile.
@@ -87,14 +97,7 @@ Le cache locali vengono create in `output/cache_*` e sono escluse da Git.
 
 ## Sito
 
-La web app statica vive in `site/`. Il workflow `Publish gh-pages` pubblica quella cartella
-sul branch `gh-pages`, usato da GitHub Pages.
-
-Se Pages non e ancora attivo, setup una tantum su GitHub:
-
-```text
-Settings -> Pages -> Deploy from a branch -> gh-pages / root
-```
+La web app statica vive in `site/`. Il workflow `Publish gh-pages` pubblica quella cartella sul branch `gh-pages`, usato da GitHub Pages.
 
 URL pubblico:
 
@@ -114,29 +117,8 @@ https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/
 
 ## GitHub
 
-Nome repo consigliato:
-
-```powershell
-indice-territoriale-scuole-superiori
-```
-
-URL GitHub Pages consigliato:
-
-```text
-https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/
-```
-
-Description:
+Description consigliata:
 
 ```text
 Indice comunale degli esiti delle scuole superiori in Italia, pesato per indirizzo e diplomati.
 ```
-
-Per pubblicare dopo aver creato un repo vuoto su GitHub:
-
-```powershell
-git remote add origin https://github.com/<owner>/indice-territoriale-scuole-superiori.git
-git push -u origin main
-```
-
-Vedi `docs/GITHUB_REPO_SETUP.md` per topics, GitHub Pages, licenza e checklist.
