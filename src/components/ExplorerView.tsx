@@ -10,8 +10,8 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { assetPath, METRICS, SCORE_LEVELS, SIZE_METRICS } from "../data";
-import { CityData, MetricKey, SchoolData, SizeMetricKey, ViewType } from "../types";
+import { assetPath, METRICS, SCORE_LEVELS } from "../data";
+import { CityData, MetricKey, SchoolData, ViewType } from "../types";
 import ItalyDotMap from "./ItalyDotMap";
 
 interface ExplorerViewProps {
@@ -77,7 +77,6 @@ export default function ExplorerView({
   const [selectedRegion, setSelectedRegion] = useState("Tutte");
   const [selectedStatus, setSelectedStatus] = useState("Tutti");
   const [colorMetric, setColorMetric] = useState<MetricKey>("totalScore");
-  const [sizeMetric, setSizeMetric] = useState<SizeMetricKey>("fixed");
   const [schools, setSchools] = useState<SchoolData[]>([]);
   const [schoolsLoading, setSchoolsLoading] = useState(false);
   const [schoolSearchQuery, setSchoolSearchQuery] = useState("");
@@ -113,7 +112,6 @@ export default function ExplorerView({
 
   const focusCityIds = useMemo(() => new Set(focusCities.map((city) => city.id)), [focusCities]);
   const activeMetric = METRICS.find((metric) => metric.id === colorMetric) || METRICS[0];
-  const activeSizeMetric = SIZE_METRICS.find((metric) => metric.id === sizeMetric) || SIZE_METRICS[0];
 
   const activeCity = useMemo(() => {
     return citiesData.find((city) => city.id === activeCityId) || focusCities[0] || citiesData[0];
@@ -261,8 +259,8 @@ export default function ExplorerView({
           Esplora i comuni
         </h1>
         <p className="font-sans text-sm text-[#3e4947] max-w-3xl leading-relaxed">
-          Cerca un comune, guarda dove si colloca sulla mappa e leggi la pagella con punteggi indice e valori reali.
-          Il colore racconta la dimensione scelta; la grandezza del punto può restare neutra o pesare il dato.
+          Cerca un comune e scegli quale parte dell'indice leggere. Ogni dimensione mostra sia il punteggio usato
+          per la classifica sia il valore reale da cui parte il confronto.
         </p>
       </div>
 
@@ -272,16 +270,19 @@ export default function ExplorerView({
             <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4">
               <div className="space-y-1">
                 <h2 className="font-sans text-xl font-extrabold text-[#031f27]">
-                  Distribuzione geografica: {activeMetric.label}
+                  Cosa vuoi guardare?
                 </h2>
                 <p className="font-sans text-xs text-[#3e4947] leading-relaxed max-w-2xl">
-                  {activeMetric.description} Sono evidenziati {focusCities.length.toLocaleString("it-IT")} comuni su {citiesData.length.toLocaleString("it-IT")}.
+                  L'indice complessivo e le cinque dimensioni spiegano da dove arriva il risultato del comune. Selezionane una per aggiornare mappa, legenda e lettura della scheda.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#bdc9c7]/50 bg-[#f2fbff] px-3 py-2 text-xs font-sans text-[#3e4947]">
-                Grandezza: <strong className="text-[#031f27]">{activeSizeMetric.label}</strong>
-              </div>
             </div>
+
+            <DimensionCards
+              activeCity={activeCity}
+              activeMetric={colorMetric}
+              onSelectMetric={setColorMetric}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] gap-4 items-end">
               <div ref={searchContainerRef} className="relative">
@@ -361,30 +362,23 @@ export default function ExplorerView({
               cities={citiesData}
               activeCityId={activeCity.id}
               colorMetric={colorMetric}
-              sizeMetric={sizeMetric}
               focusCityIds={focusCityIds}
               onSelectCity={setActiveCityId}
             />
 
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 pt-3 border-t border-[#bdc9c7]/25">
-              <div className="xl:col-span-8 space-y-4">
-                <MetricButtonGroup
-                  label="Colore dei punti"
-                  value={colorMetric}
-                  options={METRICS}
-                  onChange={(value) => setColorMetric(value)}
-                />
-                <SizeButtonGroup
-                  label="Grandezza dei punti"
-                  value={sizeMetric}
-                  options={SIZE_METRICS}
-                  onChange={(value) => setSizeMetric(value)}
-                />
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 pt-3 border-t border-[#bdc9c7]/25 items-start">
+              <div className="xl:col-span-8 space-y-1">
+                <h3 className="font-sans text-base font-extrabold text-[#031f27]">
+                  Distribuzione geografica: {activeMetric.label}
+                </h3>
+                <p className="font-sans text-xs text-[#3e4947] leading-relaxed max-w-2xl">
+                  {activeMetric.description} Sono evidenziati {focusCities.length.toLocaleString("it-IT")} comuni su {citiesData.length.toLocaleString("it-IT")}; gli altri restano sullo sfondo.
+                </p>
               </div>
 
               <div className="xl:col-span-4 rounded-xl border border-[#bdc9c7]/50 bg-[#f7fbfb] p-4 space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-[10px] uppercase font-mono font-bold text-[#3e4947]">Scala colori</p>
+                  <p className="text-[10px] uppercase font-mono font-bold text-[#3e4947]">Scala della mappa</p>
                   <p className="text-[10px] font-mono text-[#6e7978]">{activeMetric.shortLabel}</p>
                 </div>
                 <div
@@ -397,6 +391,9 @@ export default function ExplorerView({
                   <span>{highlightedLegend ? metricLegendValue(metricExtent.min, colorMetric) : "n.d."}</span>
                   <span className="text-right">{highlightedLegend ? metricLegendValue(metricExtent.max, colorMetric) : "n.d."}</span>
                 </div>
+                <p className="font-sans text-[11px] text-[#3e4947] leading-relaxed">
+                  La scala va dai risultati più bassi ai risultati più alti nella dimensione selezionata.
+                </p>
               </div>
             </div>
           </section>
@@ -601,81 +598,65 @@ function Select({
   );
 }
 
-function MetricButtonGroup({
-  label,
-  value,
-  options,
-  onChange,
+function DimensionCards({
+  activeCity,
+  activeMetric,
+  onSelectMetric,
 }: {
-  label: string;
-  value: MetricKey;
-  options: typeof METRICS;
-  onChange: (value: MetricKey) => void;
+  activeCity: CityData;
+  activeMetric: MetricKey;
+  onSelectMetric: (value: MetricKey) => void;
 }) {
   return (
-    <div>
-      <p className="text-[10px] uppercase font-mono font-bold text-[#3e4947] block mb-1">{label}</p>
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((option) => {
-          const active = option.id === value;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              aria-pressed={active}
-              onClick={() => onChange(option.id)}
-              title={option.description}
-              className={`px-2.5 py-1.5 rounded-lg font-mono text-[10px] font-bold uppercase border transition-colors cursor-pointer flex items-center gap-1.5 ${
-                active ? "text-white border-transparent" : "bg-white text-[#3e4947] border-[#bdc9c7] hover:border-[#00605b]"
-              }`}
-              style={active ? { backgroundColor: option.color } : undefined}
-            >
-              <span
-                className="w-2 h-2 rounded-full border border-white/70"
-                style={{ backgroundColor: active ? "rgba(255,255,255,0.8)" : option.color }}
-              />
-              {option.shortLabel}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+    <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3">
+      {METRICS.map((metric) => {
+        const active = metric.id === activeMetric;
+        const score = metricScore(activeCity, metric.id);
+        const delta = metricDelta(activeCity, metric.id);
 
-function SizeButtonGroup({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: SizeMetricKey;
-  options: typeof SIZE_METRICS;
-  onChange: (value: SizeMetricKey) => void;
-}) {
-  return (
-    <div>
-      <p className="text-[10px] uppercase font-mono font-bold text-[#3e4947] block mb-1">{label}</p>
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((option) => {
-          const active = option.id === value;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              aria-pressed={active}
-              onClick={() => onChange(option.id)}
-              title={option.description}
-              className={`px-2.5 py-1.5 rounded-lg font-mono text-[10px] font-bold uppercase border transition-colors cursor-pointer ${
-                active ? "bg-[#031f27] text-white border-[#031f27]" : "bg-white text-[#3e4947] border-[#bdc9c7] hover:border-[#00605b]"
-              }`}
-            >
-              {option.label}
-            </button>
-          );
-        })}
-      </div>
+        return (
+          <button
+            key={metric.id}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onSelectMetric(metric.id)}
+            className={`group text-left rounded-xl border p-4 transition-all cursor-pointer bg-white ${
+              active ? "shadow-md border-transparent ring-2 ring-offset-1" : "border-[#bdc9c7]/60 hover:border-[#00605b]"
+            }`}
+            style={active ? { boxShadow: `0 0 0 2px ${metric.color}, 0 14px 30px rgba(3,31,39,0.08)` } : undefined}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-sans text-sm font-extrabold text-[#031f27] flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: metric.color }} />
+                  {metric.label}
+                </p>
+                <p className="font-sans text-[11px] text-[#3e4947] leading-relaxed mt-1.5">
+                  {metric.description}
+                </p>
+              </div>
+              <span className="font-mono text-[10px] font-bold px-2 py-1 rounded bg-[#f2fbff] text-[#3e4947] shrink-0">
+                {metric.weight}
+              </span>
+            </div>
+
+            <div className="mt-4 flex items-end justify-between gap-3 border-t border-[#bdc9c7]/25 pt-3">
+              <div>
+                <p className="font-mono text-[9px] uppercase text-[#6e7978]">Nel comune scelto</p>
+                <p className="font-sans text-[11px] font-bold text-[#031f27] mt-0.5">{actualValue(activeCity, metric.id)}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="font-mono text-base font-black" style={{ color: metric.color }}>
+                  {score.toFixed(1)}
+                </p>
+                {delta !== null && (
+                  <p className="font-mono text-[10px] font-bold text-[#3e4947]">{formatDelta(delta)}</p>
+                )}
+              </div>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }

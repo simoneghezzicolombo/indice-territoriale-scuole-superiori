@@ -6,8 +6,6 @@ export type MetricKey =
   | "uniAccess"
   | "continuity";
 
-export type SizeMetricKey = "fixed" | "diplomati" | "schoolsCount" | "workCoverage" | "reliability";
-
 export interface CityDetails {
   docentePct: number;
   uniScore: number;

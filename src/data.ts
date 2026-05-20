@@ -1,4 +1,4 @@
-import { CityData, MetricKey, SizeMetricKey } from "./types";
+import { CityData, MetricKey } from "./types";
 
 export function assetPath(path: string): string {
   const base = import.meta.env.BASE_URL || "/";
@@ -43,11 +43,11 @@ export async function loadCitiesData(): Promise<CityData[]> {
       };
 
       const strengths = [
-        { value: deltas.invalsi, label: "competenze rilevate dalle prove nazionali" },
-        { value: deltas.uniResults, label: "risultati universitari degli ex studenti" },
-        { value: deltas.workOutcomes, label: "primi esiti nel lavoro" },
-        { value: deltas.uniAccess, label: "accesso all'università" },
-        { value: deltas.continuity, label: "continuità negli studi universitari" },
+        { value: deltas.invalsi, label: "apprendimenti rilevati dalle prove nazionali" },
+        { value: deltas.uniResults, label: "rendimento universitario degli ex studenti" },
+        { value: deltas.workOutcomes, label: "ingresso nel lavoro dei diplomati tecnici e professionali" },
+        { value: deltas.uniAccess, label: "passaggio all'università dopo il diploma" },
+        { value: deltas.continuity, label: "tenuta del percorso universitario" },
       ].sort((a, b) => b.value - a.value)[0].label;
 
       const score = safeNumber(c.indice, 100);
@@ -108,64 +108,58 @@ export const METRICS: {
 }[] = [
   {
     id: "totalScore",
-    label: "Indice finale",
-    shortLabel: "Finale",
+    label: "Indice complessivo",
+    shortLabel: "Totale",
     weight: "100%",
     color: "#17313a",
     bg: "bg-[#17313a]",
-    description: "Sintesi pesata dei cinque indicatori.",
+    description: "Sintesi pesata delle cinque dimensioni: apprendimenti, università, lavoro, immatricolazioni e tenuta del percorso.",
   },
   {
     id: "invalsi",
-    label: "Competenze scolastiche",
-    shortLabel: "Competenze",
+    label: "Apprendimenti",
+    shortLabel: "Prove nazionali",
     weight: "35%",
     color: "#177A74",
     bg: "bg-[#177A74]",
-    description: "Quota di studenti che raggiunge i traguardi nelle prove nazionali di italiano e matematica.",
+    description: "Percentuale di studenti delle superiori che raggiunge i traguardi attesi nelle prove nazionali di italiano e matematica.",
   },
   {
     id: "uniResults",
-    label: "Risultati universitari",
+    label: "Rendimento all'università",
     shortLabel: "Università",
     weight: "35%",
     color: "#315E7D",
     bg: "bg-[#315E7D]",
-    description: "Indice Eduscopio sugli esami sostenuti e sui voti ottenuti dagli ex studenti iscritti all'università.",
+    description: "Indice Eduscopio università: combina esami sostenuti e voti ottenuti dagli ex studenti che si sono iscritti all'università.",
   },
   {
     id: "workOutcomes",
-    label: "Primi esiti nel lavoro",
+    label: "Ingresso nel lavoro",
     shortLabel: "Lavoro",
     weight: "10%",
     color: "#7C5C9E",
     bg: "bg-[#7C5C9E]",
-    description: "Esiti lavorativi Eduscopio per tecnici e professionali, pesati per la quota di diplomati coperta.",
+    description: "Dato Eduscopio lavoro per tecnici e professionali: misura i primi risultati occupazionali dei diplomati, pesati per quanti diplomati sono coperti.",
   },
   {
     id: "uniAccess",
-    label: "Accesso all'università",
-    shortLabel: "Accesso",
+    label: "Passaggio all'università",
+    shortLabel: "Immatricolati",
     weight: "10%",
     color: "#0E5A5A",
     bg: "bg-[#0E5A5A]",
-    description: "Quota di diplomati che si immatricola all'università.",
+    description: "Quota di diplomati che dopo la maturità si immatricola all'università.",
   },
   {
     id: "continuity",
-    label: "Continuità universitaria",
-    shortLabel: "Continuità",
+    label: "Tenuta universitaria",
+    shortLabel: "Tenuta",
     weight: "10%",
     color: "#4A6E78",
     bg: "bg-[#4A6E78]",
-    description: "Quota di immatricolati che prosegue il percorso universitario senza abbandonare subito.",
+    description: "Quota di immatricolati che prosegue il percorso universitario dopo l'avvio, senza abbandonare subito.",
   },
-];
-
-export const SIZE_METRICS: { id: SizeMetricKey; label: string; description: string }[] = [
-  { id: "fixed", label: "Standard", description: "Tutti i punti hanno la stessa dimensione." },
-  { id: "diplomati", label: "Diplomati", description: "Punti più grandi dove il bacino di diplomati è maggiore." },
-  { id: "reliability", label: "Affidabilità", description: "Punti più grandi dove il dato è più robusto." },
 ];
 
 export const SCORE_LEVELS = [

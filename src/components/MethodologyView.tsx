@@ -26,11 +26,11 @@ export default function MethodologyView() {
             </p>
             <pre className="bg-[#031f27] text-[#e4f7ff] rounded-2xl p-5 text-xs overflow-x-auto font-mono leading-relaxed">{`Indice finale =
 100
-+ 35% competenze scolastiche
-+ 35% risultati universitari Eduscopio
-+ 10% esiti nel lavoro Eduscopio, corretti per copertura
-+ 10% accesso all'università
-+ 10% continuità universitaria`}</pre>
++ 35% apprendimenti nelle prove nazionali
++ 35% rendimento all'università
++ 10% ingresso nel lavoro, corretto per copertura
++ 10% passaggio all'università
++ 10% tenuta universitaria`}</pre>
           </section>
 
           <section className="space-y-3">
@@ -69,7 +69,7 @@ export default function MethodologyView() {
             title="Fonti"
             items={[
               ["Docente.it / INVALSI", "percentuali aggregate sulle prove nazionali per comune."],
-              ["Eduscopio", "FGA universitario, accesso all'università, continuità e lavoro."],
+              ["Eduscopio", "FGA universitario, immatricolazioni, tenuta del percorso e ingresso nel lavoro."],
               ["Openpolis", "coordinate e confini comunali usati per geolocalizzare i punti."],
             ]}
           />

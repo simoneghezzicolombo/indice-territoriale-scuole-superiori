@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef } from "react";
 import L from "leaflet";
 import { assetPath, METRICS } from "../data";
-import { CityData, MetricKey, SizeMetricKey } from "../types";
+import { CityData, MetricKey } from "../types";
 
 interface ItalyDotMapProps {
   cities: CityData[];
   activeCityId: string;
   colorMetric: MetricKey;
-  sizeMetric: SizeMetricKey;
   focusCityIds: Set<string>;
   onSelectCity: (cityId: string) => void;
 }
@@ -16,14 +15,6 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 
 function metricValue(city: CityData, metric: MetricKey): number {
   return city[metric];
-}
-
-function sizeValue(city: CityData, metric: SizeMetricKey): number {
-  if (metric === "fixed") return 1;
-  if (metric === "diplomati") return city.details.diplomati;
-  if (metric === "schoolsCount") return city.details.schoolsCount;
-  if (metric === "workCoverage") return city.details.workCoverage;
-  return city.details.reliability;
 }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -95,7 +86,6 @@ export default function ItalyDotMap({
   cities,
   activeCityId,
   colorMetric,
-  sizeMetric,
   focusCityIds,
   onSelectCity,
 }: ItalyDotMapProps) {
@@ -176,12 +166,6 @@ export default function ItalyDotMap({
 
     layer.clearLayers();
     const validCities = cities.filter((city) => city.coordinates);
-    const sizeValues = validCities
-      .filter((city) => focusCityIds.has(city.id))
-      .map((city) => sizeValue(city, sizeMetric));
-    const fallbackSizeValues = sizeValues.length ? sizeValues : validCities.map((city) => sizeValue(city, sizeMetric));
-    const sizeMin = Math.min(...fallbackSizeValues);
-    const sizeMax = Math.max(...fallbackSizeValues);
 
     for (const city of validCities) {
       const coordinates = city.coordinates;
@@ -190,9 +174,7 @@ export default function ItalyDotMap({
       const focused = focusCityIds.has(city.id);
       const active = city.id === activeCityId;
       const color = focused ? interpolateMetricColor(metricValue(city, colorMetric), colorMetric) : "#7d8987";
-      const sizeRaw = sizeValue(city, sizeMetric);
-      const scaledRadius = sizeMetric === "fixed" ? 4.8 : 4.5 + clamp((sizeRaw - sizeMin) / (sizeMax - sizeMin || 1), 0, 1) * 5.5;
-      const radius = city.rank <= 5 && focused ? Math.max(10, scaledRadius) : scaledRadius;
+      const radius = city.rank <= 5 && focused ? 10 : 5.2;
 
       const marker = L.marker(coordinates, {
         icon: L.divIcon({
@@ -211,7 +193,7 @@ export default function ItalyDotMap({
       );
       marker.addTo(layer);
     }
-  }, [activeCityId, cities, colorMetric, focusCityIds, sizeMetric]);
+  }, [activeCityId, cities, colorMetric, focusCityIds]);
 
   useEffect(() => {
     const map = mapRef.current;

@@ -27,7 +27,7 @@ export default function HomeView({ setView, citiesData }: HomeViewProps) {
             <span className="text-[#00605b]">Scuole Superiori</span>
           </h1>
           <p className="font-sans text-base md:text-lg text-[#3e4947] max-w-xl leading-relaxed">
-            Una lettura comunale degli esiti delle scuole superiori: competenze rilevate dalle prove nazionali, risultati universitari degli ex studenti e primi esiti lavorativi dove disponibili.
+            Una lettura comunale degli esiti delle scuole superiori: apprendimenti nelle prove nazionali, rendimento universitario degli ex studenti e ingresso nel lavoro dove il dato è disponibile.
           </p>
           <div className="flex flex-wrap gap-4 pt-2">
             <button
@@ -146,7 +146,7 @@ export default function HomeView({ setView, citiesData }: HomeViewProps) {
           <h2 className="font-sans text-2xl md:text-3xl font-extrabold text-[#031f27]">Cosa include e cosa no</h2>
           <InfoLine title="Comune, non scuola" text="L'unità della classifica è il comune. Le scuole sono mostrate nella scheda di dettaglio per capire da dove arriva il dato." />
           <InfoLine title="Solo comuni coperti" text="Entrano i comuni per cui è possibile calcolare l'indice finale con i dati disponibili nello snapshot." />
-          <InfoLine title="Lavoro dove ha senso" text="Gli esiti lavorativi pesano poco e sono corretti per copertura, per non trasformare la presenza di tecnici e professionali in una penalità automatica." />
+          <InfoLine title="Lavoro dove ha senso" text="L'ingresso nel lavoro riguarda soprattutto tecnici e professionali ed è corretto per copertura, per non trasformare la presenza di questi indirizzi in una penalità automatica." />
         </div>
       </section>
     </div>
