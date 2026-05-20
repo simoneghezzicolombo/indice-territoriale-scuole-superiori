@@ -113,7 +113,11 @@ export default function HomeView({ setView, citiesData }: HomeViewProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
           {METRICS.filter((metric) => metric.id !== "totalScore").map((metric) => (
-            <div key={metric.id} className="bg-white p-5 rounded-xl border border-[#bdc9c7] shadow-sm border-t-4" style={{ borderTopColor: metric.color }}>
+            <div
+              key={metric.id}
+              className="p-5 rounded-xl border shadow-sm border-t-4"
+              style={{ backgroundColor: metric.surface, borderColor: metric.border, borderTopColor: metric.color }}
+            >
               <div className="text-2xl font-bold font-mono" style={{ color: metric.color }}>{metric.weight}</div>
               <p className="font-mono text-xs font-bold text-[#031f27] uppercase tracking-wider mt-1 mb-3">{metric.label}</p>
               <p className="font-sans text-xs text-[#3e4947] leading-relaxed">{metric.description}</p>

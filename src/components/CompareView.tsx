@@ -219,7 +219,7 @@ function CityHeader({ city, badge, onOpen }: { city: CityData; badge: string; on
           <h2 className="font-sans text-3xl font-extrabold text-[#031f27] tracking-tight mt-1">{city.name}</h2>
           <p className="font-mono text-xs text-[#3e4947] mt-1">{city.provinceCode} - {city.region}</p>
         </div>
-        <button onClick={onOpen} className="self-start p-2 text-[#315E7D] hover:bg-white rounded-lg" title="Apri scheda">
+        <button onClick={onOpen} className="self-start p-2 text-[#2563eb] hover:bg-white rounded-lg" title="Apri scheda">
           <ExternalLink className="w-4 h-4" />
         </button>
       </div>
@@ -250,8 +250,8 @@ function CompareRow({ metric, cityA, cityB }: { metric: MetricKey; cityA: CityDa
       </div>
 
       <div className="space-y-3">
-        <BarLine city={cityA} metric={metric} score={aScore} color="#177A74" width={width(aScore)} />
-        <BarLine city={cityB} metric={metric} score={bScore} color="#315E7D" width={width(bScore)} />
+        <BarLine city={cityA} metric={metric} score={aScore} color="#007a5e" width={width(aScore)} />
+        <BarLine city={cityB} metric={metric} score={bScore} color="#2563eb" width={width(bScore)} />
       </div>
     </div>
   );

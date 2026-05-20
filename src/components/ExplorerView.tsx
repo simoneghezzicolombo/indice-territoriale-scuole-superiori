@@ -461,10 +461,10 @@ export default function ExplorerView({
                             {school.diplomati > 0 ? school.diplomati : "-"}
                           </td>
                           <td className="py-3 px-4 text-center font-mono" data-label="FGA università">
-                            {school.uniScore !== null ? <span className="font-bold text-[#315E7D]">{school.uniScore.toFixed(1)}</span> : <span className="text-[#6e7978] opacity-60">-</span>}
+                            {school.uniScore !== null ? <span className="font-bold text-[#2563eb]">{school.uniScore.toFixed(1)}</span> : <span className="text-[#6e7978] opacity-60">-</span>}
                           </td>
                           <td className="py-3 px-4 text-center font-mono" data-label="FGA lavoro">
-                            {school.lavScore !== null ? <span className="font-bold text-[#7C5C9E]">{school.lavScore.toFixed(1)}</span> : <span className="text-[#6e7978] opacity-60">-</span>}
+                            {school.lavScore !== null ? <span className="font-bold text-[#7c3aed]">{school.lavScore.toFixed(1)}</span> : <span className="text-[#6e7978] opacity-60">-</span>}
                           </td>
                         </tr>
                       ))}
@@ -514,13 +514,20 @@ export default function ExplorerView({
                     const score = metricScore(activeCity, metric.id);
                     const delta = metricDelta(activeCity, metric.id) ?? 0;
                     return (
-                      <div key={metric.id} className="rounded-xl border border-[#bdc9c7]/40 p-3.5 bg-[#fcfcfc]">
+                      <div
+                        key={metric.id}
+                        className="rounded-xl border p-3.5"
+                        style={{ backgroundColor: metric.surface, borderColor: metric.border }}
+                      >
                         <div className="flex justify-between gap-3">
                           <div className="min-w-0">
                             <p className="font-sans text-xs font-extrabold text-[#031f27] flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: metric.color }} />
                               {metric.shortLabel}
-                              <span className="text-[9px] font-mono font-normal text-[#3e4947] bg-[#f2fbff] border border-[#bdc9c7]/30 px-1.5 py-0.5 rounded ml-1 shrink-0">
+                              <span
+                                className="text-[9px] font-mono font-normal border px-1.5 py-0.5 rounded ml-1 shrink-0"
+                                style={{ backgroundColor: "#fff", borderColor: metric.border, color: metric.color }}
+                              >
                                 {metric.weight}
                               </span>
                             </p>
@@ -532,7 +539,7 @@ export default function ExplorerView({
                             <p className="font-mono text-[10px] font-bold text-[#3e4947]/90 mt-0.5">{formatDelta(delta)} punti</p>
                           </div>
                         </div>
-                        <div className="mt-3.5 h-1.5 bg-[#f2fbff] rounded-full overflow-hidden border border-[#bdc9c7]/20 relative">
+                        <div className="mt-3.5 h-1.5 bg-white rounded-full overflow-hidden border border-white/80 relative">
                           <div
                             className="h-full rounded-full transition-all duration-700"
                             style={{
@@ -558,7 +565,7 @@ export default function ExplorerView({
               <button
                 type="button"
                 onClick={handleQuickCompare}
-                className="w-full py-3 px-4 bg-[#315E7D] hover:bg-[#0E5A5A] text-white font-mono text-[10px] uppercase font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95 hover:shadow-md"
+                className="w-full py-3 px-4 bg-[#2563eb] hover:bg-[#0e7490] text-white font-mono text-[10px] uppercase font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95 hover:shadow-md"
               >
                 <ArrowRightLeft className="w-3.5 h-3.5" />
                 Confronta questo comune
@@ -620,32 +627,44 @@ function DimensionCards({
             type="button"
             aria-pressed={active}
             onClick={() => onSelectMetric(metric.id)}
-            className={`group text-left rounded-xl border p-4 transition-all cursor-pointer bg-white ${
-              active ? "shadow-md border-transparent ring-2 ring-offset-1" : "border-[#bdc9c7]/60 hover:border-[#00605b]"
-            }`}
-            style={active ? { boxShadow: `0 0 0 2px ${metric.color}, 0 14px 30px rgba(3,31,39,0.08)` } : undefined}
+            className="group relative overflow-hidden text-left rounded-xl border p-4 transition-all cursor-pointer hover:-translate-y-0.5"
+            style={{
+              background: active ? `linear-gradient(135deg, ${metric.surface} 0%, #ffffff 64%)` : "#ffffff",
+              borderColor: active ? metric.color : metric.border,
+              boxShadow: active ? `0 0 0 2px ${metric.color}, 0 16px 34px rgba(3,31,39,0.08)` : "0 8px 18px rgba(3,31,39,0.035)",
+            }}
           >
+            <span className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: metric.color }} />
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-sans text-sm font-extrabold text-[#031f27] flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: metric.color }} />
+                  <span
+                    className="w-3 h-3 rounded-full shrink-0 border-2 border-white shadow-sm"
+                    style={{ backgroundColor: metric.color }}
+                  />
                   {metric.label}
                 </p>
                 <p className="font-sans text-[11px] text-[#3e4947] leading-relaxed mt-1.5">
                   {metric.description}
                 </p>
               </div>
-              <span className="font-mono text-[10px] font-bold px-2 py-1 rounded bg-[#f2fbff] text-[#3e4947] shrink-0">
+              <span
+                className="font-mono text-[10px] font-bold px-2 py-1 rounded shrink-0 border"
+                style={{ backgroundColor: metric.surface, borderColor: metric.border, color: metric.color }}
+              >
                 {metric.weight}
               </span>
             </div>
 
             <div className="mt-4 flex items-end justify-between gap-3 border-t border-[#bdc9c7]/25 pt-3">
-              <div>
+              <div className="min-w-0">
                 <p className="font-mono text-[9px] uppercase text-[#6e7978]">Nel comune scelto</p>
                 <p className="font-sans text-[11px] font-bold text-[#031f27] mt-0.5">{actualValue(activeCity, metric.id)}</p>
               </div>
-              <div className="text-right shrink-0">
+              <div
+                className="text-right shrink-0 rounded-lg px-2.5 py-1.5 border"
+                style={{ backgroundColor: metric.surface, borderColor: metric.border }}
+              >
                 <p className="font-mono text-base font-black" style={{ color: metric.color }}>
                   {score.toFixed(1)}
                 </p>

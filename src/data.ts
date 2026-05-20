@@ -103,6 +103,8 @@ export const METRICS: {
   shortLabel: string;
   weight: string;
   color: string;
+  surface: string;
+  border: string;
   bg: string;
   description: string;
 }[] = [
@@ -112,6 +114,8 @@ export const METRICS: {
     shortLabel: "Totale",
     weight: "100%",
     color: "#17313a",
+    surface: "#f1f5f9",
+    border: "#cbd5e1",
     bg: "bg-[#17313a]",
     description: "Sintesi pesata delle cinque dimensioni: apprendimenti, università, lavoro, immatricolazioni e tenuta del percorso.",
   },
@@ -120,8 +124,10 @@ export const METRICS: {
     label: "Apprendimenti",
     shortLabel: "Prove nazionali",
     weight: "35%",
-    color: "#177A74",
-    bg: "bg-[#177A74]",
+    color: "#007a5e",
+    surface: "#eaf7f0",
+    border: "#b8e0d1",
+    bg: "bg-[#007a5e]",
     description: "Percentuale di studenti delle superiori che raggiunge i traguardi attesi nelle prove nazionali di italiano e matematica.",
   },
   {
@@ -129,8 +135,10 @@ export const METRICS: {
     label: "Rendimento all'università",
     shortLabel: "Università",
     weight: "35%",
-    color: "#315E7D",
-    bg: "bg-[#315E7D]",
+    color: "#2563eb",
+    surface: "#eff6ff",
+    border: "#bfdbfe",
+    bg: "bg-[#2563eb]",
     description: "Indice Eduscopio università: combina esami sostenuti e voti ottenuti dagli ex studenti che si sono iscritti all'università.",
   },
   {
@@ -138,8 +146,10 @@ export const METRICS: {
     label: "Ingresso nel lavoro",
     shortLabel: "Lavoro",
     weight: "10%",
-    color: "#7C5C9E",
-    bg: "bg-[#7C5C9E]",
+    color: "#7c3aed",
+    surface: "#f5f3ff",
+    border: "#ddd6fe",
+    bg: "bg-[#7c3aed]",
     description: "Dato Eduscopio lavoro per tecnici e professionali: misura i primi risultati occupazionali dei diplomati, pesati per quanti diplomati sono coperti.",
   },
   {
@@ -147,8 +157,10 @@ export const METRICS: {
     label: "Passaggio all'università",
     shortLabel: "Immatricolati",
     weight: "10%",
-    color: "#0E5A5A",
-    bg: "bg-[#0E5A5A]",
+    color: "#0e7490",
+    surface: "#ecfeff",
+    border: "#a5f3fc",
+    bg: "bg-[#0e7490]",
     description: "Quota di diplomati che dopo la maturità si immatricola all'università.",
   },
   {
@@ -156,15 +168,17 @@ export const METRICS: {
     label: "Tenuta universitaria",
     shortLabel: "Tenuta",
     weight: "10%",
-    color: "#4A6E78",
-    bg: "bg-[#4A6E78]",
+    color: "#5b6f22",
+    surface: "#f4f7e8",
+    border: "#d5dfa9",
+    bg: "bg-[#5b6f22]",
     description: "Quota di immatricolati che prosegue il percorso universitario dopo l'avvio, senza abbandonare subito.",
   },
 ];
 
 export const SCORE_LEVELS = [
-  { range: "110+", label: "MOLTO FORTE", bg: "bg-teal-50 text-teal-800 border-teal-200", badgeColor: "bg-[#177A74] text-white" },
-  { range: "103-110", label: "FORTE", bg: "bg-blue-50 text-blue-800 border-blue-200", badgeColor: "bg-[#315E7D] text-white" },
+  { range: "110+", label: "MOLTO FORTE", bg: "bg-teal-50 text-teal-800 border-teal-200", badgeColor: "bg-[#007a5e] text-white" },
+  { range: "103-110", label: "FORTE", bg: "bg-blue-50 text-blue-800 border-blue-200", badgeColor: "bg-[#2563eb] text-white" },
   { range: "97-103", label: "STABILE", bg: "bg-neutral-50 text-neutral-800 border-neutral-200", badgeColor: "bg-[#6e7978] text-white" },
   { range: "90-97", label: "FRAGILE", bg: "bg-amber-50 text-amber-900 border-amber-200", badgeColor: "bg-[#a86400] text-white" },
   { range: "< 90", label: "MOLTO FRAGILE", bg: "bg-red-50 text-red-800 border-red-200", badgeColor: "bg-[#ba1a1a] text-white" },

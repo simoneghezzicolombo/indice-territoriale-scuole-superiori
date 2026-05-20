@@ -244,7 +244,7 @@ export default function RankingsView({ setView, setSelectedCompareCity, openExpl
                           </button>
                           <button
                             onClick={() => openExplorerCity(city.id)}
-                            className="p-1.5 text-[#315E7D] hover:bg-[#315E7D]/10 rounded transition-all cursor-pointer"
+                            className="p-1.5 text-[#2563eb] hover:bg-[#2563eb]/10 rounded transition-all cursor-pointer"
                             title="Apri scheda comune"
                           >
                             <ExternalLink className="w-4 h-4" />

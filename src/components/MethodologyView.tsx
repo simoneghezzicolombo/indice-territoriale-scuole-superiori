@@ -37,7 +37,11 @@ export default function MethodologyView() {
             <h3 className="font-sans font-bold text-xs uppercase tracking-wider text-[#031f27]">Le cinque dimensioni</h3>
             <div className="space-y-3">
               {METRICS.filter((metric) => metric.id !== "totalScore").map((metric, index) => (
-                <div key={metric.id} className="p-4 bg-[#f2fbff] rounded-xl border border-[#bdc9c7]/30 flex gap-4 items-start">
+                <div
+                  key={metric.id}
+                  className="p-4 rounded-xl border flex gap-4 items-start"
+                  style={{ backgroundColor: metric.surface, borderColor: metric.border }}
+                >
                   <span className="font-mono text-xs font-bold text-white w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: metric.color }}>
                     {metric.weight}
                   </span>
@@ -65,7 +69,7 @@ export default function MethodologyView() {
 
         <div className="lg:col-span-4 space-y-6">
           <InfoBox
-            icon={<Database className="w-4.5 h-4.5 text-[#315E7D]" />}
+            icon={<Database className="w-4.5 h-4.5 text-[#2563eb]" />}
             title="Fonti"
             items={[
               ["Docente.it / INVALSI", "percentuali aggregate sulle prove nazionali per comune."],
@@ -75,7 +79,7 @@ export default function MethodologyView() {
           />
 
           <InfoBox
-            icon={<Layers className="w-4.5 h-4.5 text-[#315E7D]" />}
+            icon={<Layers className="w-4.5 h-4.5 text-[#2563eb]" />}
             title="Come leggere 100"
             items={[
               ["Sopra 100", "profilo complessivo più forte del punto neutro dell'indice."],
@@ -110,7 +114,7 @@ function InfoBox({
 }) {
   return (
     <div className="bg-sky-50 rounded-2xl border border-sky-100 p-6 space-y-4">
-      <h3 className="font-sans font-bold text-xs uppercase tracking-wider text-[#315E7D] flex items-center gap-1.5">
+      <h3 className="font-sans font-bold text-xs uppercase tracking-wider text-[#2563eb] flex items-center gap-1.5">
         {icon}
         {title}
       </h3>

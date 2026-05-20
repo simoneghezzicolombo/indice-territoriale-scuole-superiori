@@ -45,7 +45,7 @@ function metricColor(metric: MetricKey): string {
 }
 
 function interpolateMetricColor(value: number, metric: MetricKey): string {
-  const high = metric === "totalScore" ? "#315e7d" : metricColor(metric);
+  const high = metricColor(metric);
   const stops = [
     { value: 80, color: "#b3261e" },
     { value: 92, color: "#d9822b" },
