@@ -64,9 +64,9 @@ function interpolateMetricColor(value: number, metric: MetricKey): string {
   return mix(lower.color, upper.color, t);
 }
 
-function markerHtml(city: CityData, color: string, radius: number, active: boolean, focused: boolean): string {
+function markerHtml(city: CityData, color: string, radius: number, active: boolean, focused: boolean, showOverallRank: boolean): string {
   const size = radius * 2;
-  const topRank = city.rank <= 5 && focused;
+  const topRank = showOverallRank && city.rank <= 5 && focused;
   const label = topRank ? String(city.rank) : "";
   const fontSize = topRank ? Math.max(10, Math.min(13, radius * 0.9)) : 0;
   const opacity = focused ? (active ? 1 : 0.86) : 0.18;
@@ -166,6 +166,7 @@ export default function ItalyDotMap({
 
     layer.clearLayers();
     const validCities = cities.filter((city) => city.coordinates);
+    const showOverallRanks = colorMetric === "totalScore";
 
     for (const city of validCities) {
       const coordinates = city.coordinates;
@@ -174,12 +175,12 @@ export default function ItalyDotMap({
       const focused = focusCityIds.has(city.id);
       const active = city.id === activeCityId;
       const color = focused ? interpolateMetricColor(metricValue(city, colorMetric), colorMetric) : "#7d8987";
-      const radius = city.rank <= 5 && focused ? 10 : 5.2;
+      const radius = showOverallRanks && city.rank <= 5 && focused ? 10 : 5.2;
 
       const marker = L.marker(coordinates, {
         icon: L.divIcon({
           className: "map-dot-icon",
-          html: markerHtml(city, color, active ? radius + 3 : radius, active, focused),
+          html: markerHtml(city, color, active ? radius + 3 : radius, active, focused, showOverallRanks),
           iconSize: [0, 0],
         }),
         keyboard: true,
