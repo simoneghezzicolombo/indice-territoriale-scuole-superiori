@@ -46,7 +46,7 @@ export default function ExplorerView({
   const [selectedRegion, setSelectedRegion] = useState("Tutte");
   const [selectedStatus, setSelectedStatus] = useState("Tutti");
   const [colorMetric, setColorMetric] = useState<MetricKey>("totalScore");
-  const [sizeMetric, setSizeMetric] = useState<SizeMetricKey>("diplomati");
+  const [sizeMetric, setSizeMetric] = useState<SizeMetricKey>("fixed");
   const [schools, setSchools] = useState<SchoolData[]>([]);
   const [schoolsLoading, setSchoolsLoading] = useState(false);
   const [schoolSearchQuery, setSchoolSearchQuery] = useState("");
@@ -128,7 +128,7 @@ export default function ExplorerView({
           Esplora i comuni
         </h1>
         <p className="font-sans text-sm text-[#3e4947] max-w-3xl leading-relaxed">
-          La mappa mostra i comuni inclusi nell'indice. Il colore indica il livello scelto, la dimensione del punto può rappresentare diplomati, indirizzi, copertura lavoro o affidabilità.
+          La mappa mostra i comuni inclusi nell'indice. Il colore segue sempre una scala basso-alto; la grandezza dei punti è opzionale e serve solo a leggere il peso del dato.
         </p>
       </div>
 
@@ -187,13 +187,13 @@ export default function ExplorerView({
           <div className="bg-white border border-[#bdc9c7] rounded-2xl shadow-sm p-4 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <ButtonGroup
-                label="Colore"
+                label="Indicatore"
                 value={colorMetric}
                 options={METRICS}
                 onChange={(value) => setColorMetric(value as MetricKey)}
               />
               <ButtonGroup
-                label="Dimensione"
+                label="Grandezza punti"
                 value={sizeMetric}
                 options={SIZE_METRICS}
                 onChange={(value) => setSizeMetric(value as SizeMetricKey)}
@@ -207,8 +207,9 @@ export default function ExplorerView({
               onSelectCity={setActiveCityId}
             />
             <div className="flex flex-wrap items-center gap-3 text-[10px] font-mono uppercase text-[#3e4947]">
-              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#ba1a1a]" /> basso</span>
-              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#d9a441]" /> intermedio</span>
+              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#b3261e]" /> basso</span>
+              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#d9822b]" /> sotto 100</span>
+              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#d9a441]" /> circa 100</span>
               <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#177a74]" /> alto</span>
               <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#315e7d]" /> molto alto</span>
             </div>

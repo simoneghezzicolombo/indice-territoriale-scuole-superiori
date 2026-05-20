@@ -163,10 +163,8 @@ export const METRICS: {
 ];
 
 export const SIZE_METRICS: { id: SizeMetricKey; label: string; description: string }[] = [
-  { id: "fixed", label: "Uguale", description: "Tutti i punti hanno la stessa dimensione." },
+  { id: "fixed", label: "Standard", description: "Tutti i punti hanno la stessa dimensione." },
   { id: "diplomati", label: "Diplomati", description: "Punti più grandi dove il bacino di diplomati è maggiore." },
-  { id: "schoolsCount", label: "Indirizzi", description: "Punti più grandi dove sono coperti più indirizzi scolastici." },
-  { id: "workCoverage", label: "Copertura lavoro", description: "Punti più grandi dove Eduscopio copre più diplomati per il lavoro." },
   { id: "reliability", label: "Affidabilità", description: "Punti più grandi dove il dato è più robusto." },
 ];
 

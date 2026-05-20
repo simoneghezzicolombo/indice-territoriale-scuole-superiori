@@ -11,6 +11,13 @@ interface ItalyDotMapProps {
 }
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+const COLOR_STOPS = [
+  { value: 80, color: "#b3261e" },
+  { value: 92, color: "#d9822b" },
+  { value: 100, color: "#d9a441" },
+  { value: 108, color: "#177a74" },
+  { value: 122, color: "#315e7d" },
+];
 
 function metricValue(city: CityData, metric: MetricKey): number {
   return city[metric];
@@ -24,13 +31,35 @@ function sizeValue(city: CityData, metric: SizeMetricKey): number {
   return city.details.reliability;
 }
 
-function interpolateColor(value: number, min: number, max: number): string {
-  const t = clamp((value - min) / (max - min || 1), 0, 1);
-  if (t < 0.25) return "#ba1a1a";
-  if (t < 0.5) return "#d8842f";
-  if (t < 0.7) return "#d9a441";
-  if (t < 0.88) return "#177a74";
-  return "#315e7d";
+function hexToRgb(hex: string): [number, number, number] {
+  const normalized = hex.replace("#", "");
+  return [
+    parseInt(normalized.slice(0, 2), 16),
+    parseInt(normalized.slice(2, 4), 16),
+    parseInt(normalized.slice(4, 6), 16),
+  ];
+}
+
+function rgbToHex([r, g, b]: [number, number, number]): string {
+  return `#${[r, g, b].map((channel) => Math.round(channel).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function interpolateColor(value: number): string {
+  const clamped = clamp(value, COLOR_STOPS[0].value, COLOR_STOPS[COLOR_STOPS.length - 1].value);
+  const upperIndex = COLOR_STOPS.findIndex((stop) => clamped <= stop.value);
+  if (upperIndex <= 0) return COLOR_STOPS[0].color;
+
+  const lower = COLOR_STOPS[upperIndex - 1];
+  const upper = COLOR_STOPS[upperIndex];
+  const t = (clamped - lower.value) / (upper.value - lower.value || 1);
+  const lowerRgb = hexToRgb(lower.color);
+  const upperRgb = hexToRgb(upper.color);
+
+  return rgbToHex([
+    lowerRgb[0] + (upperRgb[0] - lowerRgb[0]) * t,
+    lowerRgb[1] + (upperRgb[1] - lowerRgb[1]) * t,
+    lowerRgb[2] + (upperRgb[2] - lowerRgb[2]) * t,
+  ]);
 }
 
 function markerHtml(city: CityData, color: string, radius: number, active: boolean): string {
@@ -46,6 +75,7 @@ function markerHtml(city: CityData, color: string, radius: number, active: boole
     border-color:${active ? "#031f27" : "rgba(255,255,255,0.95)"};
     box-shadow:${active ? "0 0 0 4px rgba(0,96,91,0.18)" : "0 2px 8px rgba(3,31,39,0.25)"};
     font-size:${fontSize}px;
+    opacity:${active ? 1 : 0.9};
   " aria-label="${city.name}, posizione ${city.rank}">${label}</button>`;
 }
 
@@ -59,6 +89,7 @@ export default function ItalyDotMap({
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const layerRef = useRef<L.LayerGroup | null>(null);
+  const fittedCitiesRef = useRef("");
   const onSelectRef = useRef(onSelectCity);
   onSelectRef.current = onSelectCity;
 
@@ -69,12 +100,12 @@ export default function ItalyDotMap({
       zoomControl: false,
       attributionControl: true,
       scrollWheelZoom: false,
-    }).setView([42.7, 12.6], 5.4);
+    }).setView([42.6, 12.6], 5.7);
 
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
       maxZoom: 12,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     }).addTo(map);
 
     mapRef.current = map;
@@ -94,10 +125,7 @@ export default function ItalyDotMap({
 
     layer.clearLayers();
     const visible = cities.filter((city) => city.coordinates);
-    const colorValues = visible.map((city) => metricValue(city, colorMetric));
     const sizeValues = visible.map((city) => sizeValue(city, sizeMetric));
-    const colorMin = Math.min(...colorValues);
-    const colorMax = Math.max(...colorValues);
     const sizeMin = Math.min(...sizeValues);
     const sizeMax = Math.max(...sizeValues);
 
@@ -105,9 +133,10 @@ export default function ItalyDotMap({
       const coordinates = city.coordinates;
       if (!coordinates) continue;
 
-      const color = interpolateColor(metricValue(city, colorMetric), colorMin, colorMax);
+      const color = interpolateColor(metricValue(city, colorMetric));
       const sizeRaw = sizeValue(city, sizeMetric);
-      const radius = sizeMetric === "fixed" ? 7 : 5 + clamp((sizeRaw - sizeMin) / (sizeMax - sizeMin || 1), 0, 1) * 10;
+      const scaledRadius = sizeMetric === "fixed" ? 6 : 5 + clamp((sizeRaw - sizeMin) / (sizeMax - sizeMin || 1), 0, 1) * 6;
+      const radius = city.rank <= 5 ? Math.max(10, scaledRadius) : scaledRadius;
       const active = city.id === activeCityId;
 
       const marker = L.marker(coordinates, {
@@ -127,14 +156,18 @@ export default function ItalyDotMap({
       );
       marker.addTo(layer);
     }
-  }, [activeCityId, cities, colorMetric, sizeMetric]);
 
-  useEffect(() => {
-    const activeCity = cities.find((city) => city.id === activeCityId);
-    if (activeCity?.coordinates && mapRef.current) {
-      mapRef.current.panTo(activeCity.coordinates, { animate: true, duration: 0.45 });
+    const fitKey = visible.map((city) => city.id).join("|");
+    if (visible.length && fitKey !== fittedCitiesRef.current) {
+      fittedCitiesRef.current = fitKey;
+      if (visible.length === 1 && visible[0].coordinates) {
+        map.setView(visible[0].coordinates, 9, { animate: true });
+      } else {
+        const bounds = L.latLngBounds(visible.map((city) => city.coordinates as [number, number]));
+        map.fitBounds(bounds, { padding: [24, 24], maxZoom: 7, animate: true });
+      }
     }
-  }, [activeCityId, cities]);
+  }, [activeCityId, cities, colorMetric, sizeMetric]);
 
   return <div ref={containerRef} className="h-[420px] md:h-[560px] w-full rounded-2xl overflow-hidden border border-[#bdc9c7] bg-[#e4f7ff]" />;
 }
