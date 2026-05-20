@@ -6,6 +6,8 @@ export type MetricKey =
   | "uniAccess"
   | "continuity";
 
+export type Language = "it" | "en";
+
 export interface CityDetails {
   docentePct: number;
   uniScore: number;

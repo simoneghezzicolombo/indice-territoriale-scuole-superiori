@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef } from "react";
 import L from "leaflet";
 import { assetPath, METRICS } from "../data";
-import { CityData, MetricKey } from "../types";
+import { CityData, Language, MetricKey } from "../types";
 
 interface ItalyDotMapProps {
   cities: CityData[];
   activeCityId: string;
   colorMetric: MetricKey;
   focusCityIds: Set<string>;
+  language: Language;
   onSelectCity: (cityId: string) => void;
 }
 
@@ -87,6 +88,7 @@ export default function ItalyDotMap({
   activeCityId,
   colorMetric,
   focusCityIds,
+  language,
   onSelectCity,
 }: ItalyDotMapProps) {
   const mapRef = useRef<L.Map | null>(null);
@@ -189,12 +191,12 @@ export default function ItalyDotMap({
 
       marker.on("click", () => onSelectRef.current(city.id));
       marker.bindTooltip(
-        `<strong>${city.name}</strong> (${city.provinceCode})<br/>#${city.rank} - indice ${city.totalScore.toFixed(1)}`,
+        `<strong>${city.name}</strong> (${city.provinceCode})<br/>#${city.rank} - ${language === "it" ? "indice" : "index"} ${city.totalScore.toFixed(1)}`,
         { direction: "top", offset: [0, -8], opacity: 0.92 },
       );
       marker.addTo(layer);
     }
-  }, [activeCityId, cities, colorMetric, focusCityIds]);
+  }, [activeCityId, cities, colorMetric, focusCityIds, language]);
 
   useEffect(() => {
     const map = mapRef.current;

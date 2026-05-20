@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 import { ArrowRightLeft, ExternalLink, Search } from "lucide-react";
-import { METRICS, SCORE_LEVELS } from "../data";
-import { CityData, MetricKey } from "../types";
+import { SCORE_LEVELS } from "../data";
+import { actualValue as localizedActualValue, metricsFor, statusLabel } from "../i18n";
+import { CityData, Language, MetricKey } from "../types";
 
 interface CompareViewProps {
+  language: Language;
   cityAName: string;
   cityBName: string;
   setCityA: (name: string) => void;
@@ -13,6 +15,51 @@ interface CompareViewProps {
 }
 
 const formatDelta = (value: number) => `${value >= 0 ? "+" : ""}${value.toFixed(2)}`;
+
+const COMPARE_COPY = {
+  it: {
+    title: "Confronta due comuni",
+    intro:
+      "Metti fianco a fianco punteggio finale, singole dimensioni e valori reali. Utile per capire se la differenza nasce dalle competenze, dal dopo-diploma o dalla copertura lavoro.",
+    cityA: "Comune A",
+    cityB: "Comune B",
+    change: "Cambia",
+    filter: "Filtra comune",
+    finalRank: "su indice finale",
+    open: "Apri scheda",
+    indexPoints: "punti indice + dato reale",
+    reading: "Lettura del confronto",
+    ahead: "è davanti a",
+    by: "di",
+    finalIndex: "punti nell'indice finale.",
+    largestGap: "La differenza più ampia tra le dimensioni è in",
+    gapSuffix: "punti di distanza.",
+    note:
+      "I punti indice servono per il confronto. I valori tra parentesi mostrano il dato reale: percentuali, FGA universitario o FGA lavoro.",
+    points: "punti",
+  },
+  en: {
+    title: "Compare two municipalities",
+    intro:
+      "Place final score, individual dimensions and real values side by side. Useful to understand whether the gap comes from learning, post-diploma paths or employment coverage.",
+    cityA: "Municipality A",
+    cityB: "Municipality B",
+    change: "Change",
+    filter: "Filter municipality",
+    finalRank: "in the final index",
+    open: "Open card",
+    indexPoints: "index points + real value",
+    reading: "Comparison reading",
+    ahead: "is ahead of",
+    by: "by",
+    finalIndex: "points in the final index.",
+    largestGap: "The widest gap across dimensions is in",
+    gapSuffix: "points apart.",
+    note:
+      "Index points support comparison. Values in parentheses show the real data: percentages, university FGA or employment FGA.",
+    points: "points",
+  },
+} as const;
 
 function metricScore(city: CityData, metric: MetricKey): number {
   return city[metric];
@@ -33,6 +80,7 @@ function actualValue(city: CityData, metric: MetricKey): string {
 }
 
 export default function CompareView({
+  language,
   cityAName,
   cityBName,
   setCityA,
@@ -40,6 +88,8 @@ export default function CompareView({
   openExplorerCity,
   citiesData,
 }: CompareViewProps) {
+  const copy = COMPARE_COPY[language];
+  const metrics = metricsFor(language);
   const [dropdownAOpen, setDropdownAOpen] = useState(false);
   const [dropdownBOpen, setDropdownBOpen] = useState(false);
   const [searchA, setSearchA] = useState("");
@@ -62,7 +112,7 @@ export default function CompareView({
     const diff = cityA.totalScore - cityB.totalScore;
     const leader = diff >= 0 ? cityA : cityB;
     const follower = diff >= 0 ? cityB : cityA;
-    const strongestGap = METRICS.filter((metric) => metric.id !== "totalScore")
+    const strongestGap = metrics.filter((metric) => metric.id !== "totalScore")
       .map((metric) => ({
         metric,
         gap: metricScore(cityA, metric.id) - metricScore(cityB, metric.id),
@@ -75,7 +125,7 @@ export default function CompareView({
       diff: Math.abs(diff),
       strongestGap,
     };
-  }, [cityA, cityB]);
+  }, [cityA, cityB, metrics]);
 
   const getStatusBadge = (status: string) => {
     const found = SCORE_LEVELS.find((s) => s.label === status);
@@ -86,59 +136,61 @@ export default function CompareView({
     <div className="space-y-8 animate-entrance">
       <div className="space-y-1">
         <h1 className="font-sans text-3xl font-extrabold text-[#031f27] tracking-tight">
-          Confronta due comuni
+          {copy.title}
         </h1>
         <p className="font-sans text-sm text-[#3e4947] max-w-2xl leading-relaxed">
-          Metti fianco a fianco punteggio finale, singole dimensioni e valori reali. Utile per capire se la differenza nasce dalle competenze, dal dopo-diploma o dalla copertura lavoro.
+          {copy.intro}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CityPicker
-          label="Comune A"
+          label={copy.cityA}
           city={cityA}
           open={dropdownAOpen}
           setOpen={setDropdownAOpen}
           search={searchA}
           setSearch={setSearchA}
           options={optionsA}
+          copy={copy}
           onPick={(name) => setCityA(name)}
         />
         <CityPicker
-          label="Comune B"
+          label={copy.cityB}
           city={cityB}
           open={dropdownBOpen}
           setOpen={setDropdownBOpen}
           search={searchB}
           setSearch={setSearchB}
           options={optionsB}
+          copy={copy}
           onPick={(name) => setCityB(name)}
         />
       </div>
 
       <div className="bg-white border border-[#bdc9c7] rounded-2xl shadow-sm p-6 md:p-8 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-[#bdc9c7]/30 pb-6">
-          <CityHeader city={cityA} badge={getStatusBadge(cityA.status)} onOpen={() => openExplorerCity(cityA.id)} />
-          <CityHeader city={cityB} badge={getStatusBadge(cityB.status)} onOpen={() => openExplorerCity(cityB.id)} />
+          <CityHeader city={cityA} badge={getStatusBadge(cityA.status)} language={language} copy={copy} onOpen={() => openExplorerCity(cityA.id)} />
+          <CityHeader city={cityB} badge={getStatusBadge(cityB.status)} language={language} copy={copy} onOpen={() => openExplorerCity(cityB.id)} />
         </div>
 
         <div className="space-y-4">
-          {METRICS.map((metric) => (
-            <CompareRow key={metric.id} metric={metric.id} cityA={cityA} cityB={cityB} />
+          {metrics.map((metric) => (
+            <CompareRow key={metric.id} metric={metric.id} cityA={cityA} cityB={cityB} language={language} copy={copy} />
           ))}
         </div>
 
         <div className="bg-[#f0f8ff] rounded-2xl p-6 border-l-4 border-[#00605b] space-y-3">
           <div className="flex items-center gap-2">
             <ArrowRightLeft className="w-5 h-5 text-[#00605b]" />
-            <h4 className="font-sans font-bold text-sm text-[#031f27]">Lettura del confronto</h4>
+            <h4 className="font-sans font-bold text-sm text-[#031f27]">{copy.reading}</h4>
           </div>
           <p className="font-sans text-xs text-[#3e4947] leading-relaxed">
-            {summary.leader.name} è davanti a {summary.follower.name} di {summary.diff.toFixed(2)} punti nell'indice finale.
-            La differenza più ampia tra le dimensioni è in "{summary.strongestGap.metric.label}", con {Math.abs(summary.strongestGap.gap).toFixed(2)} punti di distanza.
+            {summary.leader.name} {copy.ahead} {summary.follower.name} {copy.by} {summary.diff.toFixed(2)} {copy.finalIndex}
+            {" "}{copy.largestGap} "{summary.strongestGap.metric.label}", {copy.by} {Math.abs(summary.strongestGap.gap).toFixed(2)} {copy.gapSuffix}
           </p>
           <p className="font-sans text-[11px] text-[#3e4947] leading-relaxed">
-            I punti indice servono per il confronto. I valori tra parentesi mostrano il dato reale: percentuali, FGA universitario o FGA lavoro.
+            {copy.note}
           </p>
         </div>
       </div>
@@ -154,6 +206,7 @@ function CityPicker({
   search,
   setSearch,
   options,
+  copy,
   onPick,
 }: {
   label: string;
@@ -163,6 +216,7 @@ function CityPicker({
   search: string;
   setSearch: (value: string) => void;
   options: CityData[];
+  copy: (typeof COMPARE_COPY)[Language];
   onPick: (name: string) => void;
 }) {
   return (
@@ -173,7 +227,7 @@ function CityPicker({
         className="w-full bg-white border border-[#bdc9c7] rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer hover:border-[#00605b] transition-all text-left"
       >
         <span className="font-sans text-sm font-bold text-[#031f27]">{city.name} ({city.provinceCode})</span>
-        <span className="text-xs text-[#00605b] font-mono">Cambia</span>
+        <span className="text-xs text-[#00605b] font-mono">{copy.change}</span>
       </button>
 
       {open && (
@@ -182,7 +236,7 @@ function CityPicker({
             <Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-[#3e4947]/70" />
             <input
               type="text"
-              placeholder="Filtra comune"
+              placeholder={copy.filter}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onClick={(e) => e.stopPropagation()}
@@ -210,29 +264,53 @@ function CityPicker({
   );
 }
 
-function CityHeader({ city, badge, onOpen }: { city: CityData; badge: string; onOpen: () => void }) {
+function CityHeader({
+  city,
+  badge,
+  language,
+  copy,
+  onOpen,
+}: {
+  city: CityData;
+  badge: string;
+  language: Language;
+  copy: (typeof COMPARE_COPY)[Language];
+  onOpen: () => void;
+}) {
   return (
     <div className="rounded-2xl border border-[#bdc9c7]/40 p-5 bg-[#f2fbff]/45">
       <div className="flex justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] text-[#6e7978] uppercase">#{city.rank} su indice finale</p>
+          <p className="font-mono text-[10px] text-[#6e7978] uppercase">#{city.rank} {copy.finalRank}</p>
           <h2 className="font-sans text-3xl font-extrabold text-[#031f27] tracking-tight mt-1">{city.name}</h2>
           <p className="font-mono text-xs text-[#3e4947] mt-1">{city.provinceCode} - {city.region}</p>
         </div>
-        <button onClick={onOpen} className="self-start p-2 text-[#2563eb] hover:bg-white rounded-lg" title="Apri scheda">
+        <button onClick={onOpen} className="self-start p-2 text-[#2563eb] hover:bg-white rounded-lg" title={copy.open}>
           <ExternalLink className="w-4 h-4" />
         </button>
       </div>
       <div className="pt-5 flex flex-wrap items-end justify-between gap-3">
         <span className="font-mono text-4xl font-black text-[#00605b] tracking-tight">{city.totalScore.toFixed(1)}</span>
-        <span className={`px-2.5 py-1 text-[9px] font-mono font-bold rounded-lg uppercase ${badge}`}>{city.status}</span>
+        <span className={`px-2.5 py-1 text-[9px] font-mono font-bold rounded-lg uppercase ${badge}`}>{statusLabel(city.status, language)}</span>
       </div>
     </div>
   );
 }
 
-function CompareRow({ metric, cityA, cityB }: { metric: MetricKey; cityA: CityData; cityB: CityData }) {
-  const definition = METRICS.find((item) => item.id === metric)!;
+function CompareRow({
+  metric,
+  cityA,
+  cityB,
+  language,
+  copy,
+}: {
+  metric: MetricKey;
+  cityA: CityData;
+  cityB: CityData;
+  language: Language;
+  copy: (typeof COMPARE_COPY)[Language];
+}) {
+  const definition = metricsFor(language).find((item) => item.id === metric)!;
   const aScore = metricScore(cityA, metric);
   const bScore = metricScore(cityB, metric);
   const max = Math.max(aScore, bScore, 110);
@@ -246,24 +324,40 @@ function CompareRow({ metric, cityA, cityB }: { metric: MetricKey; cityA: CityDa
           <h3 className="font-sans text-sm font-bold text-[#031f27]">{definition.label} <span className="font-mono text-[10px] text-[#6e7978]">({definition.weight})</span></h3>
           <p className="font-sans text-[11px] text-[#3e4947] mt-1">{definition.description}</p>
         </div>
-        <span className="font-mono text-[10px] text-[#3e4947] uppercase">punti indice + dato reale</span>
+        <span className="font-mono text-[10px] text-[#3e4947] uppercase">{copy.indexPoints}</span>
       </div>
 
       <div className="space-y-3">
-        <BarLine city={cityA} metric={metric} score={aScore} color="#007a5e" width={width(aScore)} />
-        <BarLine city={cityB} metric={metric} score={bScore} color="#2563eb" width={width(bScore)} />
+        <BarLine city={cityA} metric={metric} score={aScore} color="#007a5e" width={width(aScore)} language={language} copy={copy} />
+        <BarLine city={cityB} metric={metric} score={bScore} color="#2563eb" width={width(bScore)} language={language} copy={copy} />
       </div>
     </div>
   );
 }
 
-function BarLine({ city, metric, score, color, width }: { city: CityData; metric: MetricKey; score: number; color: string; width: string }) {
+function BarLine({
+  city,
+  metric,
+  score,
+  color,
+  width,
+  language,
+  copy,
+}: {
+  city: CityData;
+  metric: MetricKey;
+  score: number;
+  color: string;
+  width: string;
+  language: Language;
+  copy: (typeof COMPARE_COPY)[Language];
+}) {
   return (
     <div className="space-y-1">
       <div className="flex flex-wrap justify-between gap-2 text-xs">
         <span className="font-sans text-[#031f27] font-semibold">{city.name}</span>
         <span className="font-mono font-bold text-[#031f27]">
-          {score.toFixed(2)} <span className="text-[#6e7978] font-medium">({formatDelta(metricDelta(city, metric))} punti; {actualValue(city, metric)})</span>
+          {score.toFixed(2)} <span className="text-[#6e7978] font-medium">({formatDelta(metricDelta(city, metric))} {copy.points}; {localizedActualValue(city, metric, language)})</span>
         </span>
       </div>
       <div className="h-4 bg-[#f2fbff] rounded-full overflow-hidden border border-[#bdc9c7]/30">

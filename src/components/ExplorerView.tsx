@@ -10,11 +10,19 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { assetPath, METRICS, SCORE_LEVELS } from "../data";
-import { CityData, MetricKey, SchoolData, ViewType } from "../types";
+import { assetPath, SCORE_LEVELS } from "../data";
+import {
+  actualValue as localizedActualValue,
+  formatNumber,
+  metricsFor,
+  statusLabel,
+  strongestMetricLabel,
+} from "../i18n";
+import { CityData, Language, MetricKey, SchoolData, ViewType } from "../types";
 import ItalyDotMap from "./ItalyDotMap";
 
 interface ExplorerViewProps {
+  language: Language;
   setView: (view: ViewType) => void;
   setSelectedCompareCity: (cityName: string, target: "A" | "B") => void;
   citiesData: CityData[];
@@ -26,6 +34,93 @@ type SortDirection = "asc" | "desc";
 type SchoolSortField = "scuola" | "diplomati" | "uniScore" | "lavScore";
 
 let indirizziCache: Record<string, SchoolData[]> | null = null;
+
+const EXPLORER_COPY = {
+  it: {
+    title: "Esplora i comuni",
+    intro:
+      "Cerca un comune e scegli quale parte dell'indice leggere. Ogni dimensione mostra sia il punteggio usato per la classifica sia il valore reale da cui parte il confronto.",
+    dimensionTitle: "Cosa vuoi guardare?",
+    dimensionIntro:
+      "L'indice complessivo e le cinque dimensioni spiegano da dove arriva il risultato del comune. Selezionane una per aggiornare mappa, legenda e lettura della scheda.",
+    searchLabel: "Cerca comune",
+    searchPlaceholder: "Cerca tra i comuni inclusi, es.",
+    clearSearch: "Cancella ricerca",
+    noMunicipality: "Nessun comune trovato con i filtri attivi.",
+    region: "Regione",
+    level: "Fascia",
+    allRegions: "Tutte",
+    allLevels: "Tutti",
+    mapScale: "Scala della mappa",
+    mapText: "La scala va dai risultati più bassi ai risultati più alti nella dimensione selezionata.",
+    distribution: "Distribuzione geografica",
+    highlighted: "Sono evidenziati",
+    onTotal: "comuni su",
+    background: "gli altri restano sullo sfondo.",
+    schoolsTitle: "Scuole incluse a",
+    schoolsText:
+      "Indirizzi di scuola secondaria di II grado presenti in Eduscopio e usati per l'aggregazione comunale.",
+    schoolPlaceholder: "Cerca scuola o indirizzo",
+    loadingSchools: "Caricamento delle scuole...",
+    noSchools: "Nessuna scuola corrisponde alla ricerca nel comune di",
+    school: "Istituto",
+    track: "Indirizzo",
+    graduates: "Diplomati",
+    uniFga: "FGA università",
+    workFga: "FGA lavoro",
+    index: "Indice",
+    report: "Pagella del comune",
+    quick: "Lettura rapida",
+    strongest: "Punto più forte",
+    workCoverageBefore: "I dati lavoro coprono il",
+    workCoverageAfter: "% dei diplomati considerati.",
+    compare: "Confronta questo comune",
+    chosenMunicipality: "Nel comune scelto",
+    points: "punti",
+  },
+  en: {
+    title: "Explore municipalities",
+    intro:
+      "Search for a municipality and choose which part of the index to read. Each dimension shows both the ranking score and the real value behind the comparison.",
+    dimensionTitle: "What do you want to inspect?",
+    dimensionIntro:
+      "The overall index and five dimensions explain where the municipal result comes from. Select one to update the map, legend and report card.",
+    searchLabel: "Search municipality",
+    searchPlaceholder: "Search covered municipalities, e.g.",
+    clearSearch: "Clear search",
+    noMunicipality: "No municipality matches the active filters.",
+    region: "Region",
+    level: "Level",
+    allRegions: "All",
+    allLevels: "All",
+    mapScale: "Map scale",
+    mapText: "The scale runs from the lowest to the highest results in the selected dimension.",
+    distribution: "Geographic distribution",
+    highlighted: "Highlighted:",
+    onTotal: "municipalities out of",
+    background: "the others remain in the background.",
+    schoolsTitle: "Schools included in",
+    schoolsText:
+      "Upper-secondary school tracks found in Eduscopio and used for the municipal aggregation.",
+    schoolPlaceholder: "Search school or track",
+    loadingSchools: "Loading schools...",
+    noSchools: "No school matches the search in",
+    school: "School",
+    track: "Track",
+    graduates: "Graduates",
+    uniFga: "University FGA",
+    workFga: "Employment FGA",
+    index: "Index",
+    report: "Municipality report card",
+    quick: "Quick reading",
+    strongest: "Strongest point",
+    workCoverageBefore: "Employment data cover",
+    workCoverageAfter: "% of considered graduates.",
+    compare: "Compare this municipality",
+    chosenMunicipality: "Selected municipality",
+    points: "points",
+  },
+} as const;
 
 const formatDelta = (value: number) => `${value >= 0 ? "+" : ""}${value.toFixed(2)}`;
 const formatScore = (value: number) => value.toFixed(2);
@@ -39,20 +134,9 @@ function metricDelta(city: CityData, metric: MetricKey): number | null {
   return city.deltas[metric];
 }
 
-function actualValue(city: CityData, metric: MetricKey): string {
-  if (metric === "totalScore") return `${city.totalScore.toFixed(2)} punti finali`;
-  if (metric === "invalsi") return `${city.details.docentePct.toFixed(1)}% studenti ai traguardi`;
-  if (metric === "uniResults") return `FGA università ${city.details.uniScore.toFixed(2)}`;
-  if (metric === "workOutcomes") {
-    return city.details.lavoroScore === null ? "dato lavoro non disponibile" : `FGA lavoro ${city.details.lavoroScore.toFixed(2)}`;
-  }
-  if (metric === "uniAccess") return `${city.details.immatricolazionePct.toFixed(1)}% immatricolati`;
-  return `${city.details.continuitaPct.toFixed(1)}% continuità`;
-}
-
-function metricLegendValue(value: number, metric: MetricKey): string {
-  if (metric === "totalScore") return `${value.toFixed(1)} punti`;
-  return `${formatDelta(value - 100)} punti indice`;
+function metricLegendValue(value: number, metric: MetricKey, language: Language): string {
+  if (metric === "totalScore") return language === "it" ? `${value.toFixed(1)} punti` : `${value.toFixed(1)} points`;
+  return language === "it" ? `${formatDelta(value - 100)} punti indice` : `${formatDelta(value - 100)} index points`;
 }
 
 function progressWidth(score: number): string {
@@ -65,12 +149,15 @@ function schoolSortValue(school: SchoolData, field: SchoolSortField): string | n
 }
 
 export default function ExplorerView({
+  language,
   setView,
   setSelectedCompareCity,
   citiesData,
   activeCityId,
   setActiveCityId,
 }: ExplorerViewProps) {
+  const copy = EXPLORER_COPY[language];
+  const metrics = metricsFor(language);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [highlightedSuggestion, setHighlightedSuggestion] = useState(0);
@@ -88,6 +175,11 @@ export default function ExplorerView({
   const searchContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    setSelectedRegion(copy.allRegions);
+    setSelectedStatus(copy.allLevels);
+  }, [copy.allLevels, copy.allRegions]);
+
+  useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setSearchOpen(false);
@@ -99,19 +191,19 @@ export default function ExplorerView({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const regions = useMemo(() => ["Tutte", ...Array.from(new Set(citiesData.map((c) => c.region))).sort()], [citiesData]);
-  const statuses = useMemo(() => ["Tutti", ...Array.from(new Set(citiesData.map((c) => c.status)))], [citiesData]);
+  const regions = useMemo(() => [copy.allRegions, ...Array.from(new Set(citiesData.map((c) => c.region))).sort()], [citiesData, copy.allRegions]);
+  const statuses = useMemo(() => [copy.allLevels, ...Array.from(new Set(citiesData.map((c) => c.status)))], [citiesData, copy.allLevels]);
 
   const focusCities = useMemo(() => {
     return citiesData.filter((city) => {
-      const matchesRegion = selectedRegion === "Tutte" || city.region === selectedRegion;
-      const matchesStatus = selectedStatus === "Tutti" || city.status === selectedStatus;
+      const matchesRegion = selectedRegion === copy.allRegions || city.region === selectedRegion;
+      const matchesStatus = selectedStatus === copy.allLevels || city.status === selectedStatus;
       return matchesRegion && matchesStatus;
     });
   }, [citiesData, selectedRegion, selectedStatus]);
 
   const focusCityIds = useMemo(() => new Set(focusCities.map((city) => city.id)), [focusCities]);
-  const activeMetric = METRICS.find((metric) => metric.id === colorMetric) || METRICS[0];
+  const activeMetric = metrics.find((metric) => metric.id === colorMetric) || metrics[0];
 
   const activeCity = useMemo(() => {
     return citiesData.find((city) => city.id === activeCityId) || focusCities[0] || citiesData[0];
@@ -256,11 +348,10 @@ export default function ExplorerView({
     <div className="space-y-8 animate-entrance">
       <div className="space-y-2">
         <h1 className="font-sans text-3xl font-extrabold text-[#031f27]">
-          Esplora i comuni
+          {copy.title}
         </h1>
         <p className="font-sans text-sm text-[#3e4947] max-w-3xl leading-relaxed">
-          Cerca un comune e scegli quale parte dell'indice leggere. Ogni dimensione mostra sia il punteggio usato
-          per la classifica sia il valore reale da cui parte il confronto.
+          {copy.intro}
         </p>
       </div>
 
@@ -270,10 +361,10 @@ export default function ExplorerView({
             <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4">
               <div className="space-y-1">
                 <h2 className="font-sans text-xl font-extrabold text-[#031f27]">
-                  Cosa vuoi guardare?
+                  {copy.dimensionTitle}
                 </h2>
                 <p className="font-sans text-xs text-[#3e4947] leading-relaxed max-w-2xl">
-                  L'indice complessivo e le cinque dimensioni spiegano da dove arriva il risultato del comune. Selezionane una per aggiornare mappa, legenda e lettura della scheda.
+                  {copy.dimensionIntro}
                 </p>
               </div>
             </div>
@@ -281,20 +372,23 @@ export default function ExplorerView({
             <DimensionCards
               activeCity={activeCity}
               activeMetric={colorMetric}
+              language={language}
+              metrics={metrics}
+              copy={copy}
               onSelectMetric={setColorMetric}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] gap-4 items-end">
               <div ref={searchContainerRef} className="relative">
                 <label htmlFor="city-search" className="text-[10px] uppercase font-mono font-bold text-[#3e4947] block mb-1">
-                  Cerca comune
+                  {copy.searchLabel}
                 </label>
                 <div className="relative">
                   <Search className="absolute left-3.5 top-3 w-4 h-4 text-[#3e4947] opacity-70" />
                   <input
                     id="city-search"
                     type="text"
-                    placeholder={`Cerca tra i comuni inclusi, es. ${activeCity?.name || "Merate"}`}
+                    placeholder={`${copy.searchPlaceholder} ${activeCity?.name || "Merate"}`}
                     value={searchQuery}
                     onFocus={() => setSearchOpen(true)}
                     onChange={(event) => {
@@ -307,7 +401,7 @@ export default function ExplorerView({
                   {searchQuery && (
                     <button
                       type="button"
-                      aria-label="Cancella ricerca"
+                      aria-label={copy.clearSearch}
                       onClick={() => {
                         setSearchQuery("");
                         setSearchOpen(true);
@@ -322,7 +416,7 @@ export default function ExplorerView({
                     <div className="absolute left-0 right-0 mt-2 bg-white/95 backdrop-blur-md border border-[#bdc9c7]/70 rounded-xl shadow-2xl z-[1000] max-h-72 overflow-y-auto p-1">
                       {!searchMatches.length ? (
                         <div className="p-3 text-xs text-[#3e4947] opacity-70 text-center">
-                          Nessun comune trovato con i filtri attivi.
+                          {copy.noMunicipality}
                         </div>
                       ) : (
                         searchMatches.map((city, index) => {
@@ -353,8 +447,8 @@ export default function ExplorerView({
               </div>
 
               <div className="grid grid-cols-2 gap-2 md:min-w-[310px]">
-                <Select label="Regione" value={selectedRegion} onChange={setSelectedRegion} options={regions} />
-                <Select label="Fascia" value={selectedStatus} onChange={setSelectedStatus} options={statuses} />
+                <Select label={copy.region} value={selectedRegion} onChange={setSelectedRegion} options={regions} language={language} />
+                <Select label={copy.level} value={selectedStatus} onChange={setSelectedStatus} options={statuses} language={language} />
               </div>
             </div>
 
@@ -363,22 +457,23 @@ export default function ExplorerView({
               activeCityId={activeCity.id}
               colorMetric={colorMetric}
               focusCityIds={focusCityIds}
+              language={language}
               onSelectCity={setActiveCityId}
             />
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 pt-3 border-t border-[#bdc9c7]/25 items-start">
               <div className="xl:col-span-8 space-y-1">
                 <h3 className="font-sans text-base font-extrabold text-[#031f27]">
-                  Distribuzione geografica: {activeMetric.label}
+                  {copy.distribution}: {activeMetric.label}
                 </h3>
                 <p className="font-sans text-xs text-[#3e4947] leading-relaxed max-w-2xl">
-                  {activeMetric.description} Sono evidenziati {focusCities.length.toLocaleString("it-IT")} comuni su {citiesData.length.toLocaleString("it-IT")}; gli altri restano sullo sfondo.
+                  {activeMetric.description} {copy.highlighted} {formatNumber(focusCities.length, language)} {copy.onTotal} {formatNumber(citiesData.length, language)}; {copy.background}
                 </p>
               </div>
 
               <div className="xl:col-span-4 rounded-xl border border-[#bdc9c7]/50 bg-[#f7fbfb] p-4 space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-[10px] uppercase font-mono font-bold text-[#3e4947]">Scala della mappa</p>
+                  <p className="text-[10px] uppercase font-mono font-bold text-[#3e4947]">{copy.mapScale}</p>
                   <p className="text-[10px] font-mono text-[#6e7978]">{activeMetric.shortLabel}</p>
                 </div>
                 <div
@@ -388,11 +483,11 @@ export default function ExplorerView({
                   }}
                 />
                 <div className="flex justify-between gap-3 text-[10px] font-mono text-[#3e4947]">
-                  <span>{highlightedLegend ? metricLegendValue(metricExtent.min, colorMetric) : "n.d."}</span>
-                  <span className="text-right">{highlightedLegend ? metricLegendValue(metricExtent.max, colorMetric) : "n.d."}</span>
+                  <span>{highlightedLegend ? metricLegendValue(metricExtent.min, colorMetric, language) : "n.d."}</span>
+                  <span className="text-right">{highlightedLegend ? metricLegendValue(metricExtent.max, colorMetric, language) : "n.d."}</span>
                 </div>
                 <p className="font-sans text-[11px] text-[#3e4947] leading-relaxed">
-                  La scala va dai risultati più bassi ai risultati più alti nella dimensione selezionata.
+                  {copy.mapText}
                 </p>
               </div>
             </div>
@@ -403,10 +498,10 @@ export default function ExplorerView({
               <div>
                 <h3 className="font-sans font-extrabold text-lg text-[#031f27] flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-[#00605b]" />
-                  Scuole incluse a {activeCity.name}
+                  {copy.schoolsTitle} {activeCity.name}
                 </h3>
                 <p className="text-xs text-[#3e4947] opacity-80 mt-0.5">
-                  Indirizzi di scuola secondaria di II grado presenti in Eduscopio e usati per l'aggregazione comunale.
+                  {copy.schoolsText}
                 </p>
               </div>
 
@@ -414,7 +509,7 @@ export default function ExplorerView({
                 <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-[#3e4947] opacity-70" />
                 <input
                   type="text"
-                  placeholder="Cerca scuola o indirizzo"
+                  placeholder={copy.schoolPlaceholder}
                   value={schoolSearchQuery}
                   onChange={(event) => setSchoolSearchQuery(event.target.value)}
                   className="w-full pl-8 pr-4 py-1.5 bg-[#f7fbfb] rounded-lg border border-[#bdc9c7]/60 text-xs font-sans placeholder-[#6e7978] focus:outline-none focus:ring-2 focus:ring-[#00605b]/20 focus:border-[#00605b]"
@@ -423,10 +518,10 @@ export default function ExplorerView({
             </div>
 
             {schoolsLoading ? (
-              <div className="py-16 text-center text-xs font-sans text-[#3e4947]/70 animate-pulse">Caricamento delle scuole...</div>
+              <div className="py-16 text-center text-xs font-sans text-[#3e4947]/70 animate-pulse">{copy.loadingSchools}</div>
             ) : filteredSchools.length === 0 ? (
               <div className="py-8 text-center text-xs font-sans text-[#3e4947] opacity-70 border border-dashed border-[#bdc9c7] rounded-xl">
-                Nessuna scuola corrisponde alla ricerca nel comune di {activeCity.name}.
+                {copy.noSchools} {activeCity.name}.
               </div>
             ) : (
               <div className="bg-[#f7fbfb]/70 rounded-xl border border-[#bdc9c7]/50 overflow-hidden">
@@ -435,35 +530,35 @@ export default function ExplorerView({
                     <thead className="sticky top-0 bg-[#f2fbff] border-b border-[#bdc9c7]/60 text-[9px] font-mono uppercase text-[#3e4947] z-10">
                       <tr>
                         <th className="py-3 px-4 w-[34%]">
-                          <SortHeader label="Istituto" field="scuola" activeSort={schoolSort} onSort={handleSchoolSort} />
+                          <SortHeader label={copy.school} field="scuola" activeSort={schoolSort} onSort={handleSchoolSort} />
                         </th>
-                        <th className="py-3 px-4 w-[28%]">Indirizzo</th>
+                        <th className="py-3 px-4 w-[28%]">{copy.track}</th>
                         <th className="py-3 px-4 text-center">
-                          <SortHeader label="Diplomati" field="diplomati" activeSort={schoolSort} onSort={handleSchoolSort} align="center" />
-                        </th>
-                        <th className="py-3 px-4 text-center">
-                          <SortHeader label="FGA università" field="uniScore" activeSort={schoolSort} onSort={handleSchoolSort} align="center" />
+                          <SortHeader label={copy.graduates} field="diplomati" activeSort={schoolSort} onSort={handleSchoolSort} align="center" />
                         </th>
                         <th className="py-3 px-4 text-center">
-                          <SortHeader label="FGA lavoro" field="lavScore" activeSort={schoolSort} onSort={handleSchoolSort} align="center" />
+                          <SortHeader label={copy.uniFga} field="uniScore" activeSort={schoolSort} onSort={handleSchoolSort} align="center" />
+                        </th>
+                        <th className="py-3 px-4 text-center">
+                          <SortHeader label={copy.workFga} field="lavScore" activeSort={schoolSort} onSort={handleSchoolSort} align="center" />
                         </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#bdc9c7]/20">
                       {filteredSchools.map((school, index) => (
                         <tr key={`${school.codice}-${school.indirizzo}-${index}`} className="hover:bg-white transition-colors align-middle">
-                          <td className="py-3 px-4" data-label="Istituto">
+                          <td className="py-3 px-4" data-label={copy.school}>
                             <p className="font-bold text-[#031f27]">{school.scuola}</p>
                             <span className="font-mono text-[9px] text-[#6e7978]">{school.codice}</span>
                           </td>
-                          <td className="py-3 px-4 text-[#3e4947]" data-label="Indirizzo">{school.indirizzo}</td>
-                          <td className="py-3 px-4 text-center font-mono text-[#031f27]" data-label="Diplomati">
+                          <td className="py-3 px-4 text-[#3e4947]" data-label={copy.track}>{school.indirizzo}</td>
+                          <td className="py-3 px-4 text-center font-mono text-[#031f27]" data-label={copy.graduates}>
                             {school.diplomati > 0 ? school.diplomati : "-"}
                           </td>
-                          <td className="py-3 px-4 text-center font-mono" data-label="FGA università">
+                          <td className="py-3 px-4 text-center font-mono" data-label={copy.uniFga}>
                             {school.uniScore !== null ? <span className="font-bold text-[#2563eb]">{school.uniScore.toFixed(1)}</span> : <span className="text-[#6e7978] opacity-60">-</span>}
                           </td>
-                          <td className="py-3 px-4 text-center font-mono" data-label="FGA lavoro">
+                          <td className="py-3 px-4 text-center font-mono" data-label={copy.workFga}>
                             {school.lavScore !== null ? <span className="font-bold text-[#7c3aed]">{school.lavScore.toFixed(1)}</span> : <span className="text-[#6e7978] opacity-60">-</span>}
                           </td>
                         </tr>
@@ -492,14 +587,14 @@ export default function ExplorerView({
                   </div>
                 </div>
                 <span className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold uppercase shrink-0 ${getStatusBadge(activeCity.status)}`}>
-                  {activeCity.status}
+                  {statusLabel(activeCity.status, language)}
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-3 mt-6">
                 <SummaryStat label="Rank" value={`#${activeCity.rank}`} />
-                <SummaryStat label="Indice" value={activeCity.totalScore.toFixed(2)} />
-                <SummaryStat label="Diplomati" value={activeCity.details.diplomati.toLocaleString("it-IT")} />
+                <SummaryStat label={copy.index} value={activeCity.totalScore.toFixed(2)} />
+                <SummaryStat label={copy.graduates} value={formatNumber(activeCity.details.diplomati, language)} />
               </div>
             </div>
 
@@ -507,10 +602,10 @@ export default function ExplorerView({
               <div>
                 <h3 className="font-sans font-bold text-xs uppercase text-[#031f27] flex items-center gap-1.5 mb-3">
                   <Layers className="w-4 h-4 text-[#3e4947]" />
-                  Pagella del comune
+                  {copy.report}
                 </h3>
                 <div className="space-y-3.5">
-                  {METRICS.filter((metric) => metric.id !== "totalScore").map((metric) => {
+                  {metrics.filter((metric) => metric.id !== "totalScore").map((metric) => {
                     const score = metricScore(activeCity, metric.id);
                     const delta = metricDelta(activeCity, metric.id) ?? 0;
                     return (
@@ -532,11 +627,11 @@ export default function ExplorerView({
                               </span>
                             </p>
                             <p className="font-sans text-[11px] text-[#3e4947] mt-1.5 leading-tight">{metric.description}</p>
-                            <p className="font-sans text-[11px] text-[#031f27] mt-1 font-bold">{actualValue(activeCity, metric.id)}</p>
+                            <p className="font-sans text-[11px] text-[#031f27] mt-1 font-bold">{localizedActualValue(activeCity, metric.id, language)}</p>
                           </div>
                           <div className="text-right shrink-0">
                             <p className="font-mono text-sm font-black" style={{ color: metric.color }}>{formatScore(score)}</p>
-                            <p className="font-mono text-[10px] font-bold text-[#3e4947]/90 mt-0.5">{formatDelta(delta)} punti</p>
+                            <p className="font-mono text-[10px] font-bold text-[#3e4947]/90 mt-0.5">{formatDelta(delta)} {copy.points}</p>
                           </div>
                         </div>
                         <div className="mt-3.5 h-1.5 bg-white rounded-full overflow-hidden border border-white/80 relative">
@@ -555,10 +650,10 @@ export default function ExplorerView({
               </div>
 
               <div className="p-4 bg-[#fff7e6] border border-[#f0d79b]/70 rounded-xl space-y-1">
-                <h4 className="font-sans font-bold text-xs text-[#031f27]">Lettura rapida</h4>
+                <h4 className="font-sans font-bold text-xs text-[#031f27]">{copy.quick}</h4>
                 <p className="font-sans text-[11px] text-[#3e4947] leading-relaxed">
-                  Punto più forte: <strong className="text-[#00605b] font-bold">{activeCity.strengths}</strong>.
-                  I dati lavoro coprono il {activeCity.details.workCoverage.toFixed(1)}% dei diplomati considerati.
+                  {copy.strongest}: <strong className="text-[#00605b] font-bold">{strongestMetricLabel(activeCity, language)}</strong>.
+                  {copy.workCoverageBefore} {activeCity.details.workCoverage.toFixed(1)}{copy.workCoverageAfter}
                 </p>
               </div>
 
@@ -568,7 +663,7 @@ export default function ExplorerView({
                 className="w-full py-3 px-4 bg-[#2563eb] hover:bg-[#0e7490] text-white font-mono text-[10px] uppercase font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95 hover:shadow-md"
               >
                 <ArrowRightLeft className="w-3.5 h-3.5" />
-                Confronta questo comune
+                {copy.compare}
               </button>
             </div>
           </section>
@@ -583,11 +678,13 @@ function Select({
   value,
   onChange,
   options,
+  language,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: string[];
+  language: Language;
 }) {
   return (
     <div className="min-w-0">
@@ -598,7 +695,7 @@ function Select({
         className="w-full bg-[#f7fbfb] border border-[#bdc9c7]/70 rounded-xl px-3 py-2.5 text-xs font-sans text-[#3e4947] focus:outline-none focus:ring-2 focus:ring-[#00605b]/20 focus:border-[#00605b] hover:border-[#00605b] transition-all cursor-pointer"
       >
         {options.map((option) => (
-          <option key={option} value={option}>{option}</option>
+          <option key={option} value={option}>{statusLabel(option, language)}</option>
         ))}
       </select>
     </div>
@@ -608,15 +705,21 @@ function Select({
 function DimensionCards({
   activeCity,
   activeMetric,
+  language,
+  metrics,
+  copy,
   onSelectMetric,
 }: {
   activeCity: CityData;
   activeMetric: MetricKey;
+  language: Language;
+  metrics: ReturnType<typeof metricsFor>;
+  copy: (typeof EXPLORER_COPY)[Language];
   onSelectMetric: (value: MetricKey) => void;
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3">
-      {METRICS.map((metric) => {
+      {metrics.map((metric) => {
         const active = metric.id === activeMetric;
         const score = metricScore(activeCity, metric.id);
         const delta = metricDelta(activeCity, metric.id);
@@ -658,8 +761,8 @@ function DimensionCards({
 
             <div className="mt-4 flex items-end justify-between gap-3 border-t border-[#bdc9c7]/25 pt-3">
               <div className="min-w-0">
-                <p className="font-mono text-[9px] uppercase text-[#6e7978]">Nel comune scelto</p>
-                <p className="font-sans text-[11px] font-bold text-[#031f27] mt-0.5">{actualValue(activeCity, metric.id)}</p>
+                <p className="font-mono text-[9px] uppercase text-[#6e7978]">{copy.chosenMunicipality}</p>
+                <p className="font-sans text-[11px] font-bold text-[#031f27] mt-0.5">{localizedActualValue(activeCity, metric.id, language)}</p>
               </div>
               <div
                 className="text-right shrink-0 rounded-lg px-2.5 py-1.5 border"
@@ -715,7 +818,7 @@ function SummaryStat({ label, value }: { label: string; value: string }) {
     <div className="bg-white border border-[#bdc9c7]/50 rounded-xl p-3 flex-1 min-w-0">
       <p className="font-mono text-[9px] text-[#6e7978] uppercase font-bold">{label}</p>
       <p className="font-mono text-base font-black text-[#031f27] mt-1 flex items-center gap-1 truncate">
-        {label === "Diplomati" && <GraduationCap className="w-4 h-4 text-[#00605b] shrink-0" />}
+        {(label === "Diplomati" || label === "Graduates") && <GraduationCap className="w-4 h-4 text-[#00605b] shrink-0" />}
         {value}
       </p>
     </div>
