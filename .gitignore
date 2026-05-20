@@ -27,6 +27,7 @@ Thumbs.db
 
 # React & Node build files
 node_modules/
+.vite/
 build/
 dist/
 coverage/
