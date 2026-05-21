@@ -40,6 +40,12 @@ const METHOD_COPY = {
       ["Sotto 100", "profilo più fragile su una o più dimensioni."],
       ["Valori reali", "percentuali e FGA restano visibili nelle schede per evitare letture astratte."],
     ],
+    policyUses: "Usi possibili per le politiche pubbliche",
+    policyUsesItems: [
+      ["Indice esplorativo", "ITSS è pensato come indice territoriale, non come classifica delle singole scuole."],
+      ["Domande territoriali", "Può aiutare a discutere ruolo dell'istruzione superiore, accesso alle opportunità educative, transizioni post-diploma e disuguaglianze locali."],
+      ["Punto di partenza", "Va usato per orientare il dibattito e gli approfondimenti locali, non come valutazione definitiva della qualità scolastica."],
+    ],
     limits: "Limiti principali",
     limitsText:
       "L'indice dipende dalla copertura delle fonti pubbliche e dai criteri di aggregazione per indirizzo. Non incorpora informazioni su contesto socio-economico, dotazioni scolastiche, soddisfazione degli studenti o qualità percepita dalle famiglie.",
@@ -75,6 +81,12 @@ const METHOD_COPY = {
       ["Above 100", "overall profile stronger than the index neutral point."],
       ["Below 100", "weaker profile on one or more dimensions."],
       ["Real values", "percentages and FGA remain visible in the cards to avoid abstract readings."],
+    ],
+    policyUses: "Possible policy uses",
+    policyUsesItems: [
+      ["Exploratory index", "ITSS is designed as a territorial index, not as a ranking of individual schools."],
+      ["Territorial questions", "It can support discussion on the role of upper-secondary education, access to educational opportunities, post-diploma transitions and local inequalities."],
+      ["Starting point", "It should be used to orient public discussion and local follow-up, not as a definitive evaluation of school quality."],
     ],
     limits: "Main limits",
     limitsText:
@@ -139,6 +151,7 @@ export default function MethodologyView({ language }: MethodologyViewProps) {
         <div className="lg:col-span-4 space-y-6">
           <InfoBox icon={<Database className="w-4.5 h-4.5 text-[#2563eb]" />} title={copy.sources} items={copy.sourcesItems} />
           <InfoBox icon={<Layers className="w-4.5 h-4.5 text-[#2563eb]" />} title={copy.read100} items={copy.readItems} />
+          <InfoBox icon={<CheckCircle2 className="w-4.5 h-4.5 text-[#2563eb]" />} title={copy.policyUses} items={copy.policyUsesItems} />
 
           <div className="bg-yellow-50/55 rounded-2xl border border-yellow-200 p-6 space-y-3">
             <div className="flex items-center gap-2 text-amber-800">
