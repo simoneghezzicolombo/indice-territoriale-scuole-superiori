@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Indice Territoriale Scuole Superiori</title>
+  <desc id="desc">Social preview del progetto di Simone Ghezzi Colombo.</desc>
+  <rect width="1200" height="630" fill="#f5faf9"/>
+  <path d="M0 0h1200v630H0z" fill="#f5faf9"/>
+  <path d="M0 0h450L245 630H0z" fill="#dff3f0"/>
+  <path d="M770 0h430v630H610z" fill="#f8f5ec"/>
+  <circle cx="895" cy="158" r="22" fill="#177a74"/>
+  <circle cx="996" cy="230" r="34" fill="#315e7d"/>
+  <circle cx="846" cy="318" r="26" fill="#d9a441"/>
+  <circle cx="1038" cy="402" r="19" fill="#7c5c9e"/>
+  <circle cx="922" cy="488" r="30" fill="#77864b"/>
+  <text x="86" y="108" fill="#177a74" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="2">DATI E TERRITORIO</text>
+  <text x="86" y="226" fill="#17313a" font-family="Georgia, 'Times New Roman', serif" font-size="82" font-weight="700">Indice Territoriale</text>
+  <text x="86" y="318" fill="#17313a" font-family="Georgia, 'Times New Roman', serif" font-size="82" font-weight="700">Scuole Superiori</text>
+  <text x="86" y="392" fill="#60777d" font-family="Inter, Arial, sans-serif" font-size="30">Mappa comunale di competenze, universita e lavoro</text>
+  <text x="86" y="532" fill="#17313a" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="800">simoneghezzicolombo.github.io</text>
+</svg>
