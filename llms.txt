@@ -1,0 +1,9 @@
+# Territorial Upper Secondary School Index
+
+> Municipal index of upper-secondary school outcomes in Italy: 474 municipalities, outcomes weighted by school track and graduate count, interactive map and HTML data pages.
+
+- [Municipal data pages](https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/en/comuni/): 474 municipalities with observed outcomes and school tracks.
+- [Methods](https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/en/metodo/): definitions, sources and limitations.
+- [JSON dataset](https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/data/indice-comuni.json): machine-readable snapshot, 2026-05-14.
+
+Author: Simone Ghezzi Colombo. This is an independent research index, not an official government ranking. Missing data are not zero.
