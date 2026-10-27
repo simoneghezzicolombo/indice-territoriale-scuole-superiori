@@ -62,6 +62,8 @@ export default function Footer({ language }: FooterProps) {
             <h4 className="font-sans font-bold text-xs uppercase tracking-wider text-white">{copy.explore}</h4>
             <div className="flex flex-col gap-2 font-sans text-xs text-[#bdc9c7]">
               <a href="https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/" className="hover:text-white transition-colors">{copy.project}</a>
+              <a href={`${import.meta.env.BASE_URL}${language === "en" ? "en/" : ""}comuni/`} className="hover:text-white transition-colors">{language === "en" ? "Municipal data pages (HTML)" : "Schede comunali (HTML)"}</a>
+              <a href={`${import.meta.env.BASE_URL}${language === "en" ? "en/" : ""}metodo/`} className="hover:text-white transition-colors">{language === "en" ? "Definitions and methods" : "Definizioni e metodo"}</a>
               <a href="https://github.com/simoneghezzicolombo/indice-territoriale-scuole-superiori" className="hover:text-white transition-colors" target="_blank" rel="noreferrer">{copy.repo}</a>
               <a href="https://simoneghezzicolombo.github.io/" className="hover:text-white transition-colors" target="_blank" rel="noreferrer">{copy.portfolio}</a>
             </div>

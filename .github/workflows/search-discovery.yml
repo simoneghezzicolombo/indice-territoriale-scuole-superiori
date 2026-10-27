@@ -1,0 +1,30 @@
+name: Notify search engines after publication
+on:
+  workflow_run:
+    workflows: ['Publish gh-pages']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: read
+jobs:
+  notify:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Wait for the published static branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          expected=$(gh api "repos/$GITHUB_REPOSITORY/commits/gh-pages" --jq .sha)
+          for attempt in {1..30}; do
+            result=$(gh api "repos/$GITHUB_REPOSITORY/pages/builds/latest")
+            if [ "$(printf '%s' "$result" | jq -r .commit)" = "$expected" ] && [ "$(printf '%s' "$result" | jq -r .status)" = built ]; then exit 0; fi
+            sleep 10
+          done
+          exit 1
+      - run: python scripts/notify_search.py

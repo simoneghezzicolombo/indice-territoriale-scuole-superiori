@@ -15,13 +15,21 @@ export default function App() {
   const [currentView, setView] = useState<ViewType>("home");
   const [citiesData, setCitiesData] = useState<CityData[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [language, setLanguage] = useState<Language>("it");
+  const [language, setLanguage] = useState<Language>(() => new URLSearchParams(window.location.search).get("lang") === "en" || window.location.pathname.includes("/en/") ? "en" : "it");
   const [cityAName, setCityAName] = useState("Fossano");
   const [cityBName, setCityBName] = useState("Merate");
   const [selectedExplorerCityId, setSelectedExplorerCityId] = useState<string | null>(null);
 
   useEffect(() => {
     document.documentElement.lang = language;
+    const canonical = `https://simoneghezzicolombo.github.io/indice-territoriale-scuole-superiori/${language === "en" ? "en/" : ""}`;
+    const current = new URL(window.location.href);
+    current.pathname = `${import.meta.env.BASE_URL}${language === "en" ? "en/" : ""}`;
+    current.searchParams.set("lang", language);
+    window.history.replaceState(null, "", current.pathname + current.search + current.hash);
+    document.querySelector('link[rel="canonical"]')?.setAttribute("href", canonical);
+    document.querySelector('meta[property="og:url"]')?.setAttribute("content", canonical);
+    document.title = language === "en" ? "Territorial Upper Secondary School Index | Italy, 474 municipalities" : "Indice territoriale scuole superiori | 474 comuni italiani";
   }, [language]);
 
   useEffect(() => {
@@ -33,7 +41,10 @@ export default function App() {
       if (data.length >= 2) {
         setCityAName(data[0].name);
         setCityBName(data[1].name);
-        setSelectedExplorerCityId(data[0].id);
+        const requestedCity = new URLSearchParams(window.location.search).get("comune");
+        const selectedCity = data.find((city) => city.id === requestedCity);
+        setSelectedExplorerCityId(selectedCity?.id || data[0].id);
+        if (selectedCity) setView("explorer");
       }
     }
     initData();

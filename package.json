@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
+    "build": "vite build && python scripts/build_seo.py",
     "preview": "vite preview",
     "clean": "node -e \"const fs=require('fs'); for (const p of ['dist','server.js']) fs.rmSync(p,{recursive:true,force:true});\"",
     "lint": "tsc --noEmit"
